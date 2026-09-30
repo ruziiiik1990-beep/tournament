@@ -1,4 +1,3 @@
-
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -188,6 +187,16 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   border: 2px solid #66bb6a; box-shadow: 0 0 12px rgba(102,187,106,0.7);
   animation: pulse-win 2s ease-in-out infinite;
 }
+.winner-logo-section.admin-can-cancel img {
+  cursor: pointer; border-color: #ff6b6b; box-shadow: 0 0 12px rgba(255,107,107,0.6);
+}
+.winner-logo-section.admin-can-cancel img:hover {
+  border-color: #ff3333; box-shadow: 0 0 18px rgba(255,51,51,0.9); transform: scale(1.15);
+}
+.winner-logo-section.admin-can-cancel::after {
+  content: '\2715'; color: #ff6b6b; font-size: 10px; font-weight: 700;
+  margin-left: 4px; align-self: center;
+}
 @keyframes pulse-win {
   0%,100% { box-shadow: 0 0 8px rgba(102,187,106,0.5); }
   50% { box-shadow: 0 0 18px rgba(102,187,106,0.9); }
@@ -225,7 +234,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   display: flex; align-items: center; gap: 6px; margin-top: 4px;
 }
 .score-input {
-  width: 80px; padding: 4px 8px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+  width: 60px; padding: 4px 8px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
   background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; font-weight: 700; text-align: center;
   font-family: 'Inter', sans-serif; outline: none;
 }
@@ -233,11 +242,11 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 .score-input::placeholder { color: rgba(255,255,255,0.25); font-weight: 400; }
 .score-input:disabled { opacity: 0.4; }
 .score-confirm {
-  padding: 4px 12px; border: none; border-radius: 6px; cursor: pointer;
-  font-size: 12px; font-weight: 700; background: rgba(102,187,106,0.3); color: #66bb6a;
-  font-family: 'Inter', sans-serif;
+  padding: 4px 10px; border: 1px solid rgba(102,187,106,0.4); border-radius: 6px;
+  background: rgba(102,187,106,0.2); color: #66bb6a; font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: 'Inter', sans-serif;
 }
-.score-confirm:hover { background: rgba(102,187,106,0.5); }
+.score-confirm:hover { background: rgba(102,187,106,0.35); }
 .score-confirmed { font-size: 11px; color: #66bb6a; font-weight: 700; }
 .score-pending { font-size: 11px; color: rgba(255,255,255,0.3); }
 
@@ -358,7 +367,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 
 <div class="admin-panel" id="adminPanel" style="display:none;">
   <h3>Админ-панель <span class="admin-active-badge">АКТИВЕН</span></h3>
-  <div class="admin-hint">Открой любой матч — появились поля добавления игроков и кнопки подтверждения победы.</div>
+  <div class="admin-hint">Открой любой матч — появились поля добавления игроков и кнопки подтверждения победы. Чтобы отменить победителя — нажми на картинку под победившей командой.</div>
 </div>
 
 <div class="team-modal-overlay" id="teamModalOverlay">
@@ -416,7 +425,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 
   var ADMIN_PASSWORD = '12$sacreD';
   var MAX_PLAYERS = 5;
-  var WINNER_LOGO = 'https://4ak4ak.moy.su/logo1.jpg';
+  var WIN_LOGO = 'https://4ak4ak.moy.su/logo1.jpg';
   var myNick = null;
   var isAdmin = false;
   var currentMatchId = null;
@@ -448,6 +457,11 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     'qf_w2': { sfId: 'sf_w', sfSide: 'right' },
     'qf_e1': { sfId: 'sf_e', sfSide: 'left' },
     'qf_e2': { sfId: 'sf_e', sfSide: 'right' }
+  };
+
+  var sfFinalLinks = {
+    'sf_w': { finalSide: 'left' },
+    'sf_e': { finalSide: 'right' }
   };
 
   function getUrlParam(n) { var u = new URL(window.location.href); return u.searchParams.get(n); }
@@ -647,7 +661,8 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
         var winCol = winSide === 'left' ? leftCol : rightCol;
         var winSec = document.createElement('div');
         winSec.className = 'winner-logo-section';
-        winSec.innerHTML = '<img src="' + WINNER_LOGO + '" alt="Победа">';
+        if (isAdmin) winSec.classList.add('admin-can-cancel');
+        winSec.innerHTML = '<img src="' + WIN_LOGO + '" alt="Победитель"' + (isAdmin ? ' onclick="cancelWinner(\'' + mid + '\')"' : '') + '>';
         winCol.appendChild(winSec);
       }
 
@@ -735,8 +750,8 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     rightRow.innerHTML = '<input type="text" placeholder="Добавить игрока" id="addInput_right_' + mid + '" maxlength="20"><button class="add-right" onclick="addPlayer(\'' + mid + '\',\'right\')">+</button>';
     rightCol.appendChild(rightRow);
 
-    var oldW = document.querySelector('.admin-winner-row');
-    if (oldW) oldW.remove();
+    var oldW2 = document.querySelector('.admin-winner-row');
+    if (oldW2) oldW2.remove();
     var winRow = document.createElement('div');
     winRow.className = 'admin-winner-row';
     var m = allMatches[mid] || {};
@@ -804,7 +819,54 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       }
     }
 
+    if (mid === 'sf_w' || mid === 'sf_e') {
+      var finLink = sfFinalLinks[mid];
+      var finSide = finLink.finalSide;
+      var finArr = (allMatches['final'] || {})[finSide] || [];
+      winArr.forEach(function(p) {
+        if (finArr.length < MAX_PLAYERS) finArr.push(p);
+      });
+      updates['playoff/matches/final/' + finSide] = finArr;
+      allMatches['final'] = allMatches['final'] || {};
+      allMatches['final'][finSide] = finArr;
+    }
+
     db.ref().update(updates).then(function() {
+      loadAllMatches(function() {
+        openModal(document.querySelector('[data-match-id="' + mid + '"]'));
+        renderBracket();
+      });
+    });
+  };
+
+  window.cancelWinner = function(mid) {
+    if (!isAdmin) return;
+    var m = allMatches[mid] || {};
+    if (!m.winner) return;
+    if (!confirm('Отменить победителя этого матча? Игроки будут убраны из следующего раунда.')) return;
+
+    var updates = {};
+    updates['playoff/matches/' + mid + '/winner'] = null;
+
+    if (mid.startsWith('qf_')) {
+      var link = sfLinks[mid];
+      var sfId = link.sfId;
+      var sfSide = link.sfSide;
+      updates['playoff/matches/' + sfId + '/' + sfSide] = [];
+      updates['playoff/matches/' + sfId + '/leftName'] = null;
+      updates['playoff/matches/' + sfId + '/rightName'] = null;
+    }
+
+    if (mid === 'sf_w' || mid === 'sf_e') {
+      var finLink = sfFinalLinks[mid];
+      var finSide = finLink.finalSide;
+      updates['playoff/matches/final/' + finSide] = [];
+      updates['playoff/matches/final/leftName'] = null;
+      updates['playoff/matches/final/rightName'] = null;
+    }
+
+    db.ref().update(updates).then(function() {
+      db.ref('playoff/scores/' + mid).remove();
       loadAllMatches(function() {
         openModal(document.querySelector('[data-match-id="' + mid + '"]'));
         renderBracket();
