@@ -12,7 +12,9 @@
  background-size: cover;
  background-position: center center;
  background-repeat: no-repeat;
- padding: 30px 0;
+ padding: 30px 0; 
+ width: 100%;
+ box-sizing: border-box;
  border-radius: 12px;
  font-family: 'Inter', sans-serif;
  position: relative;
@@ -218,14 +220,14 @@
 
  .participants-grid {
   display: flex;
-  gap: 24px;                  
-  justify-content: space-between;
+  justify-content: space-between; 
   align-items: flex-start;
+  gap: 24px;                     
   flex-wrap: wrap;
 }
 
 .participants-col {
-  flex: 0 0 calc(50% - 12px); 
+  flex: 0 0 calc(50% - 12px);   
   min-width: 0;
   display: flex;
   flex-direction: column;
