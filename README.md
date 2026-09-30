@@ -234,13 +234,17 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   display: flex; align-items: center; gap: 6px; margin-top: 4px;
 }
 .score-input {
-  width: 60px; padding: 4px 8px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+  width: 36px; padding: 4px 2px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
   background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; font-weight: 700; text-align: center;
   font-family: 'Inter', sans-serif; outline: none;
 }
 .score-input:focus { border-color: rgba(255,215,0,0.5); }
 .score-input::placeholder { color: rgba(255,255,255,0.25); font-weight: 400; }
 .score-input:disabled { opacity: 0.4; }
+.score-colon {
+  font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.7);
+  margin: 0 1px; user-select: none;
+}
 .score-confirm {
   padding: 4px 10px; border: 1px solid rgba(102,187,106,0.4); border-radius: 6px;
   background: rgba(102,187,106,0.2); color: #66bb6a; font-size: 12px; font-weight: 700;
@@ -701,7 +705,9 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       var scoreHtml = '';
       if (nick) {
         var isLeft = side === 'left';
-        var inputHtml = '<input type="text" class="score-input" id="score_' + side + '_' + i + '" placeholder="0:0" maxlength="9">';
+        var inputHtml = '<input type="text" class="score-input" id="score_' + side + '_' + i + '_a" placeholder="00" maxlength="2" inputmode="numeric">'
+          + '<span class="score-colon">:</span>'
+          + '<input type="text" class="score-input" id="score_' + side + '_' + i + '_b" placeholder="00" maxlength="2" inputmode="numeric">';
         var btnHtml = '<button class="score-confirm" onclick="confirmScore(\'' + mid + '\',\'' + side + '\',' + i + ')">OK</button>';
         var statusHtml = '<span class="score-pending" id="score_status_' + side + '_' + i + '">Ожидает</span>';
         if (isLeft) {
@@ -722,14 +728,18 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   }
 
   window.confirmScore = function(mid, side, idx) {
-    var input = document.getElementById('score_' + side + '_' + idx);
-    var val = input.value.trim();
-    if (val === '') { alert('Введите счёт!'); return; }
+    var inputA = document.getElementById('score_' + side + '_' + idx + '_a');
+    var inputB = document.getElementById('score_' + side + '_' + idx + '_b');
+    var valA = inputA.value.trim();
+    var valB = inputB.value.trim();
+    if (valA === '' && valB === '') { alert('Введите счёт!'); return; }
+    var val = (valA || '0') + ':' + (valB || '0');
     db.ref('playoff/scores/' + mid + '/' + side + '/' + idx).set({ nick: allMatches[mid][side][idx], score: val, confirmed: true, time: Date.now() });
     var st = document.getElementById('score_status_' + side + '_' + idx);
     st.textContent = '\u2713 ' + val;
     st.className = 'score-confirmed';
-    input.disabled = true;
+    inputA.disabled = true;
+    inputB.disabled = true;
   };
 
   function addAdminControls(mid, teams) {
