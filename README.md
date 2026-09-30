@@ -633,7 +633,7 @@ function isAdmin() {
   return adminLoggedIn;
 }
 
- var currentUserName = 'Гость';
+ var currentUserName = 'MaTecTo';
 
 function getUserName() {
   return currentUserName;
