@@ -275,14 +275,17 @@
  }
 
  .map-center {
- flex: 0 0 auto;
- width: 140px;
- display: flex;
- flex-direction: column;
- align-items: center;
- gap: 10px;
- padding-top: 40px;
- }
+  flex: 0 0 auto;
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;       
+  justify-content: center;   
+  gap: 8px;                  
+  padding-top: 20px;         
+  margin: 0 auto;            
+}
+
  .map-label {
  font-size: 11px;
  font-weight: 700;
