@@ -283,7 +283,8 @@
   justify-content: center; 
   gap: 8px;
   padding-top: 20px;     
-  margin: 0 auto;        
+  margin: 0 auto;
+  box-sizing: border-box;
 }
  .map-label {
  font-size: 11px;
@@ -484,8 +485,8 @@
  .tournament-title { font-size: 22px; }
  .match { max-width: 100%; }
  .participants-grid { flex-direction: column; align-items: center; gap: 20px; }
- .map-center { padding-top: 0; }
- .team-modal { width: 100%; padding: 20px; }
+ .map-center { padding: 10px 0; }
+ .team-modal { width: 120%; padding: 20px; }
  .chat-msg { max-width: 95%; }
  }
 </style>
