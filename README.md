@@ -227,7 +227,10 @@
  min-width: 0;
  display: flex;
  flex-direction: column;
- }
+ padding: 0 12px;          
+ box-sizing: border-box;   
+}
+
  .participants-col-title {
  font-size: 16px;
  font-weight: 700;
