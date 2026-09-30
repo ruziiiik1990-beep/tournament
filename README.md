@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -587,7 +588,6 @@
  <div class="chat-loading">Загрузка сообщений...</div>
  </div>
  <div class="chat-input-row">
-  <input type="text" id="nickInput" placeholder="Ваш ник" maxlength="20" style="width:100%;margin-bottom:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;">
  <input type="text" class="chat-input" id="commonChatInput" placeholder="Напишите сообщение..." maxlength="200">
  <button class="chat-send" id="commonChatSend">Отправить</button>
  </div>
@@ -627,23 +627,17 @@
  var currentMatchId = null;
  var chatListenerRef = null;
 
- var ADMIN_NICK = 'MaTecTo';
-
-function isAdmin() {
-  var nameInput = document.getElementById('nickInput');
-  return nameInput && nameInput.value.trim() === ADMIN_NICK;
-}
-
+ function isAdmin() {
+ return !!document.getElementById('uAdminBar');
+ }
 
  function getUserName() {
-  var nameInput = document.getElementById('nickInput');
-  if (nameInput && nameInput.value.trim()) {
-    if (isAdmin()) return 'ruzik_tasty';
-    return nameInput.value.trim();
-  }
-  return 'Гость';
-}
-
+ var avatarEl = document.querySelector('.uadm-avatar span span');
+ if (avatarEl && avatarEl.textContent.trim()) return avatarEl.textContent.trim();
+ var profileLink = document.querySelector('a[href*="/index/8"]');
+ if (profileLink && profileLink.title) return profileLink.title;
+ return 'Гость';
+ }
 
  function escapeHtml(text) {
  if (!text) return '';
@@ -659,34 +653,21 @@ function isAdmin() {
  }
 
  function assignMaps() {
-  var matches = document.querySelectorAll('.match');
-  for (var i = 0; i < matches.length; i++) {
-    (function(m) {
-      var matchId = getMatchId(m);
-      var leftParts = m.getAttribute('data-participants-left');
-      var rightParts = m.getAttribute('data-participants-right');
-      if (isTeamFull(leftParts) && isTeamFull(rightParts)) {
-        db.ref('maps/' + matchId).once('value').then(function(snapshot) {
-          var existing = snapshot.val();
-          if (existing) {
-            m.setAttribute('data-map-url', existing.url);
-            m.setAttribute('data-map-name', existing.name);
-          } else {
-            var idx = Math.floor(Math.random() * maps.length);
-            var mapData = maps[idx];
-            m.setAttribute('data-map-url', mapData.url);
-            m.setAttribute('data-map-name', mapData.name);
-            db.ref('maps/' + matchId).set(mapData);
-          }
-        });
-      } else {
-        m.removeAttribute('data-map-url');
-        m.removeAttribute('data-map-name');
-      }
-    })(matches[i]);
-  }
-}
-
+ var matches = document.querySelectorAll('.match');
+ for (var i = 0; i < matches.length; i++) {
+ var m = matches[i];
+ var leftParts = m.getAttribute('data-participants-left');
+ var rightParts = m.getAttribute('data-participants-right');
+ if (isTeamFull(leftParts) && isTeamFull(rightParts)) {
+ var idx = Math.floor(Math.random() * maps.length);
+ m.setAttribute('data-map-url', maps[idx].url);
+ m.setAttribute('data-map-name', maps[idx].name);
+ } else {
+ m.removeAttribute('data-map-url');
+ m.removeAttribute('data-map-name');
+ }
+ }
+ }
 
  function formatTime(ts) {
  var d = new Date(ts);
