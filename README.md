@@ -227,7 +227,7 @@
  min-width: 0;
  display: flex;
  flex-direction: column;
- padding: 0 12px;          
+ padding: 0 3px;          
  box-sizing: border-box;   
 }
 
