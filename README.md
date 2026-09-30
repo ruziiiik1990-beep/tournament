@@ -220,7 +220,7 @@ body { margin: 0; padding: 0; background: transparent; }
   display: flex;
   gap: 16px;
   justify-content: space-between;
-  align-items: center; /* было flex-start — из-за этого блок карты «прилипал» к верху */
+  align-items: flex-start; /* ИСПРАВЛЕНО: не тянем по высоте */
   flex-wrap: wrap;
 }
 .participants-col {
@@ -280,11 +280,11 @@ body { margin: 0; padding: 0; background: transparent; }
   width: 140px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: center;     /* центрирует контент внутри */
+  justify-content: flex-start; /* не растягивает по высоте */
   gap: 10px;
   padding: 10px 0;
-  margin: 0 auto;
+  margin: 0 auto;          /* центрирует сам блок по ширине */
   box-sizing: border-box;
 }
 .map-label {
@@ -493,6 +493,7 @@ body { margin: 0; padding: 0; background: transparent; }
   .team-modal { width: 100%; padding: 20px; }
   .chat-msg { max-width: 95%; }
 }
+
 
 </style>
 </head>
