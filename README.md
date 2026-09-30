@@ -638,7 +638,7 @@ function isAdmin() {
  function getUserName() {
   var nameInput = document.getElementById('nickInput');
   if (nameInput && nameInput.value.trim()) {
-    if (isAdmin()) return 'Админ';
+    if (isAdmin()) return 'ruzik_tasty';
     return nameInput.value.trim();
   }
   return 'Гость';
