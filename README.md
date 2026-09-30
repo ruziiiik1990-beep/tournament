@@ -477,7 +477,7 @@
  padding: 16px;
  }
 
- @media (max-width: 900px) {
+ @media (max-width: 1200px) {
  .bracket-row { flex-direction: column; align-items: center; }
  .bracket-col { max-width: 100%; width: 100%; }
  .tournament-title { font-size: 22px; }
