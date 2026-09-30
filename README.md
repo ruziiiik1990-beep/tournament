@@ -627,17 +627,18 @@
  var currentMatchId = null;
  var chatListenerRef = null;
 
- function isAdmin() {
- return !!document.getElementById('uAdminBar');
- }
+ var adminLoggedIn = false;
 
- function getUserName() {
- var avatarEl = document.querySelector('.uadm-avatar span span');
- if (avatarEl && avatarEl.textContent.trim()) return avatarEl.textContent.trim();
- var profileLink = document.querySelector('a[href*="/index/8"]');
- if (profileLink && profileLink.title) return profileLink.title;
- return 'Гость';
- }
+function isAdmin() {
+  return adminLoggedIn;
+}
+
+ var currentUserName = 'Гость';
+
+function getUserName() {
+  return currentUserName;
+}
+
 
  function escapeHtml(text) {
  if (!text) return '';
