@@ -659,21 +659,34 @@ function isAdmin() {
  }
 
  function assignMaps() {
- var matches = document.querySelectorAll('.match');
- for (var i = 0; i < matches.length; i++) {
- var m = matches[i];
- var leftParts = m.getAttribute('data-participants-left');
- var rightParts = m.getAttribute('data-participants-right');
- if (isTeamFull(leftParts) && isTeamFull(rightParts)) {
- var idx = Math.floor(Math.random() * maps.length);
- m.setAttribute('data-map-url', maps[idx].url);
- m.setAttribute('data-map-name', maps[idx].name);
- } else {
- m.removeAttribute('data-map-url');
- m.removeAttribute('data-map-name');
- }
- }
- }
+  var matches = document.querySelectorAll('.match');
+  for (var i = 0; i < matches.length; i++) {
+    (function(m) {
+      var matchId = getMatchId(m);
+      var leftParts = m.getAttribute('data-participants-left');
+      var rightParts = m.getAttribute('data-participants-right');
+      if (isTeamFull(leftParts) && isTeamFull(rightParts)) {
+        db.ref('maps/' + matchId).once('value').then(function(snapshot) {
+          var existing = snapshot.val();
+          if (existing) {
+            m.setAttribute('data-map-url', existing.url);
+            m.setAttribute('data-map-name', existing.name);
+          } else {
+            var idx = Math.floor(Math.random() * maps.length);
+            var mapData = maps[idx];
+            m.setAttribute('data-map-url', mapData.url);
+            m.setAttribute('data-map-name', mapData.name);
+            db.ref('maps/' + matchId).set(mapData);
+          }
+        });
+      } else {
+        m.removeAttribute('data-map-url');
+        m.removeAttribute('data-map-name');
+      }
+    })(matches[i]);
+  }
+}
+
 
  function formatTime(ts) {
  var d = new Date(ts);
