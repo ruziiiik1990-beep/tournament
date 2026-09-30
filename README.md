@@ -216,12 +216,12 @@ body { margin: 0; padding: 0; background: transparent; }
 }
 .team-modal-close:hover { background: rgba(255,80,80,0.4); }
 
-.participants-grid {
+.participants-col {
+  flex: 1;                       
+  min-width: 0;                   
+  max-width: calc(50% - 8px);     
   display: flex;
-  gap: 16px;
-  justify-content: space-between;
-  align-items: flex-start; /* ИСПРАВЛЕНО: не тянем по высоте */
-  flex-wrap: wrap;
+  flex-direction: column;
 }
 .participants-col {
   flex: 1;
