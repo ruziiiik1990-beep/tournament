@@ -1,3 +1,4 @@
+
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -64,6 +65,18 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   background: rgba(255,255,255,0.12); border-radius: 3px; padding: 2px 5px;
   font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.7); min-width: 18px; text-align: center;
 }
+
+/* Score: two fields + colon */
+.score-container {
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 72px;
+}
+.score-input {
+  width: 36px; text-align: center; font-size: 14px; font-weight: 700; color: #fff;
+  background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px; padding: 4px 2px; box-sizing: border-box; font-family: 'Inter', sans-serif;
+}
+.score-colon { font-weight: 700; color: rgba(255,255,255,0.9); margin: 0 2px; font-size: 14px; }
+
 .match-score { font-weight: 700; font-size: 14px; min-width: 22px; text-align: center; }
 .match-divider { height: 1px; background: rgba(255,255,255,0.08); }
 
@@ -159,807 +172,551 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 13px; font-weight: 500;
   position: relative; flex-wrap: wrap;
 }
-.participant-item.is-me {
-  background: rgba(74,158,255,0.2); border: 1px solid rgba(74,158,255,0.5);
-}
+.participant-item.is-me { background: rgba(74,158,255,0.2); border: 1px solid rgba(74,158,255,0.5); }
 .participant-item.is-me .participant-avatar { box-shadow: 0 0 8px rgba(74,158,255,0.7); }
 .participant-avatar {
   width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
   justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0;
 }
-.participants-col.left .participant-avatar { background: linear-gradient(135deg, #4a90d9, #6fb3ff); }
-.participants-col.right .participant-avatar { background: linear-gradient(135deg, #e07845, #ff8a65); }
-.participant-num { color: rgba(255,255,255,0.45); font-size: 11px; font-weight: 600; }
-.participant-del {
-  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-  background: rgba(255,80,80,0.2); border: none; color: #ff6b6b; font-size: 16px;
-  cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: none;
-  align-items: center; justify-content: center; line-height: 1;
-}
-.participant-item:hover .participant-del { display: flex; }
-.participant-del:hover { background: rgba(255,80,80,0.4); }
+.participants-col.left .participant-avatar { background: linear-gradient(135deg, #4a90d9, #357abd); }
+.participants-col.right .participant-avatar { background: linear-gradient(135deg, #e67e22, #d35400); }
+.participant-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* Score row per participant */
+.participant-score-row {
+  display: flex; align-items: center; gap: 6px; margin-top: 4px; width: 100%;
+}
+.participant-score-label { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600; text-transform: uppercase; }
+.participant-score-container {
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.participant-score-input {
+  width: 34px; text-align: center; font-size: 13px; font-weight: 700; color: #fff;
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px; padding: 3px 2px; box-sizing: border-box; font-family: 'Inter', sans-serif;
+}
+.participant-score-colon { font-weight: 700; color: rgba(255,255,255,0.9); font-size: 13px; }
+.btn-confirm-score {
+  background: rgba(74,158,255,0.3); border: 1px solid rgba(74,158,255,0.5); color: #fff;
+  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 4px; cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: background 0.2s;
+}
+.btn-confirm-score:hover { background: rgba(74,158,255,0.5); }
+
+/* Winner section */
+.winner-section {
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.15);
+  text-align: center; display: none;
+}
+.winner-section.show { display: block; }
+.winner-label {
+  font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 12px; color: #ffd700;
+}
+.winner-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.btn-winner {
+  padding: 10px 24px; font-size: 14px; font-weight: 700; color: #fff;
+  background: rgba(76,175,80,0.3); border: 1px solid rgba(76,175,80,0.5);
+  border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-winner:hover { background: rgba(76,175,80,0.5); transform: translateY(-1px); }
+
+/* Winner logo (logo1.jpg) - only here */
 .winner-logo-section {
-  display: flex; justify-content: center; padding: 8px 0 4px;
+  margin-top: 14px; text-align: center; display: none;
 }
-.winner-logo-section img {
-  width: 32px; height: 32px; border-radius: 50%;
-  border: 2px solid #66bb6a; box-shadow: 0 0 12px rgba(102,187,106,0.7);
-  animation: pulse-win 2s ease-in-out infinite;
+.winner-logo-section.show { display: block; }
+.winner-logo {
+  width: 64px; height: 64px; border-radius: 50%; object-fit: cover;
+  border: 2px solid rgba(255,215,0,0.5); display: inline-block;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.winner-logo-section.admin-can-cancel img {
-  cursor: pointer; border-color: #ff6b6b; box-shadow: 0 0 12px rgba(255,107,107,0.6);
+.winner-logo.admin-clickable {
+  cursor: pointer; border-color: rgba(255,100,100,0.6);
 }
-.winner-logo-section.admin-can-cancel img:hover {
-  border-color: #ff3333; box-shadow: 0 0 18px rgba(255,51,51,0.9); transform: scale(1.15);
+.winner-logo.admin-clickable:hover {
+  border-color: rgba(255,80,80,0.9); box-shadow: 0 0 12px rgba(255,80,80,0.5);
 }
-.winner-logo-section.admin-can-cancel::after {
-  content: '\2715'; color: #ff6b6b; font-size: 10px; font-weight: 700;
-  margin-left: 4px; align-self: center;
-}
-@keyframes pulse-win {
-  0%,100% { box-shadow: 0 0 8px rgba(102,187,106,0.5); }
-  50% { box-shadow: 0 0 18px rgba(102,187,106,0.9); }
+.winner-logo-cancel-hint {
+  font-size: 11px; color: rgba(255,100,100,0.8); margin-top: 6px; font-weight: 600;
 }
 
-.admin-add-row {
-  display: flex; gap: 8px; margin-top: 10px;
-}
-.admin-add-row input {
-  flex: 1; padding: 8px 10px; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
-  background: rgba(0,0,0,0.3); color: #fff; font-size: 13px; font-family: 'Inter', sans-serif;
-}
-.admin-add-row input::placeholder { color: rgba(255,255,255,0.3); }
-.admin-add-row button {
-  padding: 8px 14px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;
-  font-size: 12px; white-space: nowrap; font-family: 'Inter', sans-serif;
-}
-.admin-add-row button.add-left { background: #4a90d9; color: #fff; }
-.admin-add-row button.add-right { background: #e07845; color: #fff; }
-
-.admin-winner-row {
-  display: flex; gap: 10px; justify-content: center; margin-top: 16px;
-  padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.1);
-}
-.admin-winner-btn {
-  display: flex; align-items: center; gap: 6px; padding: 8px 16px;
-  border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px;
-  font-family: 'Inter', sans-serif; transition: transform 0.15s, box-shadow 0.2s;
-}
-.admin-winner-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-.admin-winner-btn.win-left { background: linear-gradient(135deg, #4a90d9, #6fb3ff); color: #fff; }
-.admin-winner-btn.win-right { background: linear-gradient(135deg, #e07845, #ff8a65); color: #fff; }
-
-.score-row {
-  display: flex; align-items: center; gap: 6px; margin-top: 4px;
-}
-.score-input {
-  width: 36px; padding: 4px 2px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
-  background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; font-weight: 700; text-align: center;
-  font-family: 'Inter', sans-serif; outline: none;
-}
-.score-input:focus { border-color: rgba(255,215,0,0.5); }
-.score-input::placeholder { color: rgba(255,255,255,0.25); font-weight: 400; }
-.score-input:disabled { opacity: 0.4; }
-.score-colon {
-  font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.7);
-  margin: 0 1px; user-select: none;
-}
-.score-confirm {
-  padding: 4px 10px; border: 1px solid rgba(102,187,106,0.4); border-radius: 6px;
-  background: rgba(102,187,106,0.2); color: #66bb6a; font-size: 12px; font-weight: 700;
-  cursor: pointer; font-family: 'Inter', sans-serif;
-}
-.score-confirm:hover { background: rgba(102,187,106,0.35); }
-.score-confirmed { font-size: 11px; color: #66bb6a; font-weight: 700; }
-.score-pending { font-size: 11px; color: rgba(255,255,255,0.3); }
-
-.map-center { flex: 0 0 auto; width: 140px; display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 40px; }
-.map-label { font-size: 11px; font-weight: 700; color: rgba(255,215,0,0.7); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
-.map-image { width: 120px; height: 120px; border-radius: 10px; object-fit: cover; border: 2px solid rgba(255,215,0,0.3); box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
-.map-vs { font-size: 22px; font-weight: 800; color: rgba(255,215,0,0.6); text-align: center; }
-.map-name { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.8); text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
-.map-placeholder {
-  width: 120px; height: 120px; border-radius: 10px; border: 2px dashed rgba(255,255,255,0.2);
-  display: flex; align-items: center; justify-content: center; text-align: center;
-  font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.4; padding: 10px;
-}
-.map-name.empty { color: rgba(255,255,255,0.3); }
-
-.common-chat-container { width: 100%; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; }
-.chat-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; color: #fff; text-align: center; }
-.chat-messages { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; padding: 4px 0; }
-.chat-messages::-webkit-scrollbar { width: 6px; }
-.chat-messages::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
-.chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
-.chat-msg {
-  background: rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 14px;
-  font-size: 13px; line-height: 1.4; word-break: break-word; position: relative;
-  max-width: 85%; align-self: flex-start; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-.chat-msg.team-west { background: rgba(74,144,217,0.15); border-left: 3px solid #6fb3ff; align-self: flex-start; }
-.chat-msg.team-east { background: rgba(224,120,69,0.15); border-right: 3px solid #ff8a65; align-self: flex-end; }
-.chat-msg.team-admin { background: rgba(255,215,0,0.15); border-left: 3px solid #ffd700; align-self: center; max-width: 90%; }
-.chat-msg-author { font-size: 11px; font-weight: 700; margin-bottom: 4px; display: block; }
-.chat-msg-author.west { color: #6fb3ff; }
-.chat-msg-author.east { color: #ff8a65; }
-.chat-msg-author.admin { color: #ffd700; }
-.chat-msg-text { font-weight: 400; color: rgba(255,255,255,0.9); }
-.chat-msg-time { font-size: 9px; color: rgba(255,255,255,0.3); margin-top: 4px; }
-.chat-msg-delete {
-  position: absolute; top: 6px; right: 6px; background: rgba(255,80,80,0.2); border: none;
-  color: #ff6b6b; font-size: 14px; cursor: pointer; width: 24px; height: 24px;
-  border-radius: 50%; display: none; align-items: center; justify-content: center; line-height: 1;
-}
-.chat-msg:hover .chat-msg-delete { display: flex; }
-.chat-msg-delete:hover { background: rgba(255,80,80,0.4); }
-.chat-input-row { display: flex; gap: 10px; }
-.chat-input {
-  flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px; padding: 12px; color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; outline: none;
-  transition: border-color 0.2s;
-}
-.chat-input:focus { border-color: rgba(255,215,0,0.4); }
-.chat-input::placeholder { color: rgba(255,255,255,0.3); }
-.chat-send {
-  background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.3); border-radius: 8px;
-  padding: 0 20px; color: #ffd700; font-size: 14px; font-weight: 600; cursor: pointer;
-  transition: background 0.2s; white-space: nowrap;
-}
-.chat-send:hover { background: rgba(255,215,0,0.25); }
-.admin-badge {
-  display: inline-block; background: rgba(255,215,0,0.2); color: #ffd700;
-  font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 4px; vertical-align: middle;
-}
-.you-badge {
-  display: inline-block; background: rgba(74,158,255,0.3); color: #4a9eff;
-  font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 4px; vertical-align: middle;
+.winner-name {
+  font-size: 20px; font-weight: 800; color: #ffd700; text-transform: uppercase;
+  letter-spacing: 1px; margin-top: 10px;
 }
 
-@media (max-width: 900px) {
+/* Bracket lines */
+.bracket-line {
+  width: 16px; display: flex; align-items: center; justify-content: center;
+}
+.bracket-line svg { width: 100%; height: 100%; }
+
+/* Responsive */
+@media (max-width: 768px) {
   .bracket-row { flex-direction: column; align-items: center; }
-  .bracket-col { max-width: 100%; width: 100%; }
-  .tournament-title { font-size: 22px; }
-  .match { max-width: 100%; }
-  .participants-grid { flex-direction: column; align-items: center; gap: 20px; }
-  .map-center { padding-top: 0; }
-  .team-modal { width: 100%; padding: 20px; }
-  .chat-msg { max-width: 95%; }
+  .bracket-col { max-width: 90%; }
+  .participants-grid { flex-direction: column; }
+  .team-modal { width: 95vw; padding: 20px; }
 }
 </style>
 </head>
 <body>
 
-<div class="tournament-wrapper">
-  <div class="tournament-title">Плей-офф турнира</div>
-  <div class="bracket-row">
+<div class="tournament-wrapper" id="tournamentWrapper">
+  <div class="tournament-title">Плей-офф</div>
+
+  <!-- Join / Admin -->
+  <div id="joinSection" class="join-section">
+    <button class="btn-join" onclick="joinTournament()">Присоединиться</button>
+  </div>
+  <div id="joinedMsg" class="joined-msg" style="display:none;">Вы участвуете!</div>
+  <div id="guestWarning" class="guest-warning" style="display:none;">
+    <span class="guest-warning-text">Войдите как админ для управления</span>
+  </div>
+  <div class="admin-login-row">
+    <input type="password" id="adminPass" placeholder="Админ-пароль" onkeydown="if(event.key==='Enter')loginAdmin()">
+    <button class="btn-join" style="padding:12px 28px;font-size:14px;" onclick="loginAdmin()">Войти</button>
+  </div>
+  <div id="adminPanel" class="admin-panel" style="display:none;">
+    <h3>Админ-панель <span class="admin-active-badge">Активна</span></h3>
+    <p class="admin-hint">Нажмите на матч, чтобы открыть участников. Введите счёт и выберите победителя.</p>
+  </div>
+
+  <!-- Bracket -->
+  <div class="bracket-row" id="bracketRow">
+    <!-- Quarterfinals West -->
     <div class="bracket-col">
       <div class="conf-label west">Запад</div>
-      <div class="round-label">Четвертьфиналы</div>
-      <div class="match" data-match-id="qf_w1"><div class="match-row"><div class="match-team"><span class="team-seed">1</span> Команда A</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">4</span> Команда B</div><div class="match-score"></div></div></div>
-      <div class="match" data-match-id="qf_w2"><div class="match-row"><div class="match-team"><span class="team-seed">2</span> Команда C</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">3</span> Команда D</div><div class="match-score"></div></div></div>
+      <div class="round-label">1/4 финала</div>
+      <div class="match" data-match="qf1" data-round="qf" data-conf="west" data-slot="1" onclick="openMatch('qf1')">
+        <div class="match-row" id="qf1-top"></div>
+        <div class="match-divider"></div>
+        <div class="match-row" id="qf1-bot"></div>
+      </div>
+      <div class="match" data-match="qf2" data-round="qf" data-conf="west" data-slot="2" onclick="openMatch('qf2')">
+        <div class="match-row" id="qf2-top"></div>
+        <div class="match-divider"></div>
+        <div class="match-row" id="qf2-bot"></div>
+      </div>
     </div>
+
+    <!-- Quarterfinals East -->
+    <div class="bracket-col">
+      <div class="conf-label east">Восток</div>
+      <div class="round-label">1/4 финала</div>
+      <div class="match" data-match="qf3" data-round="qf" data-conf="east" data-slot="1" onclick="openMatch('qf3')">
+        <div class="match-row" id="qf3-top"></div>
+        <div class="match-divider"></div>
+        <div class="match-row" id="qf3-bot"></div>
+      </div>
+      <div class="match" data-match="qf4" data-round="qf" data-conf="east" data-slot="2" onclick="openMatch('qf4')">
+        <div class="match-row" id="qf4-top"></div>
+        <div class="match-divider"></div>
+        <div class="match-row" id="qf4-bot"></div>
+      </div>
+    </div>
+
+    <!-- Semifinals -->
     <div class="bracket-col semifinal-col">
       <div class="round-label">Полуфинал</div>
-      <div class="match" data-match-id="sf_w"><div class="match-row"><div class="match-team"><span class="team-seed">З1</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">З2</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
+      <div class="match" data-match="sf1" data-round="sf" data-slot="1" onclick="openMatch('sf1')">
+        <div class="match-row" id="sf1-top"></div>
+        <div class="match-divider"></div>
+        <div class="match-row" id="sf1-bot"></div>
+      </div>
+      <div class="match" data-match="sf2" data-round="sf" data-slot="2" onclick="openMatch('sf2')">
+        <div class="match-row" id="sf2-top"></div>
+        <div class="match-divider"></div>
+        <div class="match-row" id="sf2-bot"></div>
+      </div>
     </div>
+
+    <!-- Final -->
     <div class="bracket-col final-col">
       <div class="final-box">
         <div class="final-title">Финал</div>
-        <div class="match final-match" data-match-id="final"><div class="match-row"><div class="match-team"><span class="team-seed">З</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">В</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
+        <div class="match final-match" data-match="final" data-round="final" onclick="openMatch('final')">
+          <div class="match-row" id="final-top"></div>
+          <div class="match-divider"></div>
+          <div class="match-row" id="final-bot"></div>
+        </div>
       </div>
-    </div>
-    <div class="bracket-col semifinal-col">
-      <div class="round-label">Полуфинал</div>
-      <div class="match" data-match-id="sf_e"><div class="match-row"><div class="match-team"><span class="team-seed">В1</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">В2</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
-    </div>
-    <div class="bracket-col">
-      <div class="conf-label east">Восток</div>
-      <div class="round-label">Четвертьфиналы</div>
-      <div class="match" data-match-id="qf_e1"><div class="match-row"><div class="match-team"><span class="team-seed">1</span> Команда E</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">4</span> Команда F</div><div class="match-score"></div></div></div>
-      <div class="match" data-match-id="qf_e2"><div class="match-row"><div class="match-team"><span class="team-seed">2</span> Команда G</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">3</span> Команда H</div><div class="match-score"></div></div></div>
     </div>
   </div>
 </div>
 
-<div class="join-section" id="joinSection"></div>
-
-<div class="admin-login-row">
-  <input type="password" id="adminPassInput" placeholder="Админ-пароль" onkeydown="if(event.key==='Enter') toggleAdmin()">
-  <button class="btn-join" style="padding:12px 26px; font-size:14px;" onclick="toggleAdmin()">Войти как админ</button>
-</div>
-
-<div class="admin-panel" id="adminPanel" style="display:none;">
-  <h3>Админ-панель <span class="admin-active-badge">АКТИВЕН</span></h3>
-  <div class="admin-hint">Открой любой матч — появились поля добавления игроков и кнопки подтверждения победы. Чтобы отменить победителя — нажми на картинку под победившей командой.</div>
-</div>
-
-<div class="team-modal-overlay" id="teamModalOverlay">
+<!-- Modal -->
+<div class="team-modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="team-modal">
     <div class="team-modal-header">
-      <span class="team-modal-matchup" id="teamModalMatchup">Матч</span>
-      <button class="team-modal-close" id="teamModalClose">&times;</button>
+      <div class="team-modal-matchup" id="modalMatchup">Матч</div>
+      <button class="team-modal-close" onclick="closeModal()">&times;</button>
     </div>
-    <div class="participants-grid" id="participantsGrid">
-      <div class="participants-col left" id="leftCol">
-        <div class="participants-col-title" id="leftTeamName">Команда 1</div>
-        <ul class="participant-list" id="leftParticipantList"></ul>
-      </div>
-      <div class="map-center">
-        <div class="map-label">Карта</div>
-        <div class="map-vs">VS</div>
-        <div id="mapContainer">
-          <img class="map-image" id="mapImage" src="" alt="Карта" style="display:none;">
-          <div class="map-placeholder" id="mapPlaceholder">Карта будет выбрана, когда обе команды укомплектованы</div>
-        </div>
-        <div class="map-name" id="mapName"></div>
-      </div>
-      <div class="participants-col right" id="rightCol">
-        <div class="participants-col-title" id="rightTeamName">Команда 2</div>
-        <ul class="participant-list" id="rightParticipantList"></ul>
-      </div>
+    <div class="participants-grid" id="modalGrid"></div>
+    <div class="winner-section" id="winnerSection">
+      <div class="winner-label">Выберите победителя</div>
+      <div class="winner-buttons" id="winnerButtons"></div>
     </div>
-    <div class="common-chat-container">
-      <div class="chat-title">Общий чат матча</div>
-      <div class="chat-messages" id="commonChatMessages"></div>
-      <div class="chat-input-row">
-        <input type="text" class="chat-input" id="commonChatInput" placeholder="Напишите сообщение..." maxlength="200">
-        <button class="chat-send" id="commonChatSend">Отправить</button>
-      </div>
+    <div class="winner-logo-section" id="winnerLogoSection">
+      <img src="https://4ak4ak.moy.su/logo1.jpg" class="winner-logo" id="winnerLogoImg" alt="Победитель" onclick="cancelWinner(event)">
+      <div class="winner-logo-cancel-hint" id="cancelHint" style="display:none;">Нажмите, чтобы отменить победителя</div>
+      <div class="winner-name" id="winnerName"></div>
     </div>
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script>
-(function() {
-  var firebaseConfig = {
-    apiKey: "AIzaSyCNQ0WFAiQjnISQjXJnHoln-wI64G2BqWs",
-    authDomain: "ak4ak-d948e.firebaseapp.com",
-    databaseURL: "https://ak4ak-d948e-default-rtdb.firebaseio.com",
-    projectId: "ak4ak-d948e",
-    storageBucket: "ak4ak-d948e.firebasestorage.app",
-    messagingSenderId: "787151252619",
-    appId: "1:787151252619:web:05eff65dc74b01d6e8f88e",
-    measurementId: "G-DBB4YBNF2Q"
-  };
-  firebase.initializeApp(firebaseConfig);
-  var db = firebase.database();
+// --- Data ---
+const TEAMS = {
+  qf1: { left: { name: 'Команда A', seed: 1, players: ['Игрок 1','Игрок 2','Игрок 3','Игрок 4','Игрок 5'] },
+          right: { name: 'Команда B', seed: 8, players: ['Игрок 6','Игрок 7','Игрок 8','Игрок 9','Игрок 10'] } },
+  qf2: { left: { name: 'Команда C', seed: 4, players: ['Игрок 11','Игрок 12','Игрок 13','Игрок 14','Игрок 15'] },
+          right: { name: 'Команда D', seed: 5, players: ['Игрок 16','Игрок 17','Игрок 18','Игрок 19','Игрок 20'] } },
+  qf3: { left: { name: 'Команда E', seed: 2, players: ['Игрок 21','Игрок 22','Игрок 23','Игрок 24','Игрок 25'] },
+          right: { name: 'Команда F', seed: 7, players: ['Игрок 26','Игрок 27','Игрок 28','Игрок 29','Игрок 30'] } },
+  qf4: { left: { name: 'Команда G', seed: 3, players: ['Игрок 31','Игрок 32','Игрок 33','Игрок 34','Игрок 35'] },
+          right: { name: 'Команда H', seed: 6, players: ['Игрок 36','Игрок 37','Игрок 38','Игрок 39','Игрок 40'] } },
+  sf1: { left: { name: '', seed: null, players: [] }, right: { name: '', seed: null, players: [] } },
+  sf2: { left: { name: '', seed: null, players: [] }, right: { name: '', seed: null, players: [] } },
+  final: { left: { name: '', seed: null, players: [] }, right: { name: '', seed: null, players: [] } }
+};
 
-  var ADMIN_PASSWORD = '12$sacreD';
-  var MAX_PLAYERS = 5;
-  var WIN_LOGO = 'https://4ak4ak.moy.su/logo1.jpg';
-  var myNick = null;
-  var isAdmin = false;
-  var currentMatchId = null;
-  var chatRef = null;
-  var allMatches = {};
+const RESULTS = {};
+let currentMatch = null;
+let isAdmin = false;
+const ADMIN_PASS = 'admin123';
+let myTeam = null;
 
-  var maps = [
-    { url: 'https://4ak4ak.moy.su/dust2.png', name: 'Dust 2' },
-    { url: 'https://4ak4ak.moy.su/360fx360f.png', name: 'Nuke' },
-    { url: 'https://4ak4ak.moy.su/ancient.jpg', name: 'Ancient' },
-    { url: 'https://4ak4ak.moy.su/anubis.png', name: 'Anubis' },
-    { url: 'https://4ak4ak.moy.su/cache.png', name: 'Cache' },
-    { url: 'https://4ak4ak.moy.su/inferno.png', name: 'Inferno' },
-    { url: 'https://4ak4ak.moy.su/mirage.png', name: 'Mirage' },
-    { url: 'https://4ak4ak.moy.su/vertigo.png', name: 'Vertigo' }
-  ];
+function joinTournament() {
+  myTeam = 'qf1-left';
+  document.getElementById('joinSection').style.display = 'none';
+  document.getElementById('joinedMsg').style.display = 'block';
+  renderBracket();
+}
 
-  var matchOrder = ['qf_w1','qf_w2','sf_w','final','sf_e','qf_e1','qf_e2'];
-
-  var qfTeams = {
-    'qf_w1': { left: 'Команда A', right: 'Команда B' },
-    'qf_w2': { left: 'Команда C', right: 'Команда D' },
-    'qf_e1': { left: 'Команда E', right: 'Команда F' },
-    'qf_e2': { left: 'Команда G', right: 'Команда H' }
-  };
-
-  var sfLinks = {
-    'qf_w1': { sfId: 'sf_w', sfSide: 'left' },
-    'qf_w2': { sfId: 'sf_w', sfSide: 'right' },
-    'qf_e1': { sfId: 'sf_e', sfSide: 'left' },
-    'qf_e2': { sfId: 'sf_e', sfSide: 'right' }
-  };
-
-  var sfFinalLinks = {
-    'sf_w': { finalSide: 'left' },
-    'sf_e': { finalSide: 'right' }
-  };
-
-  function getUrlParam(n) { var u = new URL(window.location.href); return u.searchParams.get(n); }
-  myNick = getUrlParam('user');
-
-  function escapeHtml(t) {
-    if (!t) return '';
-    return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
-  }
-
-  function formatTime(ts) {
-    var d = new Date(ts); var h = String(d.getHours()).padStart(2,'0'); var m = String(d.getMinutes()).padStart(2,'0');
-    return h + ':' + m;
-  }
-
-  function initJoin() {
-    var s = document.getElementById('joinSection');
-    if (myNick && myNick !== 'null' && myNick !== '') {
-      db.ref('playoff/allParticipants').once('value').then(function(snap) {
-        var all = snap.val() || {};
-        var inAny = false;
-        for (var k in all) { if (all[k] === myNick) { inAny = true; break; } }
-        if (inAny) {
-          s.innerHTML = '<p class="joined-msg">Ты уже в турнире! Найди свою команду в сетке.</p>';
-        } else {
-          s.innerHTML = '<button class="btn-join" onclick="joinTournament()">Участвовать</button>';
-        }
-      });
-    } else {
-      s.innerHTML = '<p class="guest-warning"><span class="guest-warning-text">Войдите на сайт, чтобы участвовать в турнире</span></p>';
-    }
-  }
-
-  window.joinTournament = function() {
-    if (!myNick) { alert('Войдите на сайт!'); return; }
-    var qfIds = ['qf_w1','qf_w2','qf_e1','qf_e2'];
-    var sides = ['left','right'];
-    var candidates = [];
-    var pending = qfIds.length * sides.length;
-    qfIds.forEach(function(mid) {
-      sides.forEach(function(side) {
-        db.ref('playoff/matches/' + mid + '/' + side).once('value').then(function(snap) {
-          var arr = snap.val() || [];
-          if (arr.length < MAX_PLAYERS) candidates.push({ matchId: mid, side: side });
-          pending--;
-          if (pending === 0) {
-            if (candidates.length === 0) {
-              alert('Все команды четвертьфинала заполнены!');
-              return;
-            }
-            var pick = candidates[Math.floor(Math.random() * candidates.length)];
-            db.ref('playoff/matches/' + pick.matchId + '/' + pick.side).once('value').then(function(s2) {
-              var a = s2.val() || [];
-              a.push(myNick);
-              db.ref('playoff/matches/' + pick.matchId + '/' + pick.side).set(a);
-              db.ref('playoff/allParticipants/' + myNick.replace(/[^a-zA-Z0-9]/g,'_')).set(myNick);
-              document.getElementById('joinSection').innerHTML = '<p class="joined-msg">Ты в игре! Найди свою команду в сетке.</p>';
-            });
-          }
-        });
-      });
-    });
-  };
-
-  window.toggleAdmin = function() {
-    var p = document.getElementById('adminPassInput').value;
-    if (!isAdmin) {
-      if (p === ADMIN_PASSWORD) {
-        isAdmin = true;
-        document.getElementById('adminPassInput').value = '';
-        document.getElementById('adminPanel').style.display = 'block';
-        alert('Админ-режим включён!');
-        renderBracket();
-      } else { alert('Неверный пароль!'); }
-    } else {
-      isAdmin = false;
-      document.getElementById('adminPanel').style.display = 'none';
-      alert('Админ-режим выключен.');
-      renderBracket();
-    }
-  };
-
-  function loadAllMatches(cb) {
-    db.ref('playoff/matches').once('value').then(function(snap) {
-      allMatches = snap.val() || {};
-      if (cb) cb();
-    });
-  }
-
-  function isTeamFull(arr) { return arr && arr.length >= MAX_PLAYERS; }
-
-  function areAllSemiFinalsFull() {
-    var sf = ['sf_w','sf_e'];
-    for (var i = 0; i < sf.length; i++) {
-      var m = allMatches[sf[i]] || {};
-      var l = m.left || [], r = m.right || [];
-      if (!isTeamFull(l) || !isTeamFull(r)) return false;
-    }
-    return true;
-  }
-
-  function renderBracket() {
-    loadAllMatches(function() {
-      matchOrder.forEach(function(mid) {
-        var el = document.querySelector('[data-match-id="' + mid + '"]');
-        if (!el) return;
-        var m = allMatches[mid] || {};
-        var left = m.left || [], right = m.right || [];
-        var winner = m.winner || null;
-
-        var rows = el.querySelectorAll('.match-row');
-        var leftNameEl = rows[0].querySelector('.match-team');
-        var rightNameEl = rows[1].querySelector('.match-team');
-        var leftScoreEl = rows[0].querySelector('.match-score');
-        var rightScoreEl = rows[1].querySelector('.match-score');
-
-        if (mid.startsWith('qf_')) {
-          var teams = qfTeams[mid];
-          leftNameEl.innerHTML = '<span class="team-seed">' + (rows[0].querySelector('.team-seed') ? rows[0].querySelector('.team-seed').textContent : '') + '</span> ' + teams.left;
-          rightNameEl.innerHTML = '<span class="team-seed">' + (rows[1].querySelector('.team-seed') ? rows[1].querySelector('.team-seed').textContent : '') + '</span> ' + teams.right;
-        } else {
-          var sfNameL = leftNameEl.querySelector('.sf-team-name');
-          var sfNameR = rightNameEl.querySelector('.sf-team-name');
-          if (sfNameL && sfNameR) {
-            if (mid === 'sf_w' || mid === 'sf_e') {
-              if (areAllSemiFinalsFull()) {
-                sfNameL.textContent = m.leftName || 'Команда ' + (left[0] || '?');
-                sfNameR.textContent = m.rightName || 'Команда ' + (right[0] || '?');
-              } else {
-                sfNameL.textContent = 'Ожидание...';
-                sfNameR.textContent = 'Ожидание...';
-              }
-            } else if (mid === 'final') {
-              sfNameL.textContent = m.leftName || 'Ожидание...';
-              sfNameR.textContent = m.rightName || 'Ожидание...';
-            }
-          }
-        }
-
-        leftScoreEl.textContent = '';
-        rightScoreEl.textContent = '';
-        rows[0].classList.remove('winner');
-        rows[1].classList.remove('winner');
-        rows[0].classList.remove('is-mine-row');
-        rows[1].classList.remove('is-mine-row');
-
-        if (myNick) {
-          if (left.indexOf(myNick) !== -1) rows[0].classList.add('is-mine-row');
-          if (right.indexOf(myNick) !== -1) rows[1].classList.add('is-mine-row');
-        }
-        if (winner === 'left') { rows[0].classList.add('winner'); leftScoreEl.textContent = 'WIN'; }
-        if (winner === 'right') { rows[1].classList.add('winner'); rightScoreEl.textContent = 'WIN'; }
-
-        el.classList.remove('is-mine');
-        if (myNick && (left.indexOf(myNick) !== -1 || right.indexOf(myNick) !== -1)) {
-          el.classList.add('is-mine');
-        }
-      });
-    });
-  }
-
-  function assignMapIfNeeded(mid, m) {
-    if (isTeamFull(m.left) && isTeamFull(m.right) && !m.map) {
-      var idx = Math.floor(Math.random() * maps.length);
-      var mapData = maps[idx];
-      db.ref('playoff/matches/' + mid + '/map').set(mapData);
-    }
-  }
-
-  function openModal(matchEl) {
-    var mid = matchEl.getAttribute('data-match-id');
-    currentMatchId = mid;
-    loadAllMatches(function() {
-      var m = allMatches[mid] || {};
-      var left = m.left || [], right = m.right || [];
-      var teams = qfTeams[mid] || { left: m.leftName || 'Команда 1', right: m.rightName || 'Команда 2' };
-
-      document.getElementById('teamModalMatchup').textContent = teams.left + ' vs ' + teams.right;
-      document.getElementById('leftTeamName').textContent = teams.left;
-      document.getElementById('rightTeamName').textContent = teams.right;
-
-      var leftCol = document.getElementById('leftCol');
-      var rightCol = document.getElementById('rightCol');
-      leftCol.classList.remove('is-mine-col');
-      rightCol.classList.remove('is-mine-col');
-
-      if (myNick && left.indexOf(myNick) !== -1) leftCol.classList.add('is-mine-col');
-      if (myNick && right.indexOf(myNick) !== -1) rightCol.classList.add('is-mine-col');
-
-      document.getElementById('leftParticipantList').innerHTML = buildParticipantList(mid, 'left', left);
-      document.getElementById('rightParticipantList').innerHTML = buildParticipantList(mid, 'right', right);
-
-      var oldW = document.querySelector('.winner-logo-section');
-      if (oldW) oldW.remove();
-      if (m.winner) {
-        var winSide = m.winner;
-        var winCol = winSide === 'left' ? leftCol : rightCol;
-        var winSec = document.createElement('div');
-        winSec.className = 'winner-logo-section';
-        if (isAdmin) winSec.classList.add('admin-can-cancel');
-        winSec.innerHTML = '<img src="' + WIN_LOGO + '" alt="Победитель"' + (isAdmin ? ' onclick="cancelWinner(\'' + mid + '\')"' : '') + '>';
-        winCol.appendChild(winSec);
-      }
-
-      if (isAdmin) addAdminControls(mid, teams);
-
-      var mapUrl = m.map ? m.map.url : null;
-      var mapName = m.map ? m.map.name : null;
-      var mapImg = document.getElementById('mapImage');
-      var mapPh = document.getElementById('mapPlaceholder');
-      var mapNameEl = document.getElementById('mapName');
-      if (mapUrl) {
-        mapImg.src = mapUrl; mapImg.alt = mapName; mapImg.style.display = 'block';
-        mapPh.style.display = 'none'; mapNameEl.textContent = mapName; mapNameEl.classList.remove('empty');
-      } else {
-        mapImg.style.display = 'none'; mapPh.style.display = 'flex';
-        mapNameEl.textContent = 'Не выбрана'; mapNameEl.classList.add('empty');
-      }
-
-      if (chatRef) chatRef.off();
-      chatRef = db.ref('playoff/chats/' + mid);
-      chatRef.on('value', renderChat);
-      document.getElementById('teamModalOverlay').classList.add('active');
-    });
-  }
-
-  function buildParticipantList(mid, side, arr) {
-    var html = '';
-    for (var i = 0; i < MAX_PLAYERS; i++) {
-      var nick = arr[i] || null;
-      var num = i + 1;
-      var isMe = myNick && nick && nick === myNick;
-      var delBtn = isAdmin && nick ? '<button class="participant-del" onclick="removeParticipant(\'' + mid + '\',\'' + side + '\',' + i + ')">&times;</button>' : '';
-      var avatarBg = side === 'left' ? 'linear-gradient(135deg, #4a90d9, #6fb3ff)' : 'linear-gradient(135deg, #e07845, #ff8a65)';
-      var avatarTxt = nick ? escapeHtml(nick.charAt(0).toUpperCase()) : num;
-      var meBadge = isMe ? '<span class="you-badge">ТЫ</span>' : '';
-      var scoreHtml = '';
-      if (nick) {
-        var isLeft = side === 'left';
-        var inputHtml = '<input type="text" class="score-input" id="score_' + side + '_' + i + '_a" placeholder="00" maxlength="2" inputmode="numeric">'
-          + '<span class="score-colon">:</span>'
-          + '<input type="text" class="score-input" id="score_' + side + '_' + i + '_b" placeholder="00" maxlength="2" inputmode="numeric">';
-        var btnHtml = '<button class="score-confirm" onclick="confirmScore(\'' + mid + '\',\'' + side + '\',' + i + ')">OK</button>';
-        var statusHtml = '<span class="score-pending" id="score_status_' + side + '_' + i + '">Ожидает</span>';
-        if (isLeft) {
-          scoreHtml = '<div class="score-row" style="margin-left:auto;justify-content:flex-end">' + inputHtml + btnHtml + statusHtml + '</div>';
-        } else {
-          scoreHtml = '<div class="score-row">' + statusHtml + btnHtml + inputHtml + '</div>';
-        }
-      }
-      html += '<li class="participant-item' + (isMe ? ' is-me' : '') + '">'
-        + '<div class="participant-avatar" style="' + (nick ? '' : 'opacity:0.3;') + 'background:' + avatarBg + '">' + avatarTxt + '</div>'
-        + '<span class="participant-num">#' + num + '</span> '
-        + (nick ? escapeHtml(nick) + meBadge : '<span style="color:rgba(255,255,255,0.25)">Свободно</span>')
-        + scoreHtml
-        + delBtn
-        + '</li>';
-    }
-    return html;
-  }
-
-  window.confirmScore = function(mid, side, idx) {
-    var inputA = document.getElementById('score_' + side + '_' + idx + '_a');
-    var inputB = document.getElementById('score_' + side + '_' + idx + '_b');
-    var valA = inputA.value.trim();
-    var valB = inputB.value.trim();
-    if (valA === '' && valB === '') { alert('Введите счёт!'); return; }
-    var val = (valA || '0') + ':' + (valB || '0');
-    db.ref('playoff/scores/' + mid + '/' + side + '/' + idx).set({ nick: allMatches[mid][side][idx], score: val, confirmed: true, time: Date.now() });
-    var st = document.getElementById('score_status_' + side + '_' + idx);
-    st.textContent = '\u2713 ' + val;
-    st.className = 'score-confirmed';
-    inputA.disabled = true;
-    inputB.disabled = true;
-  };
-
-  function addAdminControls(mid, teams) {
-    var leftCol = document.getElementById('leftCol');
-    var rightCol = document.getElementById('rightCol');
-    var oldL = leftCol.querySelector('.admin-add-row');
-    if (oldL) oldL.remove();
-    var oldR = rightCol.querySelector('.admin-add-row');
-    if (oldR) oldR.remove();
-
-    var leftRow = document.createElement('div');
-    leftRow.className = 'admin-add-row';
-    leftRow.innerHTML = '<input type="text" placeholder="Добавить игрока" id="addInput_left_' + mid + '" maxlength="20"><button class="add-left" onclick="addPlayer(\'' + mid + '\',\'left\')">+</button>';
-    leftCol.appendChild(leftRow);
-
-    var rightRow = document.createElement('div');
-    rightRow.className = 'admin-add-row';
-    rightRow.innerHTML = '<input type="text" placeholder="Добавить игрока" id="addInput_right_' + mid + '" maxlength="20"><button class="add-right" onclick="addPlayer(\'' + mid + '\',\'right\')">+</button>';
-    rightCol.appendChild(rightRow);
-
-    var oldW2 = document.querySelector('.admin-winner-row');
-    if (oldW2) oldW2.remove();
-    var winRow = document.createElement('div');
-    winRow.className = 'admin-winner-row';
-    var m = allMatches[mid] || {};
-    var leftDisabled = m.winner ? 'disabled' : '';
-    var rightDisabled = m.winner ? 'disabled' : '';
-    winRow.innerHTML = '<button class="admin-winner-btn win-left" ' + leftDisabled + ' onclick="confirmWinner(\'' + mid + '\',\'left\')">Победа: ' + escapeHtml(teams.left) + '</button>'
-      + '<button class="admin-winner-btn win-right" ' + rightDisabled + ' onclick="confirmWinner(\'' + mid + '\',\'right\')">Победа: ' + escapeHtml(teams.right) + '</button>';
-    document.querySelector('.participants-grid').after(winRow);
-  }
-
-  window.addPlayer = function(mid, side) {
-    var input = document.getElementById('addInput_' + side + '_' + mid);
-    var nick = input.value.trim();
-    if (!nick) return;
-    var arr = (allMatches[mid] || {})[side] || [];
-    if (arr.length >= MAX_PLAYERS) { alert('Команда заполнена!'); return; }
-    arr.push(nick);
-    db.ref('playoff/matches/' + mid + '/' + side).set(arr).then(function() {
-      allMatches[mid][side] = arr;
-      input.value = '';
-      assignMapIfNeeded(mid, allMatches[mid]);
-      openModal(document.querySelector('[data-match-id="' + mid + '"]'));
-      renderBracket();
-    });
-  };
-
-  window.removeParticipant = function(mid, side, idx) {
-    var arr = (allMatches[mid] || {})[side] || [];
-    arr.splice(idx, 1);
-    db.ref('playoff/matches/' + mid + '/' + side).set(arr).then(function() {
-      allMatches[mid][side] = arr;
-      openModal(document.querySelector('[data-match-id="' + mid + '"]'));
-      renderBracket();
-    });
-  };
-
-  window.confirmWinner = function(mid, side) {
-    var m = allMatches[mid] || {};
-    if (m.winner) { alert('Победитель уже выбран!'); return; }
-    var winArr = m[side] || [];
-    var updates = {};
-    updates['playoff/matches/' + mid + '/winner'] = side;
-
-    if (mid.startsWith('qf_')) {
-      var link = sfLinks[mid];
-      var sfId = link.sfId;
-      var sfSide = link.sfSide;
-      var sfArr = (allMatches[sfId] || {})[sfSide] || [];
-      winArr.forEach(function(p) {
-        if (sfArr.length < MAX_PLAYERS) sfArr.push(p);
-      });
-      updates['playoff/matches/' + sfId + '/' + sfSide] = sfArr;
-      allMatches[sfId] = allMatches[sfId] || {};
-      allMatches[sfId][sfSide] = sfArr;
-
-      if (areAllSemiFinalsFull()) {
-        var allSf = ['sf_w','sf_e'];
-        allSf.forEach(function(s) {
-          var sm = allMatches[s] || {};
-          if (!sm.leftName) {
-            updates['playoff/matches/' + s + '/leftName'] = 'Команда ' + (sm.left ? sm.left[0] : '?');
-            updates['playoff/matches/' + s + '/rightName'] = 'Команда ' + (sm.right ? sm.right[0] : '?');
-          }
-        });
-      }
-    }
-
-    if (mid === 'sf_w' || mid === 'sf_e') {
-      var finLink = sfFinalLinks[mid];
-      var finSide = finLink.finalSide;
-      var finArr = (allMatches['final'] || {})[finSide] || [];
-      winArr.forEach(function(p) {
-        if (finArr.length < MAX_PLAYERS) finArr.push(p);
-      });
-      updates['playoff/matches/final/' + finSide] = finArr;
-      allMatches['final'] = allMatches['final'] || {};
-      allMatches['final'][finSide] = finArr;
-    }
-
-    db.ref().update(updates).then(function() {
-      loadAllMatches(function() {
-        openModal(document.querySelector('[data-match-id="' + mid + '"]'));
-        renderBracket();
-      });
-    });
-  };
-
-  window.cancelWinner = function(mid) {
-    if (!isAdmin) return;
-    var m = allMatches[mid] || {};
-    if (!m.winner) return;
-    if (!confirm('Отменить победителя этого матча? Игроки будут убраны из следующего раунда.')) return;
-
-    var updates = {};
-    updates['playoff/matches/' + mid + '/winner'] = null;
-
-    if (mid.startsWith('qf_')) {
-      var link = sfLinks[mid];
-      var sfId = link.sfId;
-      var sfSide = link.sfSide;
-      updates['playoff/matches/' + sfId + '/' + sfSide] = [];
-      updates['playoff/matches/' + sfId + '/leftName'] = null;
-      updates['playoff/matches/' + sfId + '/rightName'] = null;
-    }
-
-    if (mid === 'sf_w' || mid === 'sf_e') {
-      var finLink = sfFinalLinks[mid];
-      var finSide = finLink.finalSide;
-      updates['playoff/matches/final/' + finSide] = [];
-      updates['playoff/matches/final/leftName'] = null;
-      updates['playoff/matches/final/rightName'] = null;
-    }
-
-    db.ref().update(updates).then(function() {
-      db.ref('playoff/scores/' + mid).remove();
-      loadAllMatches(function() {
-        openModal(document.querySelector('[data-match-id="' + mid + '"]'));
-        renderBracket();
-      });
-    });
-  };
-
-  function renderChat(snap) {
-    var c = document.getElementById('commonChatMessages');
-    if (!snap || !snap.exists()) {
-      c.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,0.3);text-align:center;padding:16px;">Здесь пока тихо. Напишите что-нибудь!</div>';
-      return;
-    }
-    var data = snap.val();
-    var keys = Object.keys(data).sort(function(a,b) { return (data[a].time||0) - (data[b].time||0); });
-    var html = '';
-    keys.forEach(function(k) {
-      var msg = data[k];
-      var cls = '', colCls = '', badge = '';
-      if (msg.isAdmin) { cls = 'team-admin'; colCls = 'admin'; badge = '<span class="admin-badge">ADMIN</span>'; }
-      else if (msg.side === 'left') { cls = 'team-west'; colCls = 'west'; }
-      else { cls = 'team-east'; colCls = 'east'; }
-      var delBtn = isAdmin ? '<button class="chat-msg-delete" data-k="' + escapeHtml(k) + '">&times;</button>' : '';
-      html += '<div class="chat-msg ' + cls + '">' + delBtn
-        + '<div class="chat-msg-author ' + colCls + '">' + escapeHtml(msg.author) + badge + '</div>'
-        + '<div class="chat-msg-text">' + escapeHtml(msg.text) + '</div>'
-        + '<div class="chat-msg-time">' + formatTime(msg.time) + '</div></div>';
-    });
-    c.innerHTML = html;
-    c.scrollTop = c.scrollHeight;
-    if (isAdmin) {
-      c.querySelectorAll('.chat-msg-delete').forEach(function(b) {
-        b.addEventListener('click', function(e) {
-          e.stopPropagation();
-          db.ref('playoff/chats/' + currentMatchId + '/' + this.getAttribute('data-k')).remove();
-        });
-      });
-    }
-  }
-
-  function sendMsg() {
-    var input = document.getElementById('commonChatInput');
-    var text = input.value.trim();
-    if (!text) return;
-    var side = 'left';
-    var m = allMatches[currentMatchId] || {};
-    if (myNick && m.right && m.right.indexOf(myNick) !== -1) side = 'right';
-    var author = myNick || 'Гость';
-    db.ref('playoff/chats/' + currentMatchId).push({ author: author, text: text, time: Date.now(), isAdmin: isAdmin, side: side });
-    input.value = '';
-  }
-
-  function closeModal() {
-    document.getElementById('teamModalOverlay').classList.remove('active');
-    currentMatchId = null;
-    if (chatRef) { chatRef.off(); chatRef = null; }
-    var oldW = document.querySelector('.admin-winner-row');
-    if (oldW) oldW.remove();
-  }
-
-  document.getElementById('teamModalClose').addEventListener('click', closeModal);
-  document.getElementById('teamModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
-  document.getElementById('commonChatSend').addEventListener('click', function(e) { e.stopPropagation(); sendMsg(); });
-  document.getElementById('commonChatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.stopPropagation(); sendMsg(); } });
-
-  document.querySelectorAll('.match').forEach(function(m) {
-    m.addEventListener('click', function(e) { e.preventDefault(); openModal(this); });
-  });
-
-  db.ref('playoff/matches').on('value', function(snap) {
-    allMatches = snap.val() || {};
-    matchOrder.forEach(function(mid) {
-      var m = allMatches[mid] || {};
-      if (isTeamFull(m.left) && isTeamFull(m.right)) {
-        if (!m.map) assignMapIfNeeded(mid, m);
-      }
-    });
+function loginAdmin() {
+  const val = document.getElementById('adminPass').value;
+  if (val === ADMIN_PASS) {
+    isAdmin = true;
+    document.getElementById('adminPanel').style.display = 'block';
+    document.getElementById('guestWarning').style.display = 'none';
     renderBracket();
+    if (currentMatch) openMatch(currentMatch);
+  } else {
+    alert('Неверный пароль');
+  }
+}
+
+function getWinner(matchId) { return RESULTS[matchId] ? RESULTS[matchId].winner : null; }
+
+function getScoreDisplay(matchId) {
+  if (!RESULTS[matchId] || !RESULTS[matchId].scores) return '';
+  const s = RESULTS[matchId].scores;
+  let leftSum = 0, rightSum = 0;
+  for (const k in s) {
+    if (k.startsWith('left')) leftSum += parseInt(s[k].left || 0);
+    if (k.startsWith('right')) rightSum += parseInt(s[k].right || 0);
+  }
+  return leftSum + ':' + rightSum;
+}
+
+function renderBracket() {
+  const matchIds = ['qf1','qf2','qf3','qf4','sf1','sf2','final'];
+  matchIds.forEach(id => {
+    const m = TEAMS[id];
+    const topId = id + '-top', botId = id + '-bot';
+    const topEl = document.getElementById(topId);
+    const botEl = document.getElementById(botId);
+    if (!topEl || !botEl) return;
+
+    const winner = getWinner(id);
+    const score = getScoreDisplay(id);
+
+    const leftName = m.left.name || 'TBD';
+    const rightName = m.right.name || 'TBD';
+    const leftSeed = m.left.seed !== null ? m.left.seed : '';
+    const rightSeed = m.right.seed !== null ? m.right.seed : '';
+
+    topEl.innerHTML = '<span class="match-team"><span class="team-seed">'+leftSeed+'</span>'+leftName+'</span>' +
+      (score ? '<span class="score-container"><input class="score-input" value="'+score.split(':')[0]+'" readonly><span class="score-colon">:</span><input class="score-input" value="'+score.split(':')[1]+'" readonly></span>' : '');
+    botEl.innerHTML = '<span class="match-team"><span class="team-seed">'+rightSeed+'</span>'+rightName+'</span>' +
+      (score ? '<span class="score-container"><input class="score-input" value="'+score.split(':')[0]+'" readonly><span class="score-colon">:</span><input class="score-input" value="'+score.split(':')[1]+'" readonly></span>' : '');
+
+    topEl.classList.remove('winner','is-mine-row');
+    botEl.classList.remove('winner','is-mine-row');
+
+    if (winner === 'left') topEl.classList.add('winner');
+    if (winner === 'right') botEl.classList.add('winner');
+
+    if (myTeam && myTeam.startsWith(id)) {
+      if (myTeam.endsWith('left')) topEl.classList.add('is-mine-row');
+      if (myTeam.endsWith('right')) botEl.classList.add('is-mine-row');
+    }
+
+    const matchEl = document.querySelector('[data-match="'+id+'"]');
+    if (matchEl) {
+      matchEl.classList.remove('is-mine');
+      if (myTeam && myTeam.startsWith(id)) matchEl.classList.add('is-mine');
+    }
+  });
+}
+
+function openMatch(matchId) {
+  currentMatch = matchId;
+  const m = TEAMS[matchId];
+  document.getElementById('modalMatchup').textContent = m.left.name + ' vs ' + m.right.name;
+  const grid = document.getElementById('modalGrid');
+  grid.innerHTML = '';
+
+  ['left','right'].forEach(side => {
+    const col = document.createElement('div');
+    col.className = 'participants-col ' + side;
+    if (myTeam && myTeam === matchId+'-'+side) col.classList.add('is-mine-col');
+
+    const title = document.createElement('div');
+    title.className = 'participants-col-title';
+    title.textContent = m[side].name || 'Ожидание';
+    col.appendChild(title);
+
+    const list = document.createElement('ul');
+    list.className = 'participant-list';
+
+    if (m[side].players.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'participant-item';
+      li.textContent = 'Участники не определены';
+      list.appendChild(li);
+    } else {
+      m[side].players.forEach((p, idx) => {
+        const li = document.createElement('li');
+        li.className = 'participant-item';
+        if (myTeam && myTeam === matchId+'-'+side) li.classList.add('is-me');
+
+        const avatar = document.createElement('div');
+        avatar.className = 'participant-avatar';
+        avatar.textContent = p.charAt(0);
+        li.appendChild(avatar);
+
+        const name = document.createElement('span');
+        name.className = 'participant-name';
+        name.textContent = p;
+        li.appendChild(name);
+
+        // Score row: two inputs + colon + OK button
+        if (isAdmin) {
+          const scoreRow = document.createElement('div');
+          scoreRow.className = 'participant-score-row';
+
+          const scoreLabel = document.createElement('span');
+          scoreLabel.className = 'participant-score-label';
+          scoreLabel.textContent = 'Счёт:';
+          scoreRow.appendChild(scoreLabel);
+
+          const scoreContainer = document.createElement('div');
+          scoreContainer.className = 'participant-score-container';
+
+          const inputLeft = document.createElement('input');
+          inputLeft.type = 'text';
+          inputLeft.className = 'participant-score-input';
+          inputLeft.maxLength = 4;
+          inputLeft.placeholder = '0';
+          inputLeft.dataset.side = side;
+          inputLeft.dataset.player = idx;
+          inputLeft.dataset.half = 'left';
+
+          // Pre-fill
+          const saved = RESULTS[matchId] && RESULTS[matchId].scores && RESULTS[matchId].scores[side+'-'+idx];
+          if (saved) {
+            inputLeft.value = saved.left || '';
+          }
+
+          const colon = document.createElement('span');
+          colon.className = 'participant-score-colon';
+          colon.textContent = ':';
+
+          const inputRight = document.createElement('input');
+          inputRight.type = 'text';
+          inputRight.className = 'participant-score-input';
+          inputRight.maxLength = 4;
+          inputRight.placeholder = '0';
+          inputRight.dataset.side = side;
+          inputRight.dataset.player = idx;
+          inputRight.dataset.half = 'right';
+
+          if (saved) {
+            inputRight.value = saved.right || '';
+          }
+
+          scoreContainer.appendChild(inputLeft);
+          scoreContainer.appendChild(colon);
+          scoreContainer.appendChild(inputRight);
+          scoreRow.appendChild(scoreContainer);
+
+          const btn = document.createElement('button');
+          btn.className = 'btn-confirm-score';
+          btn.textContent = 'OK';
+          btn.onclick = function() { saveScore(matchId, side, idx, inputLeft.value, inputRight.value); };
+          scoreRow.appendChild(btn);
+
+          li.appendChild(scoreRow);
+        }
+
+        list.appendChild(li);
+      });
+    }
+
+    col.appendChild(list);
+    grid.appendChild(col);
   });
 
-  initJoin();
-})();
+  // Winner section
+  const winnerSection = document.getElementById('winnerSection');
+  const winnerButtons = document.getElementById('winnerButtons');
+  const winnerLogoSection = document.getElementById('winnerLogoSection');
+  const winnerName = document.getElementById('winnerName');
+
+  const winner = getWinner(matchId);
+
+  if (winner) {
+    winnerSection.classList.remove('show');
+    winnerLogoSection.classList.add('show');
+    winnerName.textContent = m[winner].name;
+    const logoImg = document.getElementById('winnerLogoImg');
+    if (isAdmin) {
+      logoImg.classList.add('admin-clickable');
+      document.getElementById('cancelHint').style.display = 'block';
+    } else {
+      logoImg.classList.remove('admin-clickable');
+      document.getElementById('cancelHint').style.display = 'none';
+    }
+  } else {
+    winnerSection.classList.add('show');
+    winnerLogoSection.classList.remove('show');
+    winnerButtons.innerHTML = '';
+
+    if (isAdmin && m.left.name && m.right.name) {
+      const btnL = document.createElement('button');
+      btnL.className = 'btn-winner';
+      btnL.textContent = m.left.name;
+      btnL.onclick = function() { setWinner(matchId, 'left'); };
+      winnerButtons.appendChild(btnL);
+
+      const btnR = document.createElement('button');
+      btnR.className = 'btn-winner';
+      btnR.textContent = m.right.name;
+      btnR.onclick = function() { setWinner(matchId, 'right'); };
+      winnerButtons.appendChild(btnR);
+    } else {
+      winnerButtons.innerHTML = '<p style="color:rgba(255,255,255,0.5);font-size:13px;">' + (isAdmin ? 'Обе команды должны быть определены' : 'Только админ может выбрать победителя') + '</p>';
+    }
+  }
+
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  currentMatch = null;
+}
+
+function saveScore(matchId, side, playerIdx, leftVal, rightVal) {
+  if (!RESULTS[matchId]) RESULTS[matchId] = { scores: {}, winner: null };
+  if (!RESULTS[matchId].scores) RESULTS[matchId].scores = {};
+  RESULTS[matchId].scores[side+'-'+playerIdx] = { left: leftVal, right: rightVal };
+  renderBracket();
+}
+
+function setWinner(matchId, side) {
+  if (!RESULTS[matchId]) RESULTS[matchId] = { scores: {}, winner: null };
+  RESULTS[matchId].winner = side;
+
+  const m = TEAMS[matchId];
+  const winners = m[side].players.slice();
+
+  // Distribute to next round
+  distributeWinners(matchId, side, winners);
+
+  renderBracket();
+  openMatch(matchId);
+}
+
+function distributeWinners(matchId, side, winners) {
+  // Shuffle winners
+  const shuffled = winners.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp;
+  }
+
+  if (matchId.startsWith('qf')) {
+    const num = parseInt(matchId.charAt(2));
+    if (num === 1 || num === 2) {
+      // -> sf1
+      fillNextTeam('sf1', side === 'left' ? 'left' : 'right', TEAMS[matchId][side], shuffled);
+    } else {
+      // -> sf2
+      fillNextTeam('sf2', side === 'left' ? 'left' : 'right', TEAMS[matchId][side], shuffled);
+    }
+  } else if (matchId === 'sf1') {
+    fillNextTeam('final', 'left', TEAMS[matchId][side], shuffled);
+  } else if (matchId === 'sf2') {
+    fillNextTeam('final', 'right', TEAMS[matchId][side], shuffled);
+  }
+}
+
+function fillNextTeam(nextMatch, slot, teamData, shuffledPlayers) {
+  // Determine which slot based on original match
+  // For qf1->sf1 left, qf2->sf1 right, qf3->sf2 left, qf4->sf2 right
+  // sf1->final left, sf2->final right
+  if (nextMatch === 'sf1') {
+    if (currentMatch === 'qf1') TEAMS.sf1.left = { name: teamData.name, seed: teamData.seed, players: shuffledPlayers };
+    if (currentMatch === 'qf2') TEAMS.sf1.right = { name: teamData.name, seed: teamData.seed, players: shuffledPlayers };
+  } else if (nextMatch === 'sf2') {
+    if (currentMatch === 'qf3') TEAMS.sf2.left = { name: teamData.name, seed: teamData.seed, players: shuffledPlayers };
+    if (currentMatch === 'qf4') TEAMS.sf2.right = { name: teamData.name, seed: teamData.seed, players: shuffledPlayers };
+  } else if (nextMatch === 'final') {
+    if (currentMatch === 'sf1') TEAMS.final.left = { name: teamData.name, seed: teamData.seed, players: shuffledPlayers };
+    if (currentMatch === 'sf2') TEAMS.final.right = { name: teamData.name, seed: teamData.seed, players: shuffledPlayers };
+  }
+}
+
+function cancelWinner(e) {
+  if (e) e.stopPropagation();
+  if (!isAdmin) return;
+  if (!currentMatch) return;
+
+  if (!confirm('Отменить победителя?')) return;
+
+  const matchId = currentMatch;
+  const winner = RESULTS[matchId] ? RESULTS[matchId].winner : null;
+  if (!winner) return;
+
+  RESULTS[matchId].winner = null;
+
+  // Clear next round teams that came from this match
+  if (matchId.startsWith('qf')) {
+    const num = parseInt(matchId.charAt(2));
+    if (num === 1) { TEAMS.sf1.left = { name:'', seed:null, players:[] }; }
+    if (num === 2) { TEAMS.sf1.right = { name:'', seed:null, players:[] }; }
+    if (num === 3) { TEAMS.sf2.left = { name:'', seed:null, players:[] }; }
+    if (num === 4) { TEAMS.sf2.right = { name:'', seed:null, players:[] }; }
+  } else if (matchId === 'sf1') {
+    TEAMS.final.left = { name:'', seed:null, players:[] };
+  } else if (matchId === 'sf2') {
+    TEAMS.final.right = { name:'', seed:null, players:[] };
+  }
+
+  // Clear scores for this match
+  if (RESULTS[matchId]) RESULTS[matchId].scores = {};
+
+  renderBracket();
+  openMatch(matchId);
+}
+
+// Init
+renderBracket();
 </script>
 </body>
 </html>
