@@ -12,9 +12,7 @@
  background-size: cover;
  background-position: center center;
  background-repeat: no-repeat;
- padding: 30px 0; 
- width: 100%;
- box-sizing: border-box;
+ padding: 30px 0;
  border-radius: 12px;
  font-family: 'Inter', sans-serif;
  position: relative;
@@ -219,19 +217,17 @@
  .team-modal-close:hover { background: rgba(255,80,80,0.4); }
 
  .participants-grid {
-  display: flex;
-  justify-content: space-between; 
-  align-items: flex-start;
-  gap: 24px;                     
-  flex-wrap: wrap;
-}
-
-.participants-col {
-  flex: 0 0 calc(50% - 12px);   
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
+ display: flex;
+ gap: 16px;
+ justify-content: space-between;
+ align-items: flex-start;
+ }
+ .participants-col {
+ flex: 1;
+ min-width: 0;
+ display: flex;
+ flex-direction: column;
+ }
  .participants-col-title {
  font-size: 16px;
  font-weight: 700;
