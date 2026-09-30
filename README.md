@@ -218,14 +218,15 @@
 
  .participants-grid {
   display: flex;
-  gap: 16px;
-  justify-content: space-between; 
-  align-items: flex-start;        
+  gap: 24px;                  
+  justify-content: space-between;
+  align-items: flex-start;
   flex-wrap: wrap;
 }
- .participants-col {
-  flex: 1;                        
-  min-width: 0;                   
+
+.participants-col {
+  flex: 0 0 calc(50% - 12px); 
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
