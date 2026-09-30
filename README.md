@@ -452,14 +452,12 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     'qf_e2': { left: 'Команда G', right: 'Команда H' }
   };
 
-  // Team names for semifinals and final (letters I, J, K, L, M, N)
   var sfTeamNames = {
     'sf_w': { left: 'Команда I', right: 'Команда J' },
     'sf_e': { left: 'Команда K', right: 'Команда L' }
   };
   var finalTeamNames = { left: 'Команда M', right: 'Команда N' };
 
-  // All available semifinal slots
   var sfSlots = [
     { sfId: 'sf_w', sfSide: 'left' },
     { sfId: 'sf_w', sfSide: 'right' },
@@ -755,12 +753,25 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     var leftRow = document.createElement('div');
     leftRow.className = 'admin-add-row';
     leftRow.innerHTML = '<input type="text" placeholder="Добавить игрока" id="addInput_left_' + mid + '" maxlength="20"><button class="add-left" onclick="addPlayer(\'' + mid + '\',\'left\')">+</button>';
-    leftCol.appendChild(leftRow);
 
     var rightRow = document.createElement('div');
     rightRow.className = 'admin-add-row';
     rightRow.innerHTML = '<input type="text" placeholder="Добавить игрока" id="addInput_right_' + mid + '" maxlength="20"><button class="add-right" onclick="addPlayer(\'' + mid + '\',\'right\')">+</button>';
-    rightCol.appendChild(rightRow);
+
+    // Insert admin-add-row ABOVE the winner-logo-section if it exists
+    var leftWinnerLogo = leftCol.querySelector('.winner-logo-section');
+    if (leftWinnerLogo) {
+      leftCol.insertBefore(leftRow, leftWinnerLogo);
+    } else {
+      leftCol.appendChild(leftRow);
+    }
+
+    var rightWinnerLogo = rightCol.querySelector('.winner-logo-section');
+    if (rightWinnerLogo) {
+      rightCol.insertBefore(rightRow, rightWinnerLogo);
+    } else {
+      rightCol.appendChild(rightRow);
+    }
 
     var oldW2 = document.querySelector('.admin-winner-row');
     if (oldW2) oldW2.remove();
@@ -808,13 +819,11 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     updates['playoff/matches/' + mid + '/winner'] = side;
 
     if (mid.startsWith('qf_')) {
-      // Each player from winning team goes to a RANDOM available semifinal slot
-      // Players from the same team can go to different slots - independently!
-      var availableSlots = sfSlots.slice(); // copy
-      var distribution = {}; // track: player -> {sfId, sfSide}
+      var availableSlots = sfSlots.slice();
+      var distribution = {};
       
       winArr.forEach(function(p) {
-        if (availableSlots.length === 0) availableSlots = sfSlots.slice(); // refill if needed
+        if (availableSlots.length === 0) availableSlots = sfSlots.slice();
         var randIdx = Math.floor(Math.random() * availableSlots.length);
         var slot = availableSlots.splice(randIdx, 1)[0];
         var sfId = slot.sfId;
@@ -828,12 +837,10 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
         }
         distribution[p] = { sfId: sfId, sfSide: sfSide };
       });
-      // Save distribution for cancel
       updates['playoff/distribution/' + mid] = distribution;
     }
 
     if (mid === 'sf_w' || mid === 'sf_e') {
-      // Each player from winning SF team goes to a RANDOM available final slot
       var availableFin = finalSlots.slice();
       var finDist = {};
       
@@ -872,10 +879,8 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     updates['playoff/matches/' + mid + '/winner'] = null;
 
     if (mid.startsWith('qf_')) {
-      // Use distribution to know which players went where
       db.ref('playoff/distribution/' + mid).once('value').then(function(snap) {
         var dist = snap.val() || {};
-        // Remove each player from their assigned SF slot
         var sfToRemove = {};
         Object.keys(dist).forEach(function(player) {
           var d = dist[player];
