@@ -452,22 +452,20 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     'qf_e2': { left: 'Команда G', right: 'Команда H' }
   };
 
-  var sfNames = {
+  // Team names for semifinals and final (letters I, J, K, L, M, N)
+  var sfTeamNames = {
     'sf_w': { left: 'Команда I', right: 'Команда J' },
     'sf_e': { left: 'Команда K', right: 'Команда L' }
   };
+  var finalTeamNames = { left: 'Команда M', right: 'Команда N' };
 
-  var finalNames = { left: 'Команда M', right: 'Команда N' };
-
-  // Все слоты полуфинала
+  // All available semifinal slots
   var sfSlots = [
     { sfId: 'sf_w', sfSide: 'left' },
     { sfId: 'sf_w', sfSide: 'right' },
     { sfId: 'sf_e', sfSide: 'left' },
     { sfId: 'sf_e', sfSide: 'right' }
   ];
-
-  // Все слоты финала
   var finalSlots = [
     { finalSide: 'left' },
     { finalSide: 'right' }
@@ -596,12 +594,12 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
           var sfNameR = rightNameEl.querySelector('.sf-team-name');
           if (sfNameL && sfNameR) {
             if (mid === 'sf_w' || mid === 'sf_e') {
-              var names = sfNames[mid];
-              sfNameL.textContent = (left && left.length > 0) ? (m.leftName || names.left) : 'Ожидание...';
-              sfNameR.textContent = (right && right.length > 0) ? (m.rightName || names.right) : 'Ожидание...';
+              var names = sfTeamNames[mid] || { left: '?', right: '?' };
+              sfNameL.textContent = (left.length > 0) ? names.left : 'Ожидание...';
+              sfNameR.textContent = (right.length > 0) ? names.right : 'Ожидание...';
             } else if (mid === 'final') {
-              sfNameL.textContent = (left && left.length > 0) ? (m.leftName || finalNames.left) : 'Ожидание...';
-              sfNameR.textContent = (right && right.length > 0) ? (m.rightName || finalNames.right) : 'Ожидание...';
+              sfNameL.textContent = (left.length > 0) ? finalTeamNames.left : 'Ожидание...';
+              sfNameR.textContent = (right.length > 0) ? finalTeamNames.right : 'Ожидание...';
             }
           }
         }
@@ -642,7 +640,16 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     loadAllMatches(function() {
       var m = allMatches[mid] || {};
       var left = m.left || [], right = m.right || [];
-      var teams = qfTeams[mid] || { left: m.leftName || 'Команда 1', right: m.rightName || 'Команда 2' };
+      var teams;
+      if (mid.startsWith('qf_')) {
+        teams = qfTeams[mid];
+      } else if (mid === 'sf_w' || mid === 'sf_e') {
+        teams = sfTeamNames[mid] || { left: 'Команда ?', right: 'Команда ?' };
+      } else if (mid === 'final') {
+        teams = finalTeamNames;
+      } else {
+        teams = { left: m.leftName || 'Команда 1', right: m.rightName || 'Команда 2' };
+      }
 
       document.getElementById('teamModalMatchup').textContent = teams.left + ' vs ' + teams.right;
       document.getElementById('leftTeamName').textContent = teams.left;
@@ -796,74 +803,56 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   window.confirmWinner = function(mid, side) {
     var m = allMatches[mid] || {};
     if (m.winner) { alert('Победитель уже выбран!'); return; }
-    var winArr = (m[side] || []).slice();
+    var winArr = m[side] || [];
     var updates = {};
     updates['playoff/matches/' + mid + '/winner'] = side;
 
-    // Карта: игрок -> куда ушёл (для отмены)
-    var playerMap = {};
-
     if (mid.startsWith('qf_')) {
-      // Собираем доступные слоты полуфинала (где < MAX_PLAYERS)
-      var avail = sfSlots.filter(function(sl) {
-        var arr = (allMatches[sl.sfId] || {})[sl.sfSide] || [];
-        return arr.length < MAX_PLAYERS;
-      });
-
+      // Each player from winning team goes to a RANDOM available semifinal slot
+      // Players from the same team can go to different slots - independently!
+      var availableSlots = sfSlots.slice(); // copy
+      var distribution = {}; // track: player -> {sfId, sfSide}
+      
       winArr.forEach(function(p) {
-        // Обновляем список доступных слотов
-        avail = sfSlots.filter(function(sl) {
-          var arr = (allMatches[sl.sfId] || {})[sl.sfSide] || [];
-          return arr.length < MAX_PLAYERS;
-        });
-        if (avail.length === 0) return; // не должно случиться
-        var pick = avail[Math.floor(Math.random() * avail.length)];
-        var arr = (allMatches[pick.sfId] || {})[pick.sfSide] || [];
-        arr.push(p);
-        allMatches[pick.sfId] = allMatches[pick.sfId] || {};
-        allMatches[pick.sfId][pick.sfSide] = arr;
-        updates['playoff/matches/' + pick.sfId + '/' + pick.sfSide] = arr;
-        playerMap[p] = { sfId: pick.sfId, sfSide: pick.sfSide };
+        if (availableSlots.length === 0) availableSlots = sfSlots.slice(); // refill if needed
+        var randIdx = Math.floor(Math.random() * availableSlots.length);
+        var slot = availableSlots.splice(randIdx, 1)[0];
+        var sfId = slot.sfId;
+        var sfSide = slot.sfSide;
+        var sfArr = (allMatches[sfId] || {})[sfSide] || [];
+        if (sfArr.length < MAX_PLAYERS) {
+          sfArr.push(p);
+          updates['playoff/matches/' + sfId + '/' + sfSide] = sfArr;
+          allMatches[sfId] = allMatches[sfId] || {};
+          allMatches[sfId][sfSide] = sfArr;
+        }
+        distribution[p] = { sfId: sfId, sfSide: sfSide };
       });
-
-      // Ставим имена полуфиналам сразу
-      ['sf_w','sf_e'].forEach(function(s) {
-        var sm = allMatches[s] || {};
-        var names = sfNames[s];
-        if (sm.left && sm.left.length > 0) updates['playoff/matches/' + s + '/leftName'] = names.left;
-        if (sm.right && sm.right.length > 0) updates['playoff/matches/' + s + '/rightName'] = names.right;
-      });
+      // Save distribution for cancel
+      updates['playoff/distribution/' + mid] = distribution;
     }
 
     if (mid === 'sf_w' || mid === 'sf_e') {
-      var avail = finalSlots.filter(function(sl) {
-        var arr = (allMatches['final'] || {})[sl.finalSide] || [];
-        return arr.length < MAX_PLAYERS;
-      });
-
+      // Each player from winning SF team goes to a RANDOM available final slot
+      var availableFin = finalSlots.slice();
+      var finDist = {};
+      
       winArr.forEach(function(p) {
-        avail = finalSlots.filter(function(sl) {
-          var arr = (allMatches['final'] || {})[sl.finalSide] || [];
-          return arr.length < MAX_PLAYERS;
-        });
-        if (avail.length === 0) return;
-        var pick = avail[Math.floor(Math.random() * avail.length)];
-        var arr = (allMatches['final'] || {})[pick.finalSide] || [];
-        arr.push(p);
-        allMatches['final'] = allMatches['final'] || {};
-        allMatches['final'][pick.finalSide] = arr;
-        updates['playoff/matches/final/' + pick.finalSide] = arr;
-        playerMap[p] = { finalSide: pick.finalSide };
+        if (availableFin.length === 0) availableFin = finalSlots.slice();
+        var randIdx = Math.floor(Math.random() * availableFin.length);
+        var slot = availableFin.splice(randIdx, 1)[0];
+        var finSide = slot.finalSide;
+        var finArr = (allMatches['final'] || {})[finSide] || [];
+        if (finArr.length < MAX_PLAYERS) {
+          finArr.push(p);
+          updates['playoff/matches/final/' + finSide] = finArr;
+          allMatches['final'] = allMatches['final'] || {};
+          allMatches['final'][finSide] = finArr;
+        }
+        finDist[p] = { finalSide: finSide };
       });
-
-      // Ставим имена финалу сразу
-      var fm = allMatches['final'] || {};
-      if (fm.left && fm.left.length > 0) updates['playoff/matches/final/leftName'] = finalNames.left;
-      if (fm.right && fm.right.length > 0) updates['playoff/matches/final/rightName'] = finalNames.right;
+      updates['playoff/distribution/' + mid] = finDist;
     }
-
-    // Сохраняем карту переходов для отмены
-    updates['playoff/winnerMaps/' + mid] = playerMap;
 
     db.ref().update(updates).then(function() {
       loadAllMatches(function() {
@@ -881,54 +870,83 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 
     var updates = {};
     updates['playoff/matches/' + mid + '/winner'] = null;
-    updates['playoff/winnerMaps/' + mid] = null;
 
-    // Читаем карту переходов из базы
-    db.ref('playoff/winnerMaps/' + mid).once('value').then(function(snap) {
-      var pMap = snap.val() || {};
-
-      if (mid.startsWith('qf_')) {
-        // Убираем каждого игрока из его слота
-        Object.keys(pMap).forEach(function(p) {
-          var info = pMap[p];
-          var arr = (allMatches[info.sfId] || {})[info.sfSide] || [];
-          var idx = arr.indexOf(p);
-          if (idx !== -1) arr.splice(idx, 1);
-          allMatches[info.sfId] = allMatches[info.sfId] || {};
-          allMatches[info.sfId][info.sfSide] = arr;
-          updates['playoff/matches/' + info.sfId + '/' + info.sfSide] = arr;
+    if (mid.startsWith('qf_')) {
+      // Use distribution to know which players went where
+      db.ref('playoff/distribution/' + mid).once('value').then(function(snap) {
+        var dist = snap.val() || {};
+        // Remove each player from their assigned SF slot
+        var sfToRemove = {};
+        Object.keys(dist).forEach(function(player) {
+          var d = dist[player];
+          var key = d.sfId + '/' + d.sfSide;
+          if (!sfToRemove[key]) sfToRemove[key] = [];
+          sfToRemove[key].push(player);
         });
-
-        // Обновляем имена полуфиналов
-        ['sf_w','sf_e'].forEach(function(s) {
-          var sm = allMatches[s] || {};
-          if (!sm.left || sm.left.length === 0) updates['playoff/matches/' + s + '/leftName'] = null;
-          if (!sm.right || sm.right.length === 0) updates['playoff/matches/' + s + '/rightName'] = null;
+        Object.keys(sfToRemove).forEach(function(key) {
+          var parts = key.split('/');
+          var sfId = parts[0];
+          var sfSide = parts[1];
+          var arr = (allMatches[sfId] || {})[sfSide] || [];
+          sfToRemove[key].forEach(function(p) {
+            var idx = arr.indexOf(p);
+            if (idx !== -1) arr.splice(idx, 1);
+          });
+          updates['playoff/matches/' + key] = arr;
+          allMatches[sfId] = allMatches[sfId] || {};
+          allMatches[sfId][sfSide] = arr;
         });
-      }
+        updates['playoff/distribution/' + mid] = null;
+        
+        db.ref().update(updates).then(function() {
+          db.ref('playoff/scores/' + mid).remove();
+          loadAllMatches(function() {
+            openModal(document.querySelector('[data-match-id="' + mid + '"]'));
+            renderBracket();
+          });
+        });
+      });
+      return;
+    }
 
-      if (mid === 'sf_w' || mid === 'sf_e') {
-        Object.keys(pMap).forEach(function(p) {
-          var info = pMap[p];
-          var arr = (allMatches['final'] || {})[info.finalSide] || [];
-          var idx = arr.indexOf(p);
-          if (idx !== -1) arr.splice(idx, 1);
+    if (mid === 'sf_w' || mid === 'sf_e') {
+      db.ref('playoff/distribution/' + mid).once('value').then(function(snap) {
+        var dist = snap.val() || {};
+        var finToRemove = {};
+        Object.keys(dist).forEach(function(player) {
+          var d = dist[player];
+          var key = d.finalSide;
+          if (!finToRemove[key]) finToRemove[key] = [];
+          finToRemove[key].push(player);
+        });
+        Object.keys(finToRemove).forEach(function(finSide) {
+          var arr = (allMatches['final'] || {})[finSide] || [];
+          finToRemove[finSide].forEach(function(p) {
+            var idx = arr.indexOf(p);
+            if (idx !== -1) arr.splice(idx, 1);
+          });
+          updates['playoff/matches/final/' + finSide] = arr;
           allMatches['final'] = allMatches['final'] || {};
-          allMatches['final'][info.finalSide] = arr;
-          updates['playoff/matches/final/' + info.finalSide] = arr;
+          allMatches['final'][finSide] = arr;
         });
-
-        var fm = allMatches['final'] || {};
-        if (!fm.left || fm.left.length === 0) updates['playoff/matches/final/leftName'] = null;
-        if (!fm.right || fm.right.length === 0) updates['playoff/matches/final/rightName'] = null;
-      }
-
-      db.ref().update(updates).then(function() {
-        db.ref('playoff/scores/' + mid).remove();
-        loadAllMatches(function() {
-          openModal(document.querySelector('[data-match-id="' + mid + '"]'));
-          renderBracket();
+        updates['playoff/distribution/' + mid] = null;
+        
+        db.ref().update(updates).then(function() {
+          db.ref('playoff/scores/' + mid).remove();
+          loadAllMatches(function() {
+            openModal(document.querySelector('[data-match-id="' + mid + '"]'));
+            renderBracket();
+          });
         });
+      });
+      return;
+    }
+
+    db.ref().update(updates).then(function() {
+      db.ref('playoff/scores/' + mid).remove();
+      loadAllMatches(function() {
+        openModal(document.querySelector('[data-match-id="' + mid + '"]'));
+        renderBracket();
       });
     });
   };
