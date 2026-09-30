@@ -587,9 +587,9 @@
  <div class="chat-loading">Загрузка сообщений...</div>
  </div>
  <div class="chat-input-row">
-  <input type="text" id="nickInput" placeholder="MaTecTo" maxlength="20" style="width:100%;margin-bottom:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;">
+  <input type="text" id="nickInput" placeholder="Ваш ник" maxlength="20" style="width:100%;margin-bottom:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;color:#fff;font-size:13px;outline:none;">
  <input type="text" class="chat-input" id="commonChatInput" placeholder="Напишите сообщение..." maxlength="200">
- <button class="chat-send" id="commonChatSend">Отправить<button class="chat-send" onclick="adminLogin()" style="margin-left:8px;background:rgba(255,80,80,0.15);border-color:rgba(255,80,80,0.3);color:#ff6b6b;">Вход админа</button>
+ <button class="chat-send" id="commonChatSend">Отправить</button>
  </div>
  </div>
  </div>
@@ -627,26 +627,20 @@
  var currentMatchId = null;
  var chatListenerRef = null;
 
- var adminLoggedIn = false;
+ var ADMIN_NICK = 'MaTecTo';
 
 function isAdmin() {
-  return adminLoggedIn;
-}
-
-function adminLogin() {
-  var pwd = prompt('Введите пароль админа:');
-  if (pwd === '12$sacreD') {
-    adminLoggedIn = true;
-    alert('Вы вошли как админ!');
-  } else if (pwd !== null) {
-    alert('Неверный пароль!');
-  }
-}
-
-
-function getUserName() {
   var nameInput = document.getElementById('nickInput');
-  if (nameInput && nameInput.value.trim()) return nameInput.value.trim();
+  return nameInput && nameInput.value.trim() === ADMIN_NICK;
+}
+
+
+ function getUserName() {
+  var nameInput = document.getElementById('nickInput');
+  if (nameInput && nameInput.value.trim()) {
+    if (isAdmin()) return 'Админ';
+    return nameInput.value.trim();
+  }
   return 'Гость';
 }
 
