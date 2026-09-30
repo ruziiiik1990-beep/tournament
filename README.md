@@ -275,17 +275,14 @@
  }
 
  .map-center {
-  flex: 0 0 auto;
-  width: 140px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center; 
-  gap: 8px;
-  padding-top: 20px;     
-  margin: 0 auto;
-  box-sizing: border-box;
-}
+ flex: 0 0 auto;
+ width: 140px;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ gap: 10px;
+ padding-top: 40px;
+ }
  .map-label {
  font-size: 11px;
  font-weight: 700;
@@ -485,8 +482,8 @@
  .tournament-title { font-size: 22px; }
  .match { max-width: 100%; }
  .participants-grid { flex-direction: column; align-items: center; gap: 20px; }
- .map-center { padding: 10px 0; }
- .team-modal { width: 120%; padding: 20px; }
+ .map-center { padding-top: 0; }
+ .team-modal { width: 100%; padding: 20px; }
  .chat-msg { max-width: 95%; }
  }
 </style>
