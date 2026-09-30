@@ -1,4 +1,4 @@
-code = r'''<html lang="ru">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -66,6 +66,12 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 }
 .match-score { font-weight: 700; font-size: 14px; min-width: 22px; text-align: center; }
 .match-divider { height: 1px; background: rgba(255,255,255,0.08); }
+
+.match-winner-badge { display: flex; justify-content: center; padding: 4px 0 6px; background: rgba(76,175,80,0.15); }
+.match-winner-badge img {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid #66bb6a; box-shadow: 0 0 8px rgba(102,187,106,0.6);
+}
 
 .final-box {
   background: rgba(0,0,0,0.55); border-radius: 12px; padding: 20px;
@@ -157,7 +163,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 .participant-item {
   display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.06);
   border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 13px; font-weight: 500;
-  position: relative;
+  position: relative; flex-wrap: wrap;
 }
 .participant-item.is-me {
   background: rgba(74,158,255,0.2); border: 1px solid rgba(74,158,255,0.5);
@@ -183,7 +189,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   display: flex; justify-content: center; padding: 8px 0 4px;
 }
 .winner-logo-section img {
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 32px; height: 32px; border-radius: 50%;
   border: 2px solid #66bb6a; box-shadow: 0 0 12px rgba(102,187,106,0.7);
   animation: pulse-win 2s ease-in-out infinite;
 }
@@ -192,7 +198,9 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   50% { box-shadow: 0 0 18px rgba(102,187,106,0.9); }
 }
 
-.admin-add-row { display: flex; gap: 8px; margin-top: 10px; }
+.admin-add-row {
+  display: flex; gap: 8px; margin-top: 10px;
+}
 .admin-add-row input {
   flex: 1; padding: 8px 10px; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
   background: rgba(0,0,0,0.3); color: #fff; font-size: 13px; font-family: 'Inter', sans-serif;
@@ -215,12 +223,13 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   font-family: 'Inter', sans-serif; transition: transform 0.15s, box-shadow 0.2s;
 }
 .admin-winner-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-.admin-winner-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 .admin-winner-btn.win-left { background: linear-gradient(135deg, #4a90d9, #6fb3ff); color: #fff; }
 .admin-winner-btn.win-right { background: linear-gradient(135deg, #e07845, #ff8a65); color: #fff; }
 .admin-winner-btn img { width: 18px; height: 18px; border-radius: 50%; }
 
-.score-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.score-row {
+  display: flex; align-items: center; gap: 6px; margin-top: 4px;
+}
 .score-input {
   width: 50px; padding: 4px 8px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
   background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; font-weight: 700; text-align: center;
@@ -228,10 +237,11 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 }
 .score-input:focus { border-color: rgba(255,215,0,0.5); }
 .score-input::placeholder { color: rgba(255,255,255,0.25); font-weight: 400; }
-.score-input:disabled { opacity: 0.5; }
+.score-input:disabled { opacity: 0.4; }
 .score-confirm {
   width: 26px; height: 26px; border-radius: 50%; border: none; cursor: pointer;
-  padding: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  padding: 0; overflow: hidden; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
 }
 .score-confirm img { width: 100%; height: 100%; object-fit: cover; }
 .score-confirmed { font-size: 11px; color: #66bb6a; font-weight: 700; }
@@ -439,19 +449,12 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     'qf_e2': { left: 'Команда G', right: 'Команда H' }
   };
 
-  // Все 4 команды полуфинала, куда могут попасть победители четвертьфинала
-  var sfSlots = [
-    { matchId: 'sf_w', side: 'left' },
-    { matchId: 'sf_w', side: 'right' },
-    { matchId: 'sf_e', side: 'left' },
-    { matchId: 'sf_e', side: 'right' }
-  ];
-
-  // 2 команды финала, куда могут попасть победители полуфинала
-  var finalSlots = [
-    { matchId: 'final', side: 'left' },
-    { matchId: 'final', side: 'right' }
-  ];
+  var sfLinks = {
+    'qf_w1': { sfId: 'sf_w', sfSide: 'left' },
+    'qf_w2': { sfId: 'sf_w', sfSide: 'right' },
+    'qf_e1': { sfId: 'sf_e', sfSide: 'left' },
+    'qf_e2': { sfId: 'sf_e', sfSide: 'right' }
+  };
 
   function getUrlParam(n) { var u = new URL(window.location.href); return u.searchParams.get(n); }
   myNick = getUrlParam('user');
@@ -464,14 +467,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   function formatTime(ts) {
     var d = new Date(ts); var h = String(d.getHours()).padStart(2,'0'); var m = String(d.getMinutes()).padStart(2,'0');
     return h + ':' + m;
-  }
-
-  function shuffleArray(arr) {
-    for (var i = arr.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
-    }
-    return arr;
   }
 
   function initJoin() {
@@ -514,7 +509,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
               var a = s2.val() || [];
               a.push(myNick);
               db.ref('playoff/matches/' + pick.matchId + '/' + pick.side).set(a);
-              db.ref('playoff/allParticipants/' + myNick.replace(/[\.\#\$\/]/g,'_')).set(myNick);
+              db.ref('playoff/allParticipants/' + myNick.replace(/[^a-zA-Z0-9]/g,'_')).set(myNick);
               document.getElementById('joinSection').innerHTML = '<p class="joined-msg">Ты в игре! Найди свою команду в сетке.</p>';
             });
           }
@@ -544,7 +539,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   function loadAllMatches(cb) {
     db.ref('playoff/matches').once('value').then(function(snap) {
       allMatches = snap.val() || {};
-      cb();
+      if (cb) cb();
     });
   }
 
@@ -560,138 +555,137 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     return true;
   }
 
-  function areBothFinalTeamsFull() {
-    var m = allMatches['final'] || {};
-    var l = m.left || [], r = m.right || [];
-    return isTeamFull(l) && isTeamFull(r);
-  }
-
   function renderBracket() {
-    matchOrder.forEach(function(mid) {
-      var el = document.querySelector('[data-match-id="' + mid + '"]');
-      if (!el) return;
-      var m = allMatches[mid] || {};
-      var left = m.left || [], right = m.right || [];
-      var winner = m.winner || null;
+    loadAllMatches(function() {
+      matchOrder.forEach(function(mid) {
+        var el = document.querySelector('[data-match-id="' + mid + '"]');
+        if (!el) return;
+        var m = allMatches[mid] || {};
+        var left = m.left || [], right = m.right || [];
+        var winner = m.winner || null;
 
-      var rows = el.querySelectorAll('.match-row');
-      var leftNameEl = rows[0].querySelector('.match-team');
-      var rightNameEl = rows[1].querySelector('.match-team');
-      var leftScoreEl = rows[0].querySelector('.match-score');
-      var rightScoreEl = rows[1].querySelector('.match-score');
+        var rows = el.querySelectorAll('.match-row');
+        var leftNameEl = rows[0].querySelector('.match-team');
+        var rightNameEl = rows[1].querySelector('.match-team');
+        var leftScoreEl = rows[0].querySelector('.match-score');
+        var rightScoreEl = rows[1].querySelector('.match-score');
 
-      if (mid.startsWith('qf_')) {
-        var teams = qfTeams[mid];
-        var lSeed = leftNameEl.querySelector('.team-seed').textContent;
-        var rSeed = rightNameEl.querySelector('.team-seed').textContent;
-        leftNameEl.innerHTML = '<span class="team-seed">' + lSeed + '</span> ' + teams.left;
-        rightNameEl.innerHTML = '<span class="team-seed">' + rSeed + '</span> ' + teams.right;
-      } else {
-        var sfNameL = leftNameEl.querySelector('.sf-team-name');
-        var sfNameR = rightNameEl.querySelector('.sf-team-name');
-        if (mid === 'sf_w' || mid === 'sf_e') {
-          if (areAllSemiFinalsFull()) {
-            sfNameL.textContent = m.leftName || ('Команда ' + (left[0] || '?'));
-            sfNameR.textContent = m.rightName || ('Команда ' + (right[0] || '?'));
-          } else {
-            sfNameL.textContent = 'Ожидание...';
-            sfNameR.textContent = 'Ожидание...';
-          }
-        } else if (mid === 'final') {
-          if (areBothFinalTeamsFull()) {
-            sfNameL.textContent = m.leftName || ('Команда ' + (left[0] || '?'));
-            sfNameR.textContent = m.rightName || ('Команда ' + (right[0] || '?'));
-          } else {
-            sfNameL.textContent = 'Ожидание...';
-            sfNameR.textContent = 'Ожидание...';
+        if (mid.startsWith('qf_')) {
+          var teams = qfTeams[mid];
+          leftNameEl.innerHTML = '<span class="team-seed">' + (rows[0].querySelector('.team-seed') ? rows[0].querySelector('.team-seed').textContent : '') + '</span> ' + teams.left;
+          rightNameEl.innerHTML = '<span class="team-seed">' + (rows[1].querySelector('.team-seed') ? rows[1].querySelector('.team-seed').textContent : '') + '</span> ' + teams.right;
+        } else {
+          var sfNameL = leftNameEl.querySelector('.sf-team-name');
+          var sfNameR = rightNameEl.querySelector('.sf-team-name');
+          if (sfNameL && sfNameR) {
+            if (mid === 'sf_w' || mid === 'sf_e') {
+              if (areAllSemiFinalsFull()) {
+                sfNameL.textContent = m.leftName || 'Команда ' + (left[0] || '?');
+                sfNameR.textContent = m.rightName || 'Команда ' + (right[0] || '?');
+              } else {
+                sfNameL.textContent = 'Ожидание...';
+                sfNameR.textContent = 'Ожидание...';
+              }
+            } else if (mid === 'final') {
+              sfNameL.textContent = m.leftName || 'Ожидание...';
+              sfNameR.textContent = m.rightName || 'Ожидание...';
+            }
           }
         }
-      }
 
-      leftScoreEl.textContent = '';
-      rightScoreEl.textContent = '';
-      rows[0].classList.remove('winner');
-      rows[1].classList.remove('winner');
-      rows[0].classList.remove('is-mine-row');
-      rows[1].classList.remove('is-mine-row');
+        leftScoreEl.textContent = '';
+        rightScoreEl.textContent = '';
+        rows[0].classList.remove('winner');
+        rows[1].classList.remove('winner');
+        rows[0].classList.remove('is-mine-row');
+        rows[1].classList.remove('is-mine-row');
 
-      if (myNick) {
-        if (left.indexOf(myNick) !== -1) rows[0].classList.add('is-mine-row');
-        if (right.indexOf(myNick) !== -1) rows[1].classList.add('is-mine-row');
-      }
-      if (winner === 'left') { rows[0].classList.add('winner'); leftScoreEl.textContent = 'WIN'; }
-      if (winner === 'right') { rows[1].classList.add('winner'); rightScoreEl.textContent = 'WIN'; }
+        if (myNick) {
+          if (left.indexOf(myNick) !== -1) rows[0].classList.add('is-mine-row');
+          if (right.indexOf(myNick) !== -1) rows[1].classList.add('is-mine-row');
+        }
+        if (winner === 'left') { rows[0].classList.add('winner'); leftScoreEl.textContent = 'WIN'; }
+        if (winner === 'right') { rows[1].classList.add('winner'); rightScoreEl.textContent = 'WIN'; }
 
-      el.classList.remove('is-mine');
-      if (myNick && (left.indexOf(myNick) !== -1 || right.indexOf(myNick) !== -1)) {
-        el.classList.add('is-mine');
-      }
+        el.classList.remove('is-mine');
+        if (myNick && (left.indexOf(myNick) !== -1 || right.indexOf(myNick) !== -1)) {
+          el.classList.add('is-mine');
+        }
+
+        var oldBadge = el.querySelector('.match-winner-badge');
+        if (oldBadge) oldBadge.remove();
+        if (winner) {
+          var badge = document.createElement('div');
+          badge.className = 'match-winner-badge';
+          badge.innerHTML = '<img src="' + YOU_AVATAR + '" alt="Победа">';
+          el.appendChild(badge);
+        }
+      });
     });
   }
 
   function assignMapIfNeeded(mid, m) {
     if (isTeamFull(m.left) && isTeamFull(m.right) && !m.map) {
       var idx = Math.floor(Math.random() * maps.length);
-      db.ref('playoff/matches/' + mid + '/map').set(maps[idx]);
+      var mapData = maps[idx];
+      db.ref('playoff/matches/' + mid + '/map').set(mapData);
     }
   }
 
   function openModal(matchEl) {
     var mid = matchEl.getAttribute('data-match-id');
     currentMatchId = mid;
-    var m = allMatches[mid] || {};
-    var left = m.left || [], right = m.right || [];
+    loadAllMatches(function() {
+      var m = allMatches[mid] || {};
+      var left = m.left || [], right = m.right || [];
+      var teams = qfTeams[mid] || { left: m.leftName || 'Команда 1', right: m.rightName || 'Команда 2' };
 
-    var teams = qfTeams[mid] || { left: m.leftName || 'Команда 1', right: m.rightName || 'Команда 2' };
-    document.getElementById('teamModalMatchup').textContent = teams.left + ' vs ' + teams.right;
-    document.getElementById('leftTeamName').textContent = teams.left;
-    document.getElementById('rightTeamName').textContent = teams.right;
+      document.getElementById('teamModalMatchup').textContent = teams.left + ' vs ' + teams.right;
+      document.getElementById('leftTeamName').textContent = teams.left;
+      document.getElementById('rightTeamName').textContent = teams.right;
 
-    var leftCol = document.getElementById('leftCol');
-    var rightCol = document.getElementById('rightCol');
-    leftCol.classList.remove('is-mine-col');
-    rightCol.classList.remove('is-mine-col');
+      var leftCol = document.getElementById('leftCol');
+      var rightCol = document.getElementById('rightCol');
+      leftCol.classList.remove('is-mine-col');
+      rightCol.classList.remove('is-mine-col');
 
-    if (myNick && left.indexOf(myNick) !== -1) leftCol.classList.add('is-mine-col');
-    if (myNick && right.indexOf(myNick) !== -1) rightCol.classList.add('is-mine-col');
+      if (myNick && left.indexOf(myNick) !== -1) leftCol.classList.add('is-mine-col');
+      if (myNick && right.indexOf(myNick) !== -1) rightCol.classList.add('is-mine-col');
 
-    // Удаляем старый winner-logo
-    [leftCol, rightCol].forEach(function(col) {
-      var old = col.querySelector('.winner-logo-section');
-      if (old) old.remove();
+      document.getElementById('leftParticipantList').innerHTML = buildParticipantList(mid, 'left', left);
+      document.getElementById('rightParticipantList').innerHTML = buildParticipantList(mid, 'right', right);
+
+      var oldW = document.querySelector('.winner-logo-section');
+      if (oldW) oldW.remove();
+      if (m.winner) {
+        var winSide = m.winner;
+        var winCol = winSide === 'left' ? leftCol : rightCol;
+        var winSec = document.createElement('div');
+        winSec.className = 'winner-logo-section';
+        winSec.innerHTML = '<img src="' + YOU_AVATAR + '" alt="Победа">';
+        winCol.appendChild(winSec);
+      }
+
+      if (isAdmin) addAdminControls(mid, teams);
+
+      var mapUrl = m.map ? m.map.url : null;
+      var mapName = m.map ? m.map.name : null;
+      var mapImg = document.getElementById('mapImage');
+      var mapPh = document.getElementById('mapPlaceholder');
+      var mapNameEl = document.getElementById('mapName');
+      if (mapUrl) {
+        mapImg.src = mapUrl; mapImg.alt = mapName; mapImg.style.display = 'block';
+        mapPh.style.display = 'none'; mapNameEl.textContent = mapName; mapNameEl.classList.remove('empty');
+      } else {
+        mapImg.style.display = 'none'; mapPh.style.display = 'flex';
+        mapNameEl.textContent = 'Не выбрана'; mapNameEl.classList.add('empty');
+      }
+
+      if (chatRef) chatRef.off();
+      chatRef = db.ref('playoff/chats/' + mid);
+      chatRef.on('value', renderChat);
+      document.getElementById('teamModalOverlay').classList.add('active');
     });
-
-    document.getElementById('leftParticipantList').innerHTML = buildParticipantList(mid, 'left', left);
-    document.getElementById('rightParticipantList').innerHTML = buildParticipantList(mid, 'right', right);
-
-    // logo1.jpg ТОЛЬКО под победившей командой (не под игроками)
-    if (m.winner) {
-      var winCol = m.winner === 'left' ? leftCol : rightCol;
-      var winSec = document.createElement('div');
-      winSec.className = 'winner-logo-section';
-      winSec.innerHTML = '<img src="' + YOU_AVATAR + '" alt="Победа">';
-      winCol.appendChild(winSec);
-    }
-
-    if (isAdmin) addAdminControls(mid, teams);
-
-    var mapUrl = m.map ? m.map.url : null;
-    var mapName = m.map ? m.map.name : null;
-    var mapImg = document.getElementById('mapImage');
-    var mapPh = document.getElementById('mapPlaceholder');
-    var mapNameEl = document.getElementById('mapName');
-    if (mapUrl) {
-      mapImg.src = mapUrl; mapImg.alt = mapName; mapImg.style.display = 'block';
-      mapPh.style.display = 'none'; mapNameEl.textContent = mapName; mapNameEl.classList.remove('empty');
-    } else {
-      mapImg.style.display = 'none'; mapPh.style.display = 'flex';
-      mapNameEl.textContent = 'Не выбрана'; mapNameEl.classList.add('empty');
-    }
-
-    if (chatRef) chatRef.off();
-    chatRef = db.ref('playoff/chats/' + mid);
-    chatRef.on('value', renderChat);
-    document.getElementById('teamModalOverlay').classList.add('active');
   }
 
   function buildParticipantList(mid, side, arr) {
@@ -707,11 +701,11 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       var scoreHtml = '';
       if (nick) {
         var isLeft = side === 'left';
-        var inputHtml = '<input type="number" class="score-input" id="score_' + side + '_' + i + '" placeholder="0" min="0" max="99" style="order:' + (isLeft ? 2 : 0) + '">';
-        var btnHtml = '<button class="score-confirm" onclick="confirmScore(\'' + mid + '\',\'' + side + '\',' + i + ')" style="order:' + (isLeft ? 3 : 1) + '"><img src="' + YOU_AVATAR + '" alt="OK"></button>';
-        var statusHtml = '<span class="score-pending" id="score_status_' + side + '_' + i + '" style="order:' + (isLeft ? 4 : 2) + '">Ожидает</span>';
+        var inputHtml = '<input type="number" class="score-input" id="score_' + side + '_' + i + '" placeholder="0" min="0" max="99">';
+        var btnHtml = '<button class="score-confirm" onclick="confirmScore(\'' + mid + '\',\'' + side + '\',' + i + ')"><img src="' + YOU_AVATAR + '" alt="OK"></button>';
+        var statusHtml = '<span class="score-pending" id="score_status_' + side + '_' + i + '">Ожидает</span>';
         if (isLeft) {
-          scoreHtml = '<div class="score-row" style="margin-left:auto">' + inputHtml + btnHtml + statusHtml + '</div>';
+          scoreHtml = '<div class="score-row" style="margin-left:auto;justify-content:flex-end">' + inputHtml + btnHtml + statusHtml + '</div>';
         } else {
           scoreHtml = '<div class="score-row">' + statusHtml + btnHtml + inputHtml + '</div>';
         }
@@ -741,14 +735,16 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   function addAdminControls(mid, teams) {
     var leftCol = document.getElementById('leftCol');
     var rightCol = document.getElementById('rightCol');
-    [leftCol, rightCol].forEach(function(col) {
-      var old = col.querySelector('.admin-add-row');
-      if (old) old.remove();
-    });
+    var oldL = leftCol.querySelector('.admin-add-row');
+    if (oldL) oldL.remove();
+    var oldR = rightCol.querySelector('.admin-add-row');
+    if (oldR) oldR.remove();
+
     var leftRow = document.createElement('div');
     leftRow.className = 'admin-add-row';
     leftRow.innerHTML = '<input type="text" placeholder="Добавить игрока" id="addInput_left_' + mid + '" maxlength="20"><button class="add-left" onclick="addPlayer(\'' + mid + '\',\'left\')">+</button>';
     leftCol.appendChild(leftRow);
+
     var rightRow = document.createElement('div');
     rightRow.className = 'admin-add-row';
     rightRow.innerHTML = '<input type="text" placeholder="Добавить игрока" id="addInput_right_' + mid + '" maxlength="20"><button class="add-right" onclick="addPlayer(\'' + mid + '\',\'right\')">+</button>';
@@ -756,12 +752,13 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 
     var oldW = document.querySelector('.admin-winner-row');
     if (oldW) oldW.remove();
-    var m = allMatches[mid] || {};
     var winRow = document.createElement('div');
     winRow.className = 'admin-winner-row';
-    var disabled = m.winner ? 'disabled' : '';
-    winRow.innerHTML = '<button class="admin-winner-btn win-left" ' + disabled + ' onclick="confirmWinner(\'' + mid + '\',\'left\')"><img src="' + YOU_AVATAR + '"> Победа: ' + escapeHtml(teams.left) + '</button>'
-      + '<button class="admin-winner-btn win-right" ' + disabled + ' onclick="confirmWinner(\'' + mid + '\',\'right\')"><img src="' + YOU_AVATAR + '"> Победа: ' + escapeHtml(teams.right) + '</button>';
+    var m = allMatches[mid] || {};
+    var leftDisabled = m.winner ? 'disabled' : '';
+    var rightDisabled = m.winner ? 'disabled' : '';
+    winRow.innerHTML = '<button class="admin-winner-btn win-left" ' + leftDisabled + ' onclick="confirmWinner(\'' + mid + '\',\'left\')"><img src="' + YOU_AVATAR + '"> Победа: ' + escapeHtml(teams.left) + '</button>'
+      + '<button class="admin-winner-btn win-right" ' + rightDisabled + ' onclick="confirmWinner(\'' + mid + '\',\'right\')"><img src="' + YOU_AVATAR + '"> Победа: ' + escapeHtml(teams.right) + '</button>';
     document.querySelector('.participants-grid').after(winRow);
   }
 
@@ -791,63 +788,34 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     });
   };
 
-  // Рандомное распределение победителей по всем командам следующего раунда
-  function distributeWinnersRandomly(winners, targetSlots, updates) {
-    var shuffled = shuffleArray(winners.slice());
-    var slotIdx = 0;
-    for (var i = 0; i < shuffled.length; i++) {
-      // Находим следующий слот с местом
-      var attempts = 0;
-      while (attempts < targetSlots.length) {
-        var slot = targetSlots[slotIdx % targetSlots.length];
-        var key = 'playoff/matches/' + slot.matchId + '/' + slot.side;
-        // Получаем текущий массив из allMatches
-        var existing = (allMatches[slot.matchId] || {})[slot.side] || [];
-        if (existing.length < MAX_PLAYERS) {
-          existing.push(shuffled[i]);
-          updates[key] = existing;
-          // Обновляем локальный кэш
-          allMatches[slot.matchId] = allMatches[slot.matchId] || {};
-          allMatches[slot.matchId][slot.side] = existing;
-          slotIdx++;
-          break;
-        }
-        slotIdx++;
-        attempts++;
-      }
-    }
-  }
-
   window.confirmWinner = function(mid, side) {
     var m = allMatches[mid] || {};
     if (m.winner) { alert('Победитель уже выбран!'); return; }
-    var winArr = (m[side] || []).slice();
+    var winArr = m[side] || [];
     var updates = {};
     updates['playoff/matches/' + mid + '/winner'] = side;
 
     if (mid.startsWith('qf_')) {
-      // Победители четвертьфинала -> рандомно по всем 4 командам полуфинала
-      distributeWinnersRandomly(winArr, sfSlots, updates);
-      // Проверяем, заполнены ли все полуфиналы
+      var link = sfLinks[mid];
+      var sfId = link.sfId;
+      var sfSide = link.sfSide;
+      var sfArr = (allMatches[sfId] || {})[sfSide] || [];
+      winArr.forEach(function(p) {
+        if (sfArr.length < MAX_PLAYERS) sfArr.push(p);
+      });
+      updates['playoff/matches/' + sfId + '/' + sfSide] = sfArr;
+      allMatches[sfId] = allMatches[sfId] || {};
+      allMatches[sfId][sfSide] = sfArr;
+
       if (areAllSemiFinalsFull()) {
-        ['sf_w','sf_e'].forEach(function(s) {
+        var allSf = ['sf_w','sf_e'];
+        allSf.forEach(function(s) {
           var sm = allMatches[s] || {};
           if (!sm.leftName) {
             updates['playoff/matches/' + s + '/leftName'] = 'Команда ' + (sm.left ? sm.left[0] : '?');
             updates['playoff/matches/' + s + '/rightName'] = 'Команда ' + (sm.right ? sm.right[0] : '?');
           }
         });
-      }
-    } else if (mid === 'sf_w' || mid === 'sf_e') {
-      // Победители полуфинала -> рандомно по 2 командам финала
-      distributeWinnersRandomly(winArr, finalSlots, updates);
-      // Проверяем, заполнен ли финал
-      if (areBothFinalTeamsFull()) {
-        var fm = allMatches['final'] || {};
-        if (!fm.leftName) {
-          updates['playoff/matches/final/leftName'] = 'Команда ' + (fm.left ? fm.left[0] : '?');
-          updates['playoff/matches/final/rightName'] = 'Команда ' + (fm.right ? fm.right[0] : '?');
-        }
       }
     }
 
@@ -927,7 +895,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     matchOrder.forEach(function(mid) {
       var m = allMatches[mid] || {};
       if (isTeamFull(m.left) && isTeamFull(m.right)) {
-        if (mid.startsWith('qf_') && !m.map) assignMapIfNeeded(mid, m);
+        if (!m.map) assignMapIfNeeded(mid, m);
       }
     });
     renderBracket();
@@ -937,9 +905,4 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 })();
 </script>
 </body>
-</html>'''
-
-with open('playoff_tournament_v3.html', 'w', encoding='utf-8') as f:
-    f.write(code)
-
-print("Done! Lines:", len(code.split('\n')))
+</html>
