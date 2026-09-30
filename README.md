@@ -64,7 +64,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   background: rgba(255,255,255,0.12); border-radius: 3px; padding: 2px 5px;
   font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.7); min-width: 18px; text-align: center;
 }
-.match-score { font-weight: 700; font-size: 14px; min-width: 22px; text-align: center; }
 .match-divider { height: 1px; background: rgba(255,255,255,0.08); }
 
 .final-box {
@@ -234,17 +233,13 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   display: flex; align-items: center; gap: 6px; margin-top: 4px;
 }
 .score-input {
-  width: 36px; padding: 4px 2px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
+  width: 60px; padding: 4px 8px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
   background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; font-weight: 700; text-align: center;
   font-family: 'Inter', sans-serif; outline: none;
 }
 .score-input:focus { border-color: rgba(255,215,0,0.5); }
 .score-input::placeholder { color: rgba(255,255,255,0.25); font-weight: 400; }
 .score-input:disabled { opacity: 0.4; }
-.score-colon {
-  font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.7);
-  margin: 0 1px; user-select: none;
-}
 .score-confirm {
   padding: 4px 10px; border: 1px solid rgba(102,187,106,0.4); border-radius: 6px;
   background: rgba(102,187,106,0.2); color: #66bb6a; font-size: 12px; font-weight: 700;
@@ -336,28 +331,28 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     <div class="bracket-col">
       <div class="conf-label west">Запад</div>
       <div class="round-label">Четвертьфиналы</div>
-      <div class="match" data-match-id="qf_w1"><div class="match-row"><div class="match-team"><span class="team-seed">1</span> Команда A</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">4</span> Команда B</div><div class="match-score"></div></div></div>
-      <div class="match" data-match-id="qf_w2"><div class="match-row"><div class="match-team"><span class="team-seed">2</span> Команда C</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">3</span> Команда D</div><div class="match-score"></div></div></div>
+      <div class="match" data-match-id="qf_w1"><div class="match-row"><div class="match-team"><span class="team-seed">1</span> Команда A</div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">4</span> Команда B</div></div></div>
+      <div class="match" data-match-id="qf_w2"><div class="match-row"><div class="match-team"><span class="team-seed">2</span> Команда C</div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">3</span> Команда D</div></div></div>
     </div>
     <div class="bracket-col semifinal-col">
       <div class="round-label">Полуфинал</div>
-      <div class="match" data-match-id="sf_w"><div class="match-row"><div class="match-team"><span class="team-seed">З1</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">З2</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
+      <div class="match" data-match-id="sf_w"><div class="match-row"><div class="match-team"><span class="team-seed">З1</span> <span class="sf-team-name">Ожидание...</span></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">З2</span> <span class="sf-team-name">Ожидание...</span></div></div></div>
     </div>
     <div class="bracket-col final-col">
       <div class="final-box">
         <div class="final-title">Финал</div>
-        <div class="match final-match" data-match-id="final"><div class="match-row"><div class="match-team"><span class="team-seed">З</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">В</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
+        <div class="match final-match" data-match-id="final"><div class="match-row"><div class="match-team"><span class="team-seed">З</span> <span class="sf-team-name">Ожидание...</span></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">В</span> <span class="sf-team-name">Ожидание...</span></div></div></div>
       </div>
     </div>
     <div class="bracket-col semifinal-col">
       <div class="round-label">Полуфинал</div>
-      <div class="match" data-match-id="sf_e"><div class="match-row"><div class="match-team"><span class="team-seed">В1</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">В2</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
+      <div class="match" data-match-id="sf_e"><div class="match-row"><div class="match-team"><span class="team-seed">В1</span> <span class="sf-team-name">Ожидание...</span></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">В2</span> <span class="sf-team-name">Ожидание...</span></div></div></div>
     </div>
     <div class="bracket-col">
       <div class="conf-label east">Восток</div>
       <div class="round-label">Четвертьфиналы</div>
-      <div class="match" data-match-id="qf_e1"><div class="match-row"><div class="match-team"><span class="team-seed">1</span> Команда E</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">4</span> Команда F</div><div class="match-score"></div></div></div>
-      <div class="match" data-match-id="qf_e2"><div class="match-row"><div class="match-team"><span class="team-seed">2</span> Команда G</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">3</span> Команда H</div><div class="match-score"></div></div></div>
+      <div class="match" data-match-id="qf_e1"><div class="match-row"><div class="match-team"><span class="team-seed">1</span> Команда E</div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">4</span> Команда F</div></div></div>
+      <div class="match" data-match-id="qf_e2"><div class="match-row"><div class="match-team"><span class="team-seed">2</span> Команда G</div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">3</span> Команда H</div></div></div>
     </div>
   </div>
 </div>
@@ -579,8 +574,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
         var rows = el.querySelectorAll('.match-row');
         var leftNameEl = rows[0].querySelector('.match-team');
         var rightNameEl = rows[1].querySelector('.match-team');
-        var leftScoreEl = rows[0].querySelector('.match-score');
-        var rightScoreEl = rows[1].querySelector('.match-score');
 
         if (mid.startsWith('qf_')) {
           var teams = qfTeams[mid];
@@ -605,8 +598,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
           }
         }
 
-        leftScoreEl.textContent = '';
-        rightScoreEl.textContent = '';
         rows[0].classList.remove('winner');
         rows[1].classList.remove('winner');
         rows[0].classList.remove('is-mine-row');
@@ -616,8 +607,8 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
           if (left.indexOf(myNick) !== -1) rows[0].classList.add('is-mine-row');
           if (right.indexOf(myNick) !== -1) rows[1].classList.add('is-mine-row');
         }
-        if (winner === 'left') { rows[0].classList.add('winner'); leftScoreEl.textContent = 'WIN'; }
-        if (winner === 'right') { rows[1].classList.add('winner'); rightScoreEl.textContent = 'WIN'; }
+        if (winner === 'left') { rows[0].classList.add('winner'); }
+        if (winner === 'right') { rows[1].classList.add('winner'); }
 
         el.classList.remove('is-mine');
         if (myNick && (left.indexOf(myNick) !== -1 || right.indexOf(myNick) !== -1)) {
@@ -705,9 +696,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       var scoreHtml = '';
       if (nick) {
         var isLeft = side === 'left';
-        var inputHtml = '<input type="text" class="score-input" id="score_' + side + '_' + i + '_a" placeholder="00" maxlength="2" inputmode="numeric">'
-          + '<span class="score-colon">:</span>'
-          + '<input type="text" class="score-input" id="score_' + side + '_' + i + '_b" placeholder="00" maxlength="2" inputmode="numeric">';
+        var inputHtml = '<input type="text" class="score-input" id="score_' + side + '_' + i + '" placeholder="0:0" maxlength="9">';
         var btnHtml = '<button class="score-confirm" onclick="confirmScore(\'' + mid + '\',\'' + side + '\',' + i + ')">OK</button>';
         var statusHtml = '<span class="score-pending" id="score_status_' + side + '_' + i + '">Ожидает</span>';
         if (isLeft) {
@@ -728,18 +717,14 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   }
 
   window.confirmScore = function(mid, side, idx) {
-    var inputA = document.getElementById('score_' + side + '_' + idx + '_a');
-    var inputB = document.getElementById('score_' + side + '_' + idx + '_b');
-    var valA = inputA.value.trim();
-    var valB = inputB.value.trim();
-    if (valA === '' && valB === '') { alert('Введите счёт!'); return; }
-    var val = (valA || '0') + ':' + (valB || '0');
+    var input = document.getElementById('score_' + side + '_' + idx);
+    var val = input.value.trim();
+    if (val === '') { alert('Введите счёт!'); return; }
     db.ref('playoff/scores/' + mid + '/' + side + '/' + idx).set({ nick: allMatches[mid][side][idx], score: val, confirmed: true, time: Date.now() });
     var st = document.getElementById('score_status_' + side + '_' + idx);
     st.textContent = '\u2713 ' + val;
     st.className = 'score-confirmed';
-    inputA.disabled = true;
-    inputB.disabled = true;
+    input.disabled = true;
   };
 
   function addAdminControls(mid, teams) {
