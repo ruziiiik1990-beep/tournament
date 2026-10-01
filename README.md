@@ -308,7 +308,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 <body>
 
 <div class="tournament-wrapper">
-  <div class="tournament-title">Плей-офф рандом турнира</div>
+  <div class="tournament-title">Плей-офф турнира</div>
   <div class="bracket-row">
     <div class="bracket-col">
       <div class="conf-label west">Запад</div>
@@ -611,11 +611,15 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     });
   }
 
-  function assignMapIfNeeded(mid, m) {
-    if (isTeamFull(m.left) && isTeamFull(m.right) && !m.map) {
+  function syncMap(mid, m) {
+    var bothFull = isTeamFull(m.left) && isTeamFull(m.right);
+    if (bothFull && !m.map) {
       var idx = Math.floor(Math.random() * maps.length);
       var mapData = maps[idx];
       db.ref('playoff/matches/' + mid + '/map').set(mapData);
+    }
+    if (!bothFull && m.map) {
+      db.ref('playoff/matches/' + mid + '/map').remove();
     }
   }
 
@@ -758,7 +762,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     db.ref('playoff/matches/' + mid + '/' + side).set(arr).then(function() {
       allMatches[mid][side] = arr;
       input.value = '';
-      assignMapIfNeeded(mid, allMatches[mid]);
+      syncMap(mid, allMatches[mid]);
       openModal(document.querySelector('[data-match-id="' + mid + '"]'));
       renderBracket();
       updateJoinSection();
@@ -770,6 +774,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     arr.splice(idx, 1);
     db.ref('playoff/matches/' + mid + '/' + side).set(arr).then(function() {
       allMatches[mid][side] = arr;
+      syncMap(mid, allMatches[mid]);
       openModal(document.querySelector('[data-match-id="' + mid + '"]'));
       renderBracket();
       updateJoinSection();
@@ -992,9 +997,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     allMatches = snap.val() || {};
     matchOrder.forEach(function(mid) {
       var m = allMatches[mid] || {};
-      if (isTeamFull(m.left) && isTeamFull(m.right)) {
-        if (!m.map) assignMapIfNeeded(mid, m);
-      }
+      syncMap(mid, m);
     });
     renderBracket();
     updateJoinSection();
