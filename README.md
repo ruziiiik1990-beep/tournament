@@ -308,7 +308,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 <body>
 
 <div class="tournament-wrapper">
-  <div class="tournament-title">Плей-офф рандом турнира</div>
+  <div class="tournament-title">Плей-офф турнира</div>
   <div class="bracket-row">
     <div class="bracket-col">
       <div class="conf-label west">Запад</div>
@@ -665,7 +665,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 
       if (isAdmin) addAdminControls(mid, teams);
 
-      // Карта показывается ТОЛЬКО когда обе команды полностью заполнены
       var bothFull = isTeamFull(left) && isTeamFull(right);
       var mapUrl = (bothFull && m.map) ? m.map.url : null;
       var mapName = (bothFull && m.map) ? m.map.name : null;
