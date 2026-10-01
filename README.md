@@ -230,26 +230,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 .admin-winner-btn.win-left { background: linear-gradient(135deg, #4a90d9, #6fb3ff); color: #fff; }
 .admin-winner-btn.win-right { background: linear-gradient(135deg, #e07845, #ff8a65); color: #fff; }
 
-.score-row {
-  display: flex; align-items: center; gap: 6px; margin-top: 4px;
-}
-.score-input {
-  width: 60px; padding: 4px 8px; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;
-  background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; font-weight: 700; text-align: center;
-  font-family: 'Inter', sans-serif; outline: none;
-}
-.score-input:focus { border-color: rgba(255,215,0,0.5); }
-.score-input::placeholder { color: rgba(255,255,255,0.25); font-weight: 400; }
-.score-input:disabled { opacity: 0.4; }
-.score-confirm {
-  padding: 4px 10px; border: 1px solid rgba(102,187,106,0.4); border-radius: 6px;
-  background: rgba(102,187,106,0.2); color: #66bb6a; font-size: 12px; font-weight: 700;
-  cursor: pointer; font-family: 'Inter', sans-serif;
-}
-.score-confirm:hover { background: rgba(102,187,106,0.35); }
-.score-confirmed { font-size: 11px; color: #66bb6a; font-weight: 700; }
-.score-pending { font-size: 11px; color: rgba(255,255,255,0.3); }
-
 .map-center { flex: 0 0 auto; width: 140px; display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 40px; }
 .map-label { font-size: 11px; font-weight: 700; color: rgba(255,215,0,0.7); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 .map-image { width: 120px; height: 120px; border-radius: 10px; object-fit: cover; border: 2px solid rgba(255,215,0,0.3); box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
@@ -708,39 +688,15 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       var avatarBg = side === 'left' ? 'linear-gradient(135deg, #4a90d9, #6fb3ff)' : 'linear-gradient(135deg, #e07845, #ff8a65)';
       var avatarTxt = nick ? escapeHtml(nick.charAt(0).toUpperCase()) : num;
       var meBadge = isMe ? '<span class="you-badge">ТЫ</span>' : '';
-      var scoreHtml = '';
-      if (nick) {
-        var isLeft = side === 'left';
-        var inputHtml = '<input type="text" class="score-input" id="score_' + side + '_' + i + '" placeholder="0:0" maxlength="9">';
-        var btnHtml = '<button class="score-confirm" onclick="confirmScore(\'' + mid + '\',\'' + side + '\',' + i + ')">OK</button>';
-        var statusHtml = '<span class="score-pending" id="score_status_' + side + '_' + i + '">Ожидает</span>';
-        if (isLeft) {
-          scoreHtml = '<div class="score-row" style="margin-left:auto;justify-content:flex-end">' + inputHtml + btnHtml + statusHtml + '</div>';
-        } else {
-          scoreHtml = '<div class="score-row">' + statusHtml + btnHtml + inputHtml + '</div>';
-        }
-      }
       html += '<li class="participant-item' + (isMe ? ' is-me' : '') + '">'
         + '<div class="participant-avatar" style="' + (nick ? '' : 'opacity:0.3;') + 'background:' + avatarBg + '">' + avatarTxt + '</div>'
         + '<span class="participant-num">#' + num + '</span> '
         + (nick ? escapeHtml(nick) + meBadge : '<span style="color:rgba(255,255,255,0.25)">Свободно</span>')
-        + scoreHtml
         + delBtn
         + '</li>';
     }
     return html;
   }
-
-  window.confirmScore = function(mid, side, idx) {
-    var input = document.getElementById('score_' + side + '_' + idx);
-    var val = input.value.trim();
-    if (val === '') { alert('Введите счёт!'); return; }
-    db.ref('playoff/scores/' + mid + '/' + side + '/' + idx).set({ nick: allMatches[mid][side][idx], score: val, confirmed: true, time: Date.now() });
-    var st = document.getElementById('score_status_' + side + '_' + idx);
-    st.textContent = '\u2713 ' + val;
-    st.className = 'score-confirmed';
-    input.disabled = true;
-  };
 
   function addAdminControls(mid, teams) {
     var leftCol = document.getElementById('leftCol');
@@ -758,7 +714,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     rightRow.className = 'admin-add-row';
     rightRow.innerHTML = '<input type="text" placeholder="Добавить игрока" id="addInput_right_' + mid + '" maxlength="20"><button class="add-right" onclick="addPlayer(\'' + mid + '\',\'right\')">+</button>';
 
-    // Insert admin-add-row ABOVE the winner-logo-section if it exists
     var leftWinnerLogo = leftCol.querySelector('.winner-logo-section');
     if (leftWinnerLogo) {
       leftCol.insertBefore(leftRow, leftWinnerLogo);
