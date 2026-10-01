@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Плей-офф рандом турнира</title>
+<title>Плей-офф турнира</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -308,7 +308,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 <body>
 
 <div class="tournament-wrapper">
-  <div class="tournament-title">Плей-офф турнира</div>
+  <div class="tournament-title">Плей-офф рандом турнира</div>
   <div class="bracket-row">
     <div class="bracket-col">
       <div class="conf-label west">Запад</div>
@@ -964,7 +964,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     var side = 'left';
     var m = allMatches[currentMatchId] || {};
     if (myNick && m.right && m.right.indexOf(myNick) !== -1) side = 'right';
-    var author = myNick || 'ruzik_tasty';
+    var author = myNick || 'Гость';
     db.ref('playoff/chats/' + currentMatchId).push({ author: author, text: text, time: Date.now(), isAdmin: isAdmin, side: side });
     input.value = '';
   }
