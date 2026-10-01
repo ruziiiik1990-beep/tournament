@@ -286,6 +286,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   transition: background 0.2s; white-space: nowrap;
 }
 .chat-send:hover { background: rgba(255,215,0,0.25); }
+.chat-guest-block { text-align: center; color: rgba(255,255,255,0.4); font-size: 13px; padding: 12px; font-style: italic; }
 .admin-badge {
   display: inline-block; background: rgba(255,215,0,0.2); color: #ffd700;
   font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 4px; vertical-align: middle;
@@ -381,10 +382,13 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     <div class="common-chat-container">
       <div class="chat-title">Общий чат матча</div>
       <div class="chat-messages" id="commonChatMessages"></div>
-      <div class="chat-input-row">
-        <input type="text" class="chat-input" id="commonChatInput" placeholder="Напишите сообщение..." maxlength="200">
-        <button class="chat-send" id="commonChatSend">Отправить</button>
+      <div id="chatInputArea">
+        <div class="chat-input-row">
+          <input type="text" class="chat-input" id="commonChatInput" placeholder="Напишите сообщение..." maxlength="200">
+          <button class="chat-send" id="commonChatSend">Отправить</button>
+        </div>
       </div>
+      <div id="chatGuestBlock" class="chat-guest-block" style="display:none;">Писать в чате могут только участники этого матча</div>
     </div>
   </div>
 </div>
@@ -466,6 +470,10 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     return h + ':' + m;
   }
 
+  function isLoggedIn() {
+    return myNick && myNick !== 'null' && myNick !== '' && myNick !== 'guest' && myNick !== 'Гость';
+  }
+
   function isUserInAnyMatch(nick) {
     if (!nick) return false;
     for (var mid in allMatches) {
@@ -476,6 +484,33 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     return false;
   }
 
+  function isUserInMatch(nick, mid) {
+    if (!nick) return false;
+    var m = allMatches[mid] || {};
+    if (m.left && m.left.indexOf(nick) !== -1) return true;
+    if (m.right && m.right.indexOf(nick) !== -1) return true;
+    return false;
+  }
+
+  function canChat() {
+    if (isAdmin) return true;
+    if (!isLoggedIn()) return false;
+    if (!currentMatchId) return false;
+    return isUserInMatch(myNick, currentMatchId);
+  }
+
+  function updateChatInputVisibility() {
+    var inputArea = document.getElementById('chatInputArea');
+    var guestBlock = document.getElementById('chatGuestBlock');
+    if (canChat()) {
+      inputArea.style.display = '';
+      guestBlock.style.display = 'none';
+    } else {
+      inputArea.style.display = 'none';
+      guestBlock.style.display = '';
+    }
+  }
+
   function hasQfSpace() {
     for (var i = 0; i < qfMatchIds.length; i++) {
       var mid = qfMatchIds[i];
@@ -484,10 +519,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       if (l.length < MAX_PLAYERS || r.length < MAX_PLAYERS) return true;
     }
     return false;
-  }
-
-  function isLoggedIn() {
-    return myNick && myNick !== 'null' && myNick !== '' && myNick !== 'guest' && myNick !== 'Гость';
   }
 
   function updateJoinSection() {
@@ -688,6 +719,8 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
         mapImg.style.display = 'none'; mapPh.style.display = 'flex';
         mapNameEl.textContent = bothFull ? 'Выбирается...' : 'Не выбрана'; mapNameEl.classList.add('empty');
       }
+
+      updateChatInputVisibility();
 
       if (chatRef) chatRef.off();
       chatRef = db.ref('playoff/chats/' + mid);
@@ -970,6 +1003,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   }
 
   function sendMsg() {
+    if (!canChat()) { alert('Писать в чате могут только участники этого матча!'); return; }
     var input = document.getElementById('commonChatInput');
     var text = input.value.trim();
     if (!text) return;
