@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Плей-офф турнира</title>
+<title>Плей-офф рандом турнира</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -964,7 +964,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     var side = 'left';
     var m = allMatches[currentMatchId] || {};
     if (myNick && m.right && m.right.indexOf(myNick) !== -1) side = 'right';
-    var author = myNick || 'Гость';
+    var author = myNick || 'ruzik_tasty';
     db.ref('playoff/chats/' + currentMatchId).push({ author: author, text: text, time: Date.now(), isAdmin: isAdmin, side: side });
     input.value = '';
   }
