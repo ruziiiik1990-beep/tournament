@@ -820,7 +820,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     });
   };
 
-    window.confirmWinner = function(mid, side) {
+  window.confirmWinner = function(mid, side) {
     var m = allMatches[mid] || {};
     if (m.winner) { alert('Победитель уже выбран!'); return; }
     var winArr = m[side] || [];
@@ -871,12 +871,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     }
 
     db.ref().update(updates).then(function() {
-      if (mid === 'final') {
-        var loseSide = side === 'left' ? 'right' : 'left';
-        var winners = (allMatches['final'] || {})[side] || [];
-        var runnersUp = (allMatches['final'] || {})[loseSide] || [];
-        db.ref('playoff/finalResult').set({ winners: winners, runnersUp: runnersUp, time: Date.now() });
-      }
       loadAllMatches(function() {
         openModal(document.querySelector('[data-match-id="' + mid + '"]'));
         renderBracket();
@@ -885,8 +879,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     });
   };
 
-
-    window.cancelWinner = function(mid) {
+  window.cancelWinner = function(mid) {
     if (!isAdmin) return;
     var m = allMatches[mid] || {};
     if (!m.winner) return;
@@ -894,8 +887,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 
     var updates = {};
     updates['playoff/matches/' + mid + '/winner'] = null;
-
-    if (mid === 'final') { db.ref('playoff/finalResult').remove(); }
 
     if (mid.startsWith('qf_')) {
       db.ref('playoff/distribution/' + mid).once('value').then(function(snap) {
@@ -921,6 +912,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
           allMatches[sfId][sfSide] = arr;
         });
         updates['playoff/distribution/' + mid] = null;
+        
         db.ref().update(updates).then(function() {
           db.ref('playoff/scores/' + mid).remove();
           loadAllMatches(function() {
@@ -954,6 +946,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
           allMatches['final'][finSide] = arr;
         });
         updates['playoff/distribution/' + mid] = null;
+        
         db.ref().update(updates).then(function() {
           db.ref('playoff/scores/' + mid).remove();
           loadAllMatches(function() {
@@ -975,7 +968,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       });
     });
   };
-
 
   function renderChat(snap) {
     var c = document.getElementById('commonChatMessages');
