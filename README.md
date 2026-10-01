@@ -538,16 +538,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 
   function isTeamFull(arr) { return arr && arr.length >= MAX_PLAYERS; }
 
-  function areAllSemiFinalsFull() {
-    var sf = ['sf_w','sf_e'];
-    for (var i = 0; i < sf.length; i++) {
-      var m = allMatches[sf[i]] || {};
-      var l = m.left || [], r = m.right || [];
-      if (!isTeamFull(l) || !isTeamFull(r)) return false;
-    }
-    return true;
-  }
-
   function renderBracket() {
     loadAllMatches(function() {
       matchOrder.forEach(function(mid) {
@@ -774,43 +764,44 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     updates['playoff/matches/' + mid + '/winner'] = side;
 
     if (mid.startsWith('qf_')) {
-      var availableSlots = sfSlots.slice();
       var distribution = {};
-      
       winArr.forEach(function(p) {
-        if (availableSlots.length === 0) availableSlots = sfSlots.slice();
-        var randIdx = Math.floor(Math.random() * availableSlots.length);
-        var slot = availableSlots.splice(randIdx, 1)[0];
+        // Собираем только те слоты, где ещё есть место
+        var available = sfSlots.filter(function(s) {
+          var arr = (allMatches[s.sfId] || {})[s.sfSide] || [];
+          return arr.length < MAX_PLAYERS;
+        });
+        if (available.length === 0) return;
+        var randIdx = Math.floor(Math.random() * available.length);
+        var slot = available[randIdx];
         var sfId = slot.sfId;
         var sfSide = slot.sfSide;
         var sfArr = (allMatches[sfId] || {})[sfSide] || [];
-        if (sfArr.length < MAX_PLAYERS) {
-          sfArr.push(p);
-          updates['playoff/matches/' + sfId + '/' + sfSide] = sfArr;
-          allMatches[sfId] = allMatches[sfId] || {};
-          allMatches[sfId][sfSide] = sfArr;
-        }
+        sfArr.push(p);
+        updates['playoff/matches/' + sfId + '/' + sfSide] = sfArr;
+        allMatches[sfId] = allMatches[sfId] || {};
+        allMatches[sfId][sfSide] = sfArr;
         distribution[p] = { sfId: sfId, sfSide: sfSide };
       });
       updates['playoff/distribution/' + mid] = distribution;
     }
 
     if (mid === 'sf_w' || mid === 'sf_e') {
-      var availableFin = finalSlots.slice();
       var finDist = {};
-      
       winArr.forEach(function(p) {
-        if (availableFin.length === 0) availableFin = finalSlots.slice();
-        var randIdx = Math.floor(Math.random() * availableFin.length);
-        var slot = availableFin.splice(randIdx, 1)[0];
+        var available = finalSlots.filter(function(s) {
+          var arr = (allMatches['final'] || {})[s.finalSide] || [];
+          return arr.length < MAX_PLAYERS;
+        });
+        if (available.length === 0) return;
+        var randIdx = Math.floor(Math.random() * available.length);
+        var slot = available[randIdx];
         var finSide = slot.finalSide;
         var finArr = (allMatches['final'] || {})[finSide] || [];
-        if (finArr.length < MAX_PLAYERS) {
-          finArr.push(p);
-          updates['playoff/matches/final/' + finSide] = finArr;
-          allMatches['final'] = allMatches['final'] || {};
-          allMatches['final'][finSide] = finArr;
-        }
+        finArr.push(p);
+        updates['playoff/matches/final/' + finSide] = finArr;
+        allMatches['final'] = allMatches['final'] || {};
+        allMatches['final'][finSide] = finArr;
         finDist[p] = { finalSide: finSide };
       });
       updates['playoff/distribution/' + mid] = finDist;
