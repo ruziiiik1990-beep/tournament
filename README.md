@@ -308,7 +308,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 <body>
 
 <div class="tournament-wrapper">
-  <div class="tournament-title">Плей-офф рандом турнира</div>
+  <div class="tournament-title">Плей-офф турнира</div>
   <div class="bracket-row">
     <div class="bracket-col">
       <div class="conf-label west">Запад</div>
@@ -665,8 +665,10 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 
       if (isAdmin) addAdminControls(mid, teams);
 
-      var mapUrl = m.map ? m.map.url : null;
-      var mapName = m.map ? m.map.name : null;
+      // Карта показывается ТОЛЬКО когда обе команды полностью заполнены
+      var bothFull = isTeamFull(left) && isTeamFull(right);
+      var mapUrl = (bothFull && m.map) ? m.map.url : null;
+      var mapName = (bothFull && m.map) ? m.map.name : null;
       var mapImg = document.getElementById('mapImage');
       var mapPh = document.getElementById('mapPlaceholder');
       var mapNameEl = document.getElementById('mapName');
@@ -675,7 +677,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
         mapPh.style.display = 'none'; mapNameEl.textContent = mapName; mapNameEl.classList.remove('empty');
       } else {
         mapImg.style.display = 'none'; mapPh.style.display = 'flex';
-        mapNameEl.textContent = 'Не выбрана'; mapNameEl.classList.add('empty');
+        mapNameEl.textContent = bothFull ? 'Выбирается...' : 'Не выбрана'; mapNameEl.classList.add('empty');
       }
 
       if (chatRef) chatRef.off();
