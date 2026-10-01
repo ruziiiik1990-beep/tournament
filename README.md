@@ -87,6 +87,8 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   box-shadow: 0 4px 14px rgba(10,42,107,0.4); font-family: 'Inter', sans-serif;
 }
 .btn-join:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(10,42,107,0.6); background: linear-gradient(135deg, #1a4a8b, #2a6abb); }
+.btn-join:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-join:disabled:hover { transform: none; box-shadow: none; background: linear-gradient(135deg, #0a2a6b, #1a4a8b); }
 .joined-msg { text-align: center; color: #4a9eff; font-weight: 700; font-size: 17px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(74,158,255,0.5); }
 .guest-warning { text-align: center; margin-bottom: 20px; }
 .guest-warning-text {
@@ -308,7 +310,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 <body>
 
 <div class="tournament-wrapper">
-  <div class="tournament-title">Плей-офф рандом турнира</div>
+  <div class="tournament-title">Плей-офф турнира</div>
   <div class="bracket-row">
     <div class="bracket-col">
       <div class="conf-label west">Запад</div>
@@ -484,9 +486,13 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     return false;
   }
 
+  function isLoggedIn() {
+    return myNick && myNick !== 'null' && myNick !== '' && myNick !== 'guest' && myNick !== 'Гость';
+  }
+
   function updateJoinSection() {
     var s = document.getElementById('joinSection');
-    if (!myNick || myNick === 'null' || myNick === '') {
+    if (!isLoggedIn()) {
       s.innerHTML = '<p class="guest-warning"><span class="guest-warning-text">Войдите на сайт, чтобы участвовать в турнире</span></p>';
       return;
     }
@@ -502,7 +508,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   }
 
   window.joinTournament = function() {
-    if (!myNick) { alert('Войдите на сайт!'); return; }
+    if (!isLoggedIn()) { alert('Войдите на сайт, чтобы участвовать в турнире!'); return; }
     var candidates = [];
     var sides = ['left','right'];
     qfMatchIds.forEach(function(mid) {
