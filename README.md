@@ -94,6 +94,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   padding: 3px 10px; border-radius: 5px; color: #fff;
   text-shadow: 0 0 5px #0a2a6b, 0 0 10px #0a2a6b; display: inline-block; font-size: 15px;
 }
+.tournament-full-msg { text-align: center; color: rgba(255,215,0,0.7); font-weight: 700; font-size: 15px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
 .admin-login-row { text-align: center; margin: 20px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 .admin-login-row input {
   padding: 12px 18px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
@@ -411,6 +412,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   var currentMatchId = null;
   var chatRef = null;
   var allMatches = {};
+  var qfMatchIds = ['qf_w1','qf_w2','qf_e1','qf_e2'];
 
   var maps = [
     { url: 'https://4ak4ak.moy.su/dust2.png', name: 'Dust 2' },
@@ -462,52 +464,67 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     return h + ':' + m;
   }
 
-  function initJoin() {
-    var s = document.getElementById('joinSection');
-    if (myNick && myNick !== 'null' && myNick !== '') {
-      db.ref('playoff/allParticipants').once('value').then(function(snap) {
-        var all = snap.val() || {};
-        var inAny = false;
-        for (var k in all) { if (all[k] === myNick) { inAny = true; break; } }
-        if (inAny) {
-          s.innerHTML = '<p class="joined-msg">Ты уже в турнире! Найди свою команду в сетке.</p>';
-        } else {
-          s.innerHTML = '<button class="btn-join" onclick="joinTournament()">Участвовать</button>';
-        }
-      });
-    } else {
-      s.innerHTML = '<p class="guest-warning"><span class="guest-warning-text">Войдите на сайт, чтобы участвовать в турнире</span></p>';
+  function isUserInAnyMatch(nick) {
+    if (!nick) return false;
+    for (var mid in allMatches) {
+      var m = allMatches[mid];
+      if (m && m.left && m.left.indexOf(nick) !== -1) return true;
+      if (m && m.right && m.right.indexOf(nick) !== -1) return true;
     }
+    return false;
+  }
+
+  function hasQfSpace() {
+    for (var i = 0; i < qfMatchIds.length; i++) {
+      var mid = qfMatchIds[i];
+      var m = allMatches[mid] || {};
+      var l = m.left || [], r = m.right || [];
+      if (l.length < MAX_PLAYERS || r.length < MAX_PLAYERS) return true;
+    }
+    return false;
+  }
+
+  function updateJoinSection() {
+    var s = document.getElementById('joinSection');
+    if (!myNick || myNick === 'null' || myNick === '') {
+      s.innerHTML = '<p class="guest-warning"><span class="guest-warning-text">Войдите на сайт, чтобы участвовать в турнире</span></p>';
+      return;
+    }
+    if (isUserInAnyMatch(myNick)) {
+      s.innerHTML = '<p class="joined-msg">Ты уже в турнире! Найди свою команду в сетке.</p>';
+      return;
+    }
+    if (!hasQfSpace()) {
+      s.innerHTML = '<p class="tournament-full-msg">Турнирная таблица полностью заполнена!</p>';
+      return;
+    }
+    s.innerHTML = '<button class="btn-join" onclick="joinTournament()">Участвовать</button>';
   }
 
   window.joinTournament = function() {
     if (!myNick) { alert('Войдите на сайт!'); return; }
-    var qfIds = ['qf_w1','qf_w2','qf_e1','qf_e2'];
-    var sides = ['left','right'];
     var candidates = [];
-    var pending = qfIds.length * sides.length;
-    qfIds.forEach(function(mid) {
+    var sides = ['left','right'];
+    qfMatchIds.forEach(function(mid) {
       sides.forEach(function(side) {
-        db.ref('playoff/matches/' + mid + '/' + side).once('value').then(function(snap) {
-          var arr = snap.val() || [];
-          if (arr.length < MAX_PLAYERS) candidates.push({ matchId: mid, side: side });
-          pending--;
-          if (pending === 0) {
-            if (candidates.length === 0) {
-              alert('Все команды четвертьфинала заполнены!');
-              return;
-            }
-            var pick = candidates[Math.floor(Math.random() * candidates.length)];
-            db.ref('playoff/matches/' + pick.matchId + '/' + pick.side).once('value').then(function(s2) {
-              var a = s2.val() || [];
-              a.push(myNick);
-              db.ref('playoff/matches/' + pick.matchId + '/' + pick.side).set(a);
-              db.ref('playoff/allParticipants/' + myNick.replace(/[^a-zA-Z0-9]/g,'_')).set(myNick);
-              document.getElementById('joinSection').innerHTML = '<p class="joined-msg">Ты в игре! Найди свою команду в сетке.</p>';
-            });
-          }
-        });
+        var m = allMatches[mid] || {};
+        var arr = m[side] || [];
+        if (arr.length < MAX_PLAYERS) candidates.push({ matchId: mid, side: side });
       });
+    });
+    if (candidates.length === 0) {
+      alert('Все команды четвертьфинала заполнены!');
+      return;
+    }
+    var pick = candidates[Math.floor(Math.random() * candidates.length)];
+    var arr = (allMatches[pick.matchId] || {})[pick.side] || [];
+    arr.push(myNick);
+    db.ref('playoff/matches/' + pick.matchId + '/' + pick.side).set(arr).then(function() {
+      db.ref('playoff/allParticipants/' + myNick.replace(/[^a-zA-Z0-9]/g,'_')).set(myNick);
+      allMatches[pick.matchId] = allMatches[pick.matchId] || {};
+      allMatches[pick.matchId][pick.side] = arr;
+      updateJoinSection();
+      renderBracket();
     });
   };
 
@@ -743,6 +760,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       assignMapIfNeeded(mid, allMatches[mid]);
       openModal(document.querySelector('[data-match-id="' + mid + '"]'));
       renderBracket();
+      updateJoinSection();
     });
   };
 
@@ -753,6 +771,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       allMatches[mid][side] = arr;
       openModal(document.querySelector('[data-match-id="' + mid + '"]'));
       renderBracket();
+      updateJoinSection();
     });
   };
 
@@ -766,7 +785,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
     if (mid.startsWith('qf_')) {
       var distribution = {};
       winArr.forEach(function(p) {
-        // Собираем только те слоты, где ещё есть место
         var available = sfSlots.filter(function(s) {
           var arr = (allMatches[s.sfId] || {})[s.sfSide] || [];
           return arr.length < MAX_PLAYERS;
@@ -811,6 +829,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       loadAllMatches(function() {
         openModal(document.querySelector('[data-match-id="' + mid + '"]'));
         renderBracket();
+        updateJoinSection();
       });
     });
   };
@@ -854,6 +873,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
           loadAllMatches(function() {
             openModal(document.querySelector('[data-match-id="' + mid + '"]'));
             renderBracket();
+            updateJoinSection();
           });
         });
       });
@@ -887,6 +907,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
           loadAllMatches(function() {
             openModal(document.querySelector('[data-match-id="' + mid + '"]'));
             renderBracket();
+            updateJoinSection();
           });
         });
       });
@@ -898,6 +919,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       loadAllMatches(function() {
         openModal(document.querySelector('[data-match-id="' + mid + '"]'));
         renderBracket();
+        updateJoinSection();
       });
     });
   };
@@ -974,9 +996,10 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       }
     });
     renderBracket();
+    updateJoinSection();
   });
 
-  initJoin();
+  updateJoinSection();
 })();
 </script>
 </body>
