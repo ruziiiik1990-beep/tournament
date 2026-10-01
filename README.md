@@ -593,8 +593,8 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
           if (left.indexOf(myNick) !== -1) rows[0].classList.add('is-mine-row');
           if (right.indexOf(myNick) !== -1) rows[1].classList.add('is-mine-row');
         }
-        if (winner === 'left') { rows[0].classList.add('winner'); leftScoreEl.textContent = 'WIN'; }
-        if (winner === 'right') { rows[1].classList.add('winner'); rightScoreEl.textContent = 'WIN'; }
+        if (winner === 'left') { rows[0].classList.add('winner'); }
+        if (winner === 'right') { rows[1].classList.add('winner'); }
 
         el.classList.remove('is-mine');
         if (myNick && (left.indexOf(myNick) !== -1 || right.indexOf(myNick) !== -1)) {
