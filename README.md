@@ -95,8 +95,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   text-shadow: 0 0 5px #0a2a6b, 0 0 10px #0a2a6b; display: inline-block; font-size: 15px;
 }
 .tournament-full-msg { text-align: center; color: rgba(255,215,0,0.7); font-weight: 700; font-size: 15px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
-.admin-login-row { text-align: center; margin: 20px 0; display: none; justify-content: center; gap: 10px; flex-wrap: wrap; }
-.admin-login-row.visible { display: flex; }
+.admin-login-row { text-align: center; margin: 20px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
 .admin-login-row input {
   padding: 12px 18px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
   background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; width: 200px; font-family: 'Inter', sans-serif;
@@ -309,7 +308,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 <body>
 
 <div class="tournament-wrapper">
-  <div class="tournament-title">Плей-офф рандом турнира</div>
+  <div class="tournament-title">Плей-офф турнира</div>
   <div class="bracket-row">
     <div class="bracket-col">
       <div class="conf-label west">Запад</div>
@@ -342,7 +341,7 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 
 <div class="join-section" id="joinSection"></div>
 
-<div class="admin-login-row" id="adminLoginRow">
+<div class="admin-login-row">
   <input type="password" id="adminPassInput" placeholder="Админ-пароль" onkeydown="if(event.key==='Enter') toggleAdmin()">
   <button class="btn-join" style="padding:12px 26px; font-size:14px;" onclick="toggleAdmin()">Войти как админ</button>
 </div>
@@ -413,7 +412,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
   var currentMatchId = null;
   var chatRef = null;
   var allMatches = {};
-  var adminNicks = {};
   var qfMatchIds = ['qf_w1','qf_w2','qf_e1','qf_e2'];
 
   var maps = [
@@ -484,28 +482,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
       if (l.length < MAX_PLAYERS || r.length < MAX_PLAYERS) return true;
     }
     return false;
-  }
-
-  function isAllowedAdmin(nick) {
-    if (!nick) return false;
-    for (var key in adminNicks) {
-      if (adminNicks[key] === nick) return true;
-    }
-    return false;
-  }
-
-  function checkAdminVisibility() {
-    var row = document.getElementById('adminLoginRow');
-    if (myNick && isAllowedAdmin(myNick)) {
-      row.classList.add('visible');
-    } else {
-      row.classList.remove('visible');
-      if (isAdmin) {
-        isAdmin = false;
-        document.getElementById('adminPanel').style.display = 'none';
-        renderBracket();
-      }
-    }
   }
 
   function updateJoinSection() {
@@ -1015,11 +991,6 @@ body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', san
 
   document.querySelectorAll('.match').forEach(function(m) {
     m.addEventListener('click', function(e) { e.preventDefault(); openModal(this); });
-  });
-
-  db.ref('playoff/adminNicks').on('value', function(snap) {
-    adminNicks = snap.val() || {};
-    checkAdminVisibility();
   });
 
   db.ref('playoff/matches').on('value', function(snap) {
