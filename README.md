@@ -170,6 +170,22 @@ body::-webkit-scrollbar { display: none; }
 .map-placeholder { width: 120px; height: 120px; border-radius: 10px; border: 2px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.4; padding: 10px; }
 .map-name.empty { color: rgba(255,255,255,0.3); }
 
+.prize-btn { background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.3); border-radius: 6px; padding: 2px 6px; cursor: pointer; font-size: 14px; line-height: 1; color: #ffd700; transition: background 0.2s, transform 0.15s; flex-shrink: 0; }
+.prize-btn:hover { background: rgba(255,215,0,0.3); transform: scale(1.1); }
+.prize-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 1px solid rgba(255,215,0,0.4); border-radius: 14px; padding: 20px; z-index: 10000; display: none; box-shadow: 0 12px 40px rgba(0,0,0,0.8); }
+.prize-popup.active { display: block; }
+.prize-popup-title { font-size: 16px; font-weight: 700; color: #ffd700; text-align: center; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; }
+.prize-popup-skins { display: flex; gap: 14px; justify-content: center; }
+.prize-skin-card { text-align: center; }
+.prize-skin-card img { width: 200px; height: 120px; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); }
+.prize-skin-name { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 8px; font-weight: 600; }
+.prize-popup-close { position: absolute; top: 10px; right: 12px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 20px; cursor: pointer; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.prize-popup-close:hover { background: rgba(255,80,80,0.4); }
+.prize-winner-section { text-align: center; margin-top: 14px; }
+.prize-winner-label { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+.prize-winner-img { width: 220px; height: 130px; object-fit: contain; border-radius: 10px; border: 2px solid #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.5); margin: 0 auto; }
+.prize-winner-name { font-size: 14px; font-weight: 700; color: #ffd700; margin-top: 8px; }
+
 .common-chat-container { width: 100%; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; }
 .chat-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; color: #fff; text-align: center; }
 .chat-messages { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; padding: 4px 0; }
@@ -208,6 +224,8 @@ body::-webkit-scrollbar { display: none; }
   .map-center { padding-top: 0; }
   .team-modal { width: 100%; padding: 20px; }
   .chat-msg { max-width: 95%; }
+  .prize-popup-skins { flex-direction: column; align-items: center; }
+  .prize-skin-card img { width: 160px; height: 100px; }
 }
 </style>
 </head>
@@ -244,6 +262,23 @@ body::-webkit-scrollbar { display: none; }
 <div class="admin-panel" id="adminPanel">
   <h3>Админ-панель <span class="admin-active-badge">АКТИВЕН</span></h3>
   <div class="admin-hint">Открой любой матч — появились поля добавления игроков и кнопки подтверждения победы. Чтобы отменить победителя — нажми на картинку под победившей командой.</div>
+</div>
+
+<div class="prize-popup" id="prizePopup">
+  <button class="prize-popup-close" onclick="closePrizePopup()">&times;</button>
+  <div class="prize-popup-title">Возможные призы</div>
+  <div id="prizePopupContent">
+    <div class="prize-popup-skins">
+      <div class="prize-skin-card">
+        <img src="https://4ak4ak.moy.su/prizSkin/ak-47_poljot_zhuravlja.png" alt="AK-47">
+        <div class="prize-skin-name">AK-47 Полёт журавля</div>
+      </div>
+      <div class="prize-skin-card">
+        <img src="https://4ak4ak.moy.su/prizSkin/m4a1-s_dikij_tusovshhik.png" alt="M4A1-S">
+        <div class="prize-skin-name">M4A1-S Дикий тусовщик</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="team-modal-overlay" id="teamModalOverlay">
@@ -314,6 +349,11 @@ body::-webkit-scrollbar { display: none; }
   var tournaments = {};
   var qfMatchIds = ['qf_w1','qf_w2','qf_e1','qf_e2'];
 
+  var PRIZE_SKINS = [
+    { url: 'https://4ak4ak.moy.su/prizSkin/ak-47_poljot_zhuravlja.png', name: 'AK-47 \u041f\u043e\u043b\u0451\u0442 \u0436\u0443\u0440\u0430\u0432\u043b\u044f' },
+    { url: 'https://4ak4ak.moy.su/prizSkin/m4a1-s_dikij_tusovshhik.png', name: 'M4A1-S \u0414\u0438\u043a\u0438\u0439 \u0442\u0443\u0441\u043e\u0432\u0449\u0438\u043a' }
+  ];
+
   var maps = [
     { url: 'https://4ak4ak.moy.su/dust2.png', name: 'Dust 2' },
     { url: 'https://4ak4ak.moy.su/360fx360f.png', name: 'Nuke' },
@@ -372,7 +412,6 @@ body::-webkit-scrollbar { display: none; }
     return 'playoff/tournaments/' + currentTournamentId + (sub ? '/' + sub : '');
   }
 
-  // Check if user is in adminNicks list
   function checkAdminNicks() {
     if (!myNick) { return; }
     db.ref('playoff/adminNicks').once('value').then(function(snap) {
@@ -382,7 +421,6 @@ body::-webkit-scrollbar { display: none; }
       if (Array.isArray(val)) {
         found = val.indexOf(myNick) !== -1;
       } else if (typeof val === 'object') {
-        // Could be {nick: true} or {0: nick, 1: nick}
         if (val[myNick] === true) { found = true; }
         else {
           Object.keys(val).forEach(function(k) {
@@ -396,11 +434,9 @@ body::-webkit-scrollbar { display: none; }
     });
   }
 
-  // Tournament management
   function loadTournaments(cb) {
     db.ref('playoff/tournaments').once('value').then(function(snap) {
       tournaments = snap.val() || {};
-      // Sort by createdAt descending (newest first)
       var sorted = Object.keys(tournaments).map(function(id) {
         return { id: id, data: tournaments[id] };
       }).sort(function(a, b) {
@@ -674,6 +710,13 @@ body::-webkit-scrollbar { display: none; }
     if (!bothFull && m.map) { db.ref(tPath('matches/' + mid + '/map')).remove(); }
   }
 
+  window.showPrizePopup = function() {
+    document.getElementById('prizePopup').classList.add('active');
+  };
+  window.closePrizePopup = function() {
+    document.getElementById('prizePopup').classList.remove('active');
+  };
+
   function openModal(matchEl) {
     var mid = matchEl.getAttribute('data-match-id'); currentMatchId = mid;
     loadAllMatches(function() {
@@ -701,6 +744,17 @@ body::-webkit-scrollbar { display: none; }
         ws.innerHTML = '<img src="'+WIN_LOGO+'" alt="\u041f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044c"'+(isAdmin?' onclick="cancelWinner(\''+mid+'\')"':'')+'>';
         wc.appendChild(ws);
       }
+      if (mid === 'final' && m.prizeSkin !== undefined && m.prizeSkin !== null) {
+        var skin = PRIZE_SKINS[m.prizeSkin];
+        if (skin) {
+          var prizeSec = document.createElement('div');
+          prizeSec.className = 'prize-winner-section';
+          prizeSec.innerHTML = '<div class="prize-winner-label">\u041f\u0440\u0438\u0437 \u043f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044e:</div>'
+            + '<img src="'+skin.url+'" class="prize-winner-img" alt="'+escapeHtml(skin.name)+'">'
+            + '<div class="prize-winner-name">'+escapeHtml(skin.name)+'</div>';
+          document.querySelector('.participants-grid').after(prizeSec);
+        }
+      }
       if (isAdmin) addAdminControls(mid, teams);
       var bothFull = isTeamFull(left) && isTeamFull(right);
       var mapUrl = (bothFull && m.map) ? m.map.url : null;
@@ -717,6 +771,7 @@ body::-webkit-scrollbar { display: none; }
   }
 
   function buildParticipantList(mid, side, arr) {
+    var isFinal = (mid === 'final');
     var html = '';
     for (var i = 0; i < MAX_PLAYERS; i++) {
       var nick = arr[i]||null; var num = i+1;
@@ -725,7 +780,15 @@ body::-webkit-scrollbar { display: none; }
       var bg = side==='left'?'linear-gradient(135deg,#4a90d9,#6fb3ff)':'linear-gradient(135deg,#e07845,#ff8a65)';
       var av = nick ? escapeHtml(nick.charAt(0).toUpperCase()) : num;
       var mb = isMe ? '<span class="you-badge">\u0422\u042b</span>' : '';
-      html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?escapeHtml(nick)+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+del+'</li>';
+      var prizeBtn = '';
+      if (isFinal && nick) {
+        prizeBtn = '<button class="prize-btn" onclick="event.stopPropagation();showPrizePopup()" title="\u041f\u0440\u0438\u0437\u044b">\u{1F381}</button>';
+      }
+      if (side === 'left') {
+        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?escapeHtml(nick)+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
+      } else {
+        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?escapeHtml(nick)+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
+      }
     }
     return html;
   }
@@ -798,6 +861,10 @@ body::-webkit-scrollbar { display: none; }
       });
       updates[tPath('distribution/'+mid)] = finDist;
     }
+    if (mid === 'final') {
+      var prizeIdx = Math.floor(Math.random() * PRIZE_SKINS.length);
+      updates[tPath('matches/final/prizeSkin')] = prizeIdx;
+    }
     db.ref().update(updates).then(function() {
       if (mid === 'final') {
         var loseSide = side === 'left' ? 'right' : 'left';
@@ -817,7 +884,10 @@ body::-webkit-scrollbar { display: none; }
     if (!confirm('\u041e\u0442\u043c\u0435\u043d\u0438\u0442\u044c \u043f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044f \u044d\u0442\u043e\u0433\u043e \u043c\u0430\u0442\u0447\u0430? \u0418\u0433\u0440\u043e\u043a\u0438 \u0431\u0443\u0434\u0443\u0442 \u0443\u0431\u0440\u0430\u043d\u044b \u0438\u0437 \u0441\u043b\u0435\u0434\u0443\u044e\u0449\u0435\u0433\u043e \u0440\u0430\u0443\u043d\u0434\u0430.')) return;
     var updates = {};
     updates[tPath('matches/'+mid+'/winner')] = null;
-    if (mid === 'final') { db.ref(tPath('finalResult')).remove(); }
+    if (mid === 'final') {
+      db.ref(tPath('finalResult')).remove();
+      updates[tPath('matches/final/prizeSkin')] = null;
+    }
     if (mid.startsWith('qf_')) {
       db.ref(tPath('distribution/'+mid)).once('value').then(function(snap) {
         var dist = snap.val()||{}; var sfToRemove = {};
@@ -893,13 +963,15 @@ body::-webkit-scrollbar { display: none; }
     document.getElementById('teamModalOverlay').classList.remove('active'); currentMatchId = null;
     if (chatRef) { chatRef.off(); chatRef = null; }
     var ow = document.querySelector('.admin-winner-row'); if (ow) ow.remove();
+    var ps = document.querySelector('.prize-winner-section'); if (ps) ps.remove();
   }
 
   document.getElementById('teamModalClose').addEventListener('click', closeModal);
   document.getElementById('teamModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closePrizePopup(); } });
   document.getElementById('commonChatSend').addEventListener('click', function(e) { e.stopPropagation(); sendMsg(); });
   document.getElementById('commonChatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.stopPropagation(); sendMsg(); } });
+  document.getElementById('prizePopup').addEventListener('click', function(e) { if (e.target === this) closePrizePopup(); });
 
   var matchesListener = null;
   function listenToMatches() {
@@ -913,7 +985,6 @@ body::-webkit-scrollbar { display: none; }
     });
   }
 
-  // Init
   checkAdminNicks();
   loadTournaments(function(sorted) {
     if (sorted.length > 0) {
