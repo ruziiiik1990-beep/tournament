@@ -2,44 +2,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Турнирная сетка</title>
+  <title>Плей-офф турнир</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-    body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', sans-serif; overflow: hidden; }
-
-    .tournament-bar { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 12px auto; max-width: 850px; flex-wrap: wrap; }
-    .tournament-bar-left, .tournament-bar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
-    .tournament-bar select { padding: 10px 16px; border-radius: 8px; background: rgba(0,0,0,0.4); color: #fff; border: 1px solid rgba(255,255,255,0.2); font-size: 14px; font-family: 'Inter', sans-serif; }
-    .tournament-bar input { padding: 10px 16px; border-radius: 8px; background: rgba(0,0,0,0.4); color: #fff; border: 1px solid rgba(255,255,255,0.2); font-size: 14px; width: 200px; font-family: 'Inter', sans-serif; }
-    .tournament-bar input::placeholder { color: rgba(255,255,255,0.4); }
-    .btn-create-tournament { padding: 10px 20px; background: linear-gradient(135deg, #27ae60, #2ecc71); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; font-family: 'Inter', sans-serif; transition: transform 0.2s; }
-    .btn-create-tournament:hover { transform: translateY(-2px); }
-    .btn-delete-tournament { padding: 10px 20px; background: linear-gradient(135deg, #c0392b, #e74c3c); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; font-family: 'Inter', sans-serif; transition: transform 0.2s; }
-    .btn-delete-tournament:hover { transform: translateY(-2px); }
+    body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', sans-serif; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
+    body::-webkit-scrollbar { display: none; }
 
     .tournament-wrapper {
       background-image: url('https://4ak4ak.moy.su/Tchak.jpg');
       background-size: cover; background-position: center center; background-repeat: no-repeat;
       padding: 30px 0; border-radius: 12px; position: relative; overflow: hidden;
     }
-    .tournament-wrapper::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 0; }
+    .tournament-wrapper::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 0;
+    }
     .tournament-wrapper > * { position: relative; z-index: 1; }
-    .tournament-title { text-align: center; color: #fff; font-size: 28px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 24px; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+
+    .tournament-title {
+      text-align: center; color: #fff; font-size: 28px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 2px; margin-bottom: 24px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
 
     .bracket-row { display: flex; gap: 16px; justify-content: center; align-items: stretch; flex-wrap: wrap; }
     .bracket-col { flex: 1; min-width: 180px; max-width: 22%; display: flex; flex-direction: column; }
     .bracket-col.final-col { max-width: 260px; }
     .bracket-col.semifinal-col, .bracket-col.final-col { justify-content: center; }
+
     .conf-label { text-align: center; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.2); }
     .conf-label.west { color: #6fb3ff; }
     .conf-label.east { color: #ff8a65; }
+
     .round-label { text-align: center; color: rgba(255,255,255,0.55); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
 
     .match { display: flex; flex-direction: column; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; margin: 0 auto 8px; width: 100%; border: 1px solid rgba(255,255,255,0.08); box-sizing: border-box; cursor: pointer; transition: border-color 0.2s, background 0.2s, transform 0.15s; }
     .match:hover { border-color: rgba(255,215,0,0.4); background: rgba(255,255,255,0.1); transform: translateY(-2px); }
     .match.is-mine { border-color: rgba(74,158,255,0.6); box-shadow: 0 0 12px rgba(74,158,255,0.4); }
-    .match-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; color: #fff; font-size: 13px; font-weight: 500; transition: background 0.2s; white-space: nowrap; }
+
+    .match-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; color: #fff; font-size: 13px; font-weight: 500; transition: background 0.2s; }
     .match-row.winner { background: rgba(76,175,80,0.3); font-weight: 700; }
     .match-row.winner::after { content: '\2713'; color: #66bb6a; margin-left: 6px; }
     .match-row.is-mine-row { background: rgba(74,158,255,0.2); }
@@ -56,11 +58,12 @@
     .join-section { text-align: center; margin: 24px 0 20px; }
     .btn-join { display: inline-block; padding: 14px 40px; font-size: 17px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #0a2a6b, #1a4a8b); border: 2px solid rgba(255,255,255,0.3); border-radius: 50px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, background 0.3s; box-shadow: 0 4px 14px rgba(10,42,107,0.4); font-family: 'Inter', sans-serif; }
     .btn-join:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(10,42,107,0.6); background: linear-gradient(135deg, #1a4a8b, #2a6abb); }
+    .btn-join:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-join:disabled:hover { transform: none; box-shadow: none; background: linear-gradient(135deg, #0a2a6b, #1a4a8b); }
     .joined-msg { text-align: center; color: #4a9eff; font-weight: 700; font-size: 17px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(74,158,255,0.5); }
     .guest-warning { text-align: center; margin-bottom: 20px; }
     .guest-warning-text { font-weight: 800; background: linear-gradient(180deg, transparent 45%, #0a2a6bcc 45%); padding: 3px 10px; border-radius: 5px; color: #fff; text-shadow: 0 0 5px #0a2a6b, 0 0 10px #0a2a6b; display: inline-block; font-size: 15px; }
     .tournament-full-msg { text-align: center; color: rgba(255,215,0,0.7); font-weight: 700; font-size: 15px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
-
     .admin-login-row { text-align: center; margin: 20px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
     .admin-login-row input { padding: 12px 18px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; width: 200px; font-family: 'Inter', sans-serif; }
     .admin-login-row input::placeholder { color: rgba(255,255,255,0.4); }
@@ -68,6 +71,19 @@
     .admin-panel h3 { font-size: 18px; margin-bottom: 12px; color: #4a9eff; text-shadow: 0 0 10px rgba(74,158,255,0.5); font-weight: 700; }
     .admin-hint { font-size: 13px; color: rgba(255,255,255,0.5); }
     .admin-active-badge { display: inline-block; background: linear-gradient(135deg, #27ae60, #2ecc71); color: #fff; font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 700; margin-left: 10px; box-shadow: 0 2px 8px rgba(39,174,96,0.4); }
+
+    .tournament-manager { max-width: 850px; margin: 0 auto 20px; padding: 22px; background: rgba(10,42,107,0.3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(74,158,255,0.35); border-radius: 14px; box-shadow: 0 4px 20px rgba(10,42,107,0.3); display: none; }
+    .tournament-manager.active { display: block; }
+    .tournament-manager h3 { font-size: 18px; margin-bottom: 16px; color: #4a9eff; font-weight: 700; }
+    .tm-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    .tm-row select { padding: 10px 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; flex: 1; min-width: 200px; }
+    .tm-row select option { background: #1a1a2e; color: #fff; }
+    .tm-row input { padding: 10px 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; flex: 1; min-width: 200px; font-family: 'Inter', sans-serif; }
+    .tm-row input::placeholder { color: rgba(255,255,255,0.4); }
+    .tm-btn { padding: 10px 20px; font-size: 14px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #27ae60, #2ecc71); border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; transition: transform 0.2s; }
+    .tm-btn:hover { transform: translateY(-2px); }
+    .tm-btn.delete { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+    .tm-btn.goto { background: linear-gradient(135deg, #0a2a6b, #1a4a8b); }
 
     .team-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 9999; justify-content: center; align-items: center; }
     .team-modal-overlay.active { display: flex; }
@@ -121,7 +137,7 @@
     .map-label { font-size: 11px; font-weight: 700; color: rgba(255,215,0,0.7); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
     .map-image { width: 120px; height: 120px; border-radius: 10px; object-fit: cover; border: 2px solid rgba(255,215,0,0.3); box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
     .map-vs { font-size: 22px; font-weight: 800; color: rgba(255,215,0,0.6); text-align: center; }
-    .map-name { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.8); text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
+    .map-name { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.8); text-align: center; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
     .map-placeholder { width: 120px; height: 120px; border-radius: 10px; border: 2px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.4; padding: 10px; }
     .map-name.empty { color: rgba(255,255,255,0.3); }
 
@@ -154,8 +170,6 @@
     .admin-badge { display: inline-block; background: rgba(255,215,0,0.2); color: #ffd700; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
     .you-badge { display: inline-block; background: rgba(74,158,255,0.3); color: #4a9eff; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
 
-    .no-tournament-msg { text-align: center; color: rgba(255,255,255,0.5); font-size: 16px; padding: 40px 20px; }
-
     @media (max-width: 900px) {
       .bracket-row { flex-direction: column; align-items: center; }
       .bracket-col { max-width: 100%; width: 100%; }
@@ -170,66 +184,62 @@
 </head>
 <body>
 
-  <div class="tournament-bar">
-    <div class="tournament-bar-left">
-      <select id="tournamentSelect" onchange="selectTournament(this.value)">
-        <option value="">— Выберите турнир —</option>
-      </select>
+  <div class="admin-login-row">
+    <input type="password" id="adminPassInput" placeholder="Админ-пароль" onkeydown="if(event.key==='Enter') toggleAdmin()">
+    <button class="btn-join" style="padding:12px 26px; font-size:14px;" onclick="toggleAdmin()">Войти как админ</button>
+  </div>
+
+  <div class="tournament-manager" id="tournamentManager">
+    <h3>Управление турнирами</h3>
+    <div class="tm-row">
+      <select id="tmSelect"></select>
+      <button class="tm-btn goto" onclick="loadSelectedTournament()">Открыть</button>
+      <button class="tm-btn delete" onclick="deleteTournament()">Удалить</button>
     </div>
-    <div class="tournament-bar-right">
-      <input type="text" id="newTournamentName" placeholder="Название турнира" maxlength="40" onkeydown="if(event.key==='Enter') createTournament()">
-      <button class="btn-create-tournament" onclick="createTournament()">+ Создать</button>
-      <button class="btn-delete-tournament" id="btnDeleteTournament" onclick="deleteTournament()" style="display:none;">Удалить</button>
+    <div class="tm-row">
+      <input type="text" id="tmNewName" placeholder="Название нового турнира" maxlength="40">
+      <button class="tm-btn" onclick="createTournament()">Создать турнир</button>
     </div>
   </div>
 
-  <div id="bracketContainer" style="display:none;">
-    <div class="tournament-wrapper">
-      <div class="tournament-title" id="tournamentTitle">Плей-офф</div>
-      <div class="bracket-row">
-        <div class="bracket-col">
-          <div class="conf-label west">Запад</div>
-          <div class="round-label">Четвертьфиналы</div>
-          <div class="match" data-match-id="qf_w1"><div class="match-row"><div class="match-team"><span class="team-seed">1</span> Команда A</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">4</span> Команда B</div><div class="match-score"></div></div></div>
-          <div class="match" data-match-id="qf_w2"><div class="match-row"><div class="match-team"><span class="team-seed">2</span> Команда C</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">3</span> Команда D</div><div class="match-score"></div></div></div>
-        </div>
-        <div class="bracket-col semifinal-col">
-          <div class="round-label">Полуфинал</div>
-          <div class="match" data-match-id="sf_w"><div class="match-row"><div class="match-team"><span class="team-seed">З1</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">З2</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
-        </div>
-        <div class="bracket-col final-col">
-          <div class="final-box">
-            <div class="final-title">Финал</div>
-            <div class="match final-match" data-match-id="final"><div class="match-row"><div class="match-team"><span class="team-seed">З</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">В</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
-          </div>
-        </div>
-        <div class="bracket-col semifinal-col">
-          <div class="round-label">Полуфинал</div>
-          <div class="match" data-match-id="sf_e"><div class="match-row"><div class="match-team"><span class="team-seed">В1</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">В2</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
-        </div>
-        <div class="bracket-col">
-          <div class="conf-label east">Восток</div>
-          <div class="round-label">Четвертьфиналы</div>
-          <div class="match" data-match-id="qf_e1"><div class="match-row"><div class="match-team"><span class="team-seed">1</span> Команда E</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">4</span> Команда F</div><div class="match-score"></div></div></div>
-          <div class="match" data-match-id="qf_e2"><div class="match-row"><div class="match-team"><span class="team-seed">2</span> Команда G</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">3</span> Команда H</div><div class="match-score"></div></div></div>
+  <div class="admin-panel" id="adminPanel" style="display:none;">
+    <h3>Админ-панель <span class="admin-active-badge">АКТИВЕН</span></h3>
+    <div class="admin-hint">Открой любой матч — появились поля добавления игроков и кнопки подтверждения победы. Чтобы отменить победителя — нажми на картинку под победившей командой.</div>
+  </div>
+
+  <div class="tournament-wrapper">
+    <div class="tournament-title" id="tournamentTitle">Плей-офф</div>
+    <div class="bracket-row">
+      <div class="bracket-col">
+        <div class="conf-label west">Запад</div>
+        <div class="round-label">Четвертьфиналы</div>
+        <div class="match" data-match-id="qf_w1"><div class="match-row"><div class="match-team"><span class="team-seed">1</span> Команда A</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">4</span> Команда B</div><div class="match-score"></div></div></div>
+        <div class="match" data-match-id="qf_w2"><div class="match-row"><div class="match-team"><span class="team-seed">2</span> Команда C</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">3</span> Команда D</div><div class="match-score"></div></div></div>
+      </div>
+      <div class="bracket-col semifinal-col">
+        <div class="round-label">Полуфинал</div>
+        <div class="match" data-match-id="sf_w"><div class="match-row"><div class="match-team"><span class="team-seed">З1</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">З2</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
+      </div>
+      <div class="bracket-col final-col">
+        <div class="final-box">
+          <div class="final-title">Финал</div>
+          <div class="match final-match" data-match-id="final"><div class="match-row"><div class="match-team"><span class="team-seed">З</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">В</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
         </div>
       </div>
-    </div>
-
-    <div class="join-section" id="joinSection"></div>
-
-    <div class="admin-login-row">
-      <input type="password" id="adminPassInput" placeholder="Админ-пароль" onkeydown="if(event.key==='Enter') toggleAdmin()">
-      <button class="btn-join" style="padding:12px 26px; font-size:14px;" onclick="toggleAdmin()">Войти как админ</button>
-    </div>
-
-    <div class="admin-panel" id="adminPanel" style="display:none;">
-      <h3>Админ-панель <span class="admin-active-badge">АКТИВЕН</span></h3>
-      <div class="admin-hint">Открой любой матч — появились поля добавления игроков и кнопки подтверждения победы. Чтобы отменить победителя — нажми на картинку под победившей командой.</div>
+      <div class="bracket-col semifinal-col">
+        <div class="round-label">Полуфинал</div>
+        <div class="match" data-match-id="sf_e"><div class="match-row"><div class="match-team"><span class="team-seed">В1</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">В2</span> <span class="sf-team-name">Ожидание...</span></div><div class="match-score"></div></div></div>
+      </div>
+      <div class="bracket-col">
+        <div class="conf-label east">Восток</div>
+        <div class="round-label">Четвертьфиналы</div>
+        <div class="match" data-match-id="qf_e1"><div class="match-row"><div class="match-team"><span class="team-seed">1</span> Команда E</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">4</span> Команда F</div><div class="match-score"></div></div></div>
+        <div class="match" data-match-id="qf_e2"><div class="match-row"><div class="match-team"><span class="team-seed">2</span> Команда G</div><div class="match-score"></div></div><div class="match-divider"></div><div class="match-row"><div class="match-team"><span class="team-seed">3</span> Команда H</div><div class="match-score"></div></div></div>
+      </div>
     </div>
   </div>
 
-  <div id="noTournamentMsg" class="no-tournament-msg">Создайте новый турнир или выберите существующий из списка выше.</div>
+  <div class="join-section" id="joinSection"></div>
 
   <div class="team-modal-overlay" id="teamModalOverlay">
     <div class="team-modal">
@@ -295,17 +305,10 @@
     var currentMatchId = null;
     var chatRef = null;
     var allMatches = {};
-    var qfMatchIds = ['qf_w1','qf_w2','qf_e1','qf_e2'];
-
-    /* === НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ МУЛЬТИ-ТУРНИРОВ === */
     var currentTournamentId = null;
-    var tournaments = {};
-    var matchesListenerRef = null;
+    var allTournaments = {};
 
-    /* Хелпер: путь к данным текущего турнира */
-    function tPath(suffix) {
-      return 'playoff/tournaments/' + currentTournamentId + (suffix ? '/' + suffix : '');
-    }
+    var qfMatchIds = ['qf_w1','qf_w2','qf_e1','qf_e2'];
 
     var maps = [
       { url: 'https://4ak4ak.moy.su/dust2.png', name: 'Dust 2' },
@@ -326,6 +329,7 @@
       'qf_e1': { left: 'Команда E', right: 'Команда F' },
       'qf_e2': { left: 'Команда G', right: 'Команда H' }
     };
+
     var sfTeamNames = {
       'sf_w': { left: 'Команда I', right: 'Команда J' },
       'sf_e': { left: 'Команда K', right: 'Команда L' }
@@ -338,7 +342,10 @@
       { sfId: 'sf_e', sfSide: 'left' },
       { sfId: 'sf_e', sfSide: 'right' }
     ];
-    var finalSlots = [ { finalSide: 'left' }, { finalSide: 'right' } ];
+    var finalSlots = [
+      { finalSide: 'left' },
+      { finalSide: 'right' }
+    ];
 
     function getUrlParam(n) { var u = new URL(window.location.href); return u.searchParams.get(n); }
     myNick = getUrlParam('user');
@@ -347,99 +354,19 @@
       if (!t) return '';
       return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
     }
+
     function formatTime(ts) {
       var d = new Date(ts); var h = String(d.getHours()).padStart(2,'0'); var m = String(d.getMinutes()).padStart(2,'0');
       return h + ':' + m;
     }
-    function isLoggedIn() { return myNick && myNick !== 'null' && myNick !== '' && myNick !== 'guest' && myNick !== 'Гость'; }
 
-    /* === УПРАВЛЕНИЕ ТУРНИРАМИ === */
-
-    function renderTournamentList() {
-      var sel = document.getElementById('tournamentSelect');
-      var prevVal = sel.value;
-      sel.innerHTML = '<option value="">— Выберите турнир —</option>';
-      var keys = Object.keys(tournaments || {}).sort(function(a,b) {
-        return (tournaments[b].createdAt||0) - (tournaments[a].createdAt||0);
-      });
-      keys.forEach(function(id) {
-        var t = tournaments[id];
-        var opt = document.createElement('option');
-        opt.value = id;
-        opt.textContent = t.name || 'Без названия';
-        sel.appendChild(opt);
-      });
-      if (prevVal && tournaments[prevVal]) sel.value = prevVal;
+    function isLoggedIn() {
+      return myNick && myNick !== 'null' && myNick !== '' && myNick !== 'guest' && myNick !== 'Гость';
     }
 
-    window.createTournament = function() {
-      var name = document.getElementById('newTournamentName').value.trim();
-      if (!name) { alert('Введите название турнира!'); return; }
-      var id = 't_' + Date.now();
-      db.ref('playoff/tournaments/' + id).set({
-        name: name,
-        createdAt: Date.now(),
-        matches: {},
-        chats: {},
-        distribution: {},
-        finalResult: null
-      }).then(function() {
-        tournaments[id] = { name: name, createdAt: Date.now() };
-        renderTournamentList();
-        selectTournament(id);
-        document.getElementById('newTournamentName').value = '';
-      });
-    };
-
-    window.selectTournament = function(id) {
-      if (!id || !tournaments[id]) {
-        currentTournamentId = null;
-        document.getElementById('bracketContainer').style.display = 'none';
-        document.getElementById('noTournamentMsg').style.display = 'block';
-        document.getElementById('btnDeleteTournament').style.display = 'none';
-        if (matchesListenerRef) { matchesListenerRef.off(); matchesListenerRef = null; }
-        return;
-      }
-      currentTournamentId = id;
-      document.getElementById('bracketContainer').style.display = 'block';
-      document.getElementById('noTournamentMsg').style.display = 'none';
-      document.getElementById('tournamentTitle').textContent = tournaments[id].name || 'Плей-офф';
-      document.getElementById('btnDeleteTournament').style.display = isAdmin ? 'inline-block' : 'none';
-      document.getElementById('tournamentSelect').value = id;
-      setupTournamentListeners();
-      renderBracket();
-      updateJoinSection();
-    };
-
-    window.deleteTournament = function() {
-      if (!isAdmin || !currentTournamentId) return;
-      if (!confirm('Удалить турнир "' + (tournaments[currentTournamentId] ? tournaments[currentTournamentId].name : '') + '"? Все данные будут потеряны.')) return;
-      db.ref('playoff/tournaments/' + currentTournamentId).remove().then(function() {
-        delete tournaments[currentTournamentId];
-        currentTournamentId = null;
-        if (matchesListenerRef) { matchesListenerRef.off(); matchesListenerRef = null; }
-        renderTournamentList();
-        document.getElementById('bracketContainer').style.display = 'none';
-        document.getElementById('noTournamentMsg').style.display = 'block';
-        document.getElementById('btnDeleteTournament').style.display = 'none';
-        document.getElementById('tournamentSelect').value = '';
-        allMatches = {};
-      });
-    };
-
-    function setupTournamentListeners() {
-      if (matchesListenerRef) matchesListenerRef.off();
-      if (!currentTournamentId) return;
-      matchesListenerRef = db.ref(tPath('matches'));
-      matchesListenerRef.on('value', function(snap) {
-        allMatches = snap.val() || {};
-        matchOrder.forEach(function(mid) { var m = allMatches[mid] || {}; syncMap(mid, m); });
-        renderBracket();
-        updateJoinSection();
-      });
+    function tPath(suffix) {
+      return 'playoff/tournaments/' + currentTournamentId + (suffix ? '/' + suffix : '');
     }
-
-    /* === ОСНОВНАЯ ЛОГИКА === */
 
     function isUserInAnyMatch(nick) {
       if (!nick) return false;
@@ -450,6 +377,7 @@
       }
       return false;
     }
+
     function isUserInMatch(nick, mid) {
       if (!nick) return false;
       var m = allMatches[mid] || {};
@@ -457,29 +385,33 @@
       if (m.right && m.right.indexOf(nick) !== -1) return true;
       return false;
     }
+
     function canChat() {
       if (isAdmin) return true;
       if (!isLoggedIn()) return false;
       if (!currentMatchId) return false;
       return isUserInMatch(myNick, currentMatchId);
     }
+
     function updateChatInputVisibility() {
       var inputArea = document.getElementById('chatInputArea');
       var guestBlock = document.getElementById('chatGuestBlock');
       if (canChat()) { inputArea.style.display = ''; guestBlock.style.display = 'none'; }
       else { inputArea.style.display = 'none'; guestBlock.style.display = ''; }
     }
+
     function hasQfSpace() {
       for (var i = 0; i < qfMatchIds.length; i++) {
-        var mid = qfMatchIds[i]; var m = allMatches[mid] || {};
+        var mid = qfMatchIds[i];
+        var m = allMatches[mid] || {};
         var l = m.left || [], r = m.right || [];
         if (l.length < MAX_PLAYERS || r.length < MAX_PLAYERS) return true;
       }
       return false;
     }
+
     function updateJoinSection() {
       var s = document.getElementById('joinSection');
-      if (!currentTournamentId) { s.innerHTML = ''; return; }
       if (!isLoggedIn()) { s.innerHTML = '<p class="guest-warning"><span class="guest-warning-text">Войдите на сайт, чтобы участвовать в турнире</span></p>'; return; }
       if (isUserInAnyMatch(myNick)) { s.innerHTML = '<p class="joined-msg">Ты уже в турнире! Найди свою команду в сетке.</p>'; return; }
       if (!hasQfSpace()) { s.innerHTML = '<p class="tournament-full-msg">Турнирная таблица полностью заполнена!</p>'; return; }
@@ -488,7 +420,6 @@
 
     window.joinTournament = function() {
       if (!isLoggedIn()) { alert('Войдите на сайт, чтобы участвовать в турнире!'); return; }
-      if (!currentTournamentId) { alert('Выберите турнир!'); return; }
       var candidates = []; var sides = ['left','right'];
       qfMatchIds.forEach(function(mid) {
         sides.forEach(function(side) {
@@ -513,59 +444,133 @@
         if (p === ADMIN_PASSWORD) {
           isAdmin = true; document.getElementById('adminPassInput').value = '';
           document.getElementById('adminPanel').style.display = 'block';
-          document.getElementById('btnDeleteTournament').style.display = currentTournamentId ? 'inline-block' : 'none';
-          alert('Админ-режим включён!'); renderBracket();
+          document.getElementById('tournamentManager').classList.add('active');
+          loadTournamentList();
+          alert('Админ-режим включён! Панель управления турнирами доступна.');
+          renderBracket();
         } else { alert('Неверный пароль!'); }
       } else {
         isAdmin = false; document.getElementById('adminPanel').style.display = 'none';
-        document.getElementById('btnDeleteTournament').style.display = 'none';
+        document.getElementById('tournamentManager').classList.remove('active');
         alert('Админ-режим выключен.'); renderBracket();
       }
     };
 
+    function loadTournamentList(cb) {
+      db.ref('playoff/tournaments').once('value').then(function(snap) {
+        allTournaments = snap.val() || {};
+        var sel = document.getElementById('tmSelect');
+        sel.innerHTML = '';
+        var keys = Object.keys(allTournaments).sort(function(a,b) {
+          return (allTournaments[b].createdAt||0) - (allTournaments[a].createdAt||0);
+        });
+        if (keys.length === 0) {
+          sel.innerHTML = '<option value="">Нет турниров</option>';
+          if (cb) cb(null);
+          return;
+        }
+        keys.forEach(function(k) {
+          var name = allTournaments[k].name || ('Турнир ' + k.slice(-4));
+          var opt = document.createElement('option');
+          opt.value = k; opt.textContent = name;
+          if (k === currentTournamentId) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        if (!currentTournamentId) { currentTournamentId = keys[0]; loadTournament(currentTournamentId); }
+        if (cb) cb(currentTournamentId);
+      });
+    }
+
+    window.loadSelectedTournament = function() {
+      var sel = document.getElementById('tmSelect');
+      var id = sel.value;
+      if (!id) return;
+      currentTournamentId = id;
+      loadTournament(id);
+    };
+
+    window.createTournament = function() {
+      var name = document.getElementById('tmNewName').value.trim();
+      if (!name) { alert('Введите название турнира!'); return; }
+      var newId = 't_' + Date.now();
+      db.ref('playoff/tournaments/' + newId).set({ name: name, createdAt: Date.now() }).then(function() {
+        currentTournamentId = newId;
+        allMatches = {};
+        document.getElementById('tmNewName').value = '';
+        loadTournamentList();
+        loadTournament(newId);
+        alert('Турнир "' + name + '" создан!');
+      });
+    };
+
+    window.deleteTournament = function() {
+      var sel = document.getElementById('tmSelect');
+      var id = sel.value;
+      if (!id) { alert('Нет турнира для удаления!'); return; }
+      if (!confirm('Удалить турнир "' + allTournaments[id].name + '"? Все данные будут потеряны!')) return;
+      db.ref('playoff/tournaments/' + id).remove().then(function() {
+        currentTournamentId = null;
+        allMatches = {};
+        loadTournamentList(function(newId) {
+          if (newId) loadTournament(newId);
+          else { document.getElementById('tournamentTitle').textContent = 'Нет активного турнира'; renderBracket(); updateJoinSection(); }
+        });
+        alert('Турнир удалён!');
+      });
+    };
+
+    function loadTournament(id) {
+      if (!id) { allMatches = {}; document.getElementById('tournamentTitle').textContent = 'Нет активного турнира'; renderBracket(); updateJoinSection(); return; }
+      currentTournamentId = id;
+      var tData = allTournaments[id] || {};
+      document.getElementById('tournamentTitle').textContent = tData.name || 'Плей-офф';
+      if (tListener) tListener();
+      tListener = db.ref('playoff/tournaments/' + id + '/matches').on('value', function(snap) {
+        allMatches = snap.val() || {};
+        matchOrder.forEach(function(mid) { var m = allMatches[mid] || {}; syncMap(mid, m); });
+        renderBracket(); updateJoinSection();
+      });
+    }
+
+    var tListener = null;
+    var tListenerRef = null;
+
     function loadAllMatches(cb) {
-      if (!currentTournamentId) { allMatches = {}; if (cb) cb(); return; }
-      db.ref(tPath('matches')).once('value').then(function(snap) {
+      if (!currentTournamentId) { if (cb) cb(); return; }
+      db.ref('playoff/tournaments/' + currentTournamentId + '/matches').once('value').then(function(snap) {
         allMatches = snap.val() || {};
         if (cb) cb();
       });
     }
+
     function isTeamFull(arr) { return arr && arr.length >= MAX_PLAYERS; }
 
     function renderBracket() {
-      loadAllMatches(function() {
-        matchOrder.forEach(function(mid) {
-          var el = document.querySelector('[data-match-id="' + mid + '"]'); if (!el) return;
-          var m = allMatches[mid] || {};
-          var left = m.left || [], right = m.right || [], winner = m.winner || null;
-          var rows = el.querySelectorAll('.match-row');
-          var lne = rows[0].querySelector('.match-team'), rne = rows[1].querySelector('.match-team');
-          var lse = rows[0].querySelector('.match-score'), rse = rows[1].querySelector('.match-score');
-          if (mid.startsWith('qf_')) {
-            var teams = qfTeams[mid];
-            lne.innerHTML = '<span class="team-seed">' + (rows[0].querySelector('.team-seed') ? rows[0].querySelector('.team-seed').textContent : '') + '</span> ' + teams.left;
-            rne.innerHTML = '<span class="team-seed">' + (rows[1].querySelector('.team-seed') ? rows[1].querySelector('.team-seed').textContent : '') + '</span> ' + teams.right;
-          } else {
-            var sl = lne.querySelector('.sf-team-name'), sr = rne.querySelector('.sf-team-name');
-            if (sl && sr) {
-              if (mid === 'sf_w' || mid === 'sf_e') { var names = sfTeamNames[mid] || {left:'?',right:'?'}; sl.textContent = left.length>0?names.left:'Ожидание...'; sr.textContent = right.length>0?names.right:'Ожидание...'; }
-              else if (mid === 'final') { sl.textContent = left.length>0?finalTeamNames.left:'Ожидание...'; sr.textContent = right.length>0?finalTeamNames.right:'Ожидание...'; }
-            }
+      matchOrder.forEach(function(mid) {
+        var el = document.querySelector('[data-match-id="' + mid + '"]'); if (!el) return;
+        var m = allMatches[mid] || {};
+        var left = m.left || [], right = m.right || [], winner = m.winner || null;
+        var rows = el.querySelectorAll('.match-row');
+        var lse = rows[0].querySelector('.match-score'), rse = rows[1].querySelector('.match-score');
+        lse.textContent=''; rse.textContent='';
+        rows[0].classList.remove('winner'); rows[1].classList.remove('winner');
+        rows[0].classList.remove('is-mine-row'); rows[1].classList.remove('is-mine-row');
+        if (myNick) { if (left.indexOf(myNick)!==-1) rows[0].classList.add('is-mine-row'); if (right.indexOf(myNick)!==-1) rows[1].classList.add('is-mine-row'); }
+        if (winner==='left') rows[0].classList.add('winner');
+        if (winner==='right') rows[1].classList.add('winner');
+        el.classList.remove('is-mine');
+        if (myNick && (left.indexOf(myNick)!==-1 || right.indexOf(myNick)!==-1)) el.classList.add('is-mine');
+        if (!mid.startsWith('qf_')) {
+          var sl = rows[0].querySelector('.sf-team-name'), sr = rows[1].querySelector('.sf-team-name');
+          if (sl && sr) {
+            if (mid === 'sf_w' || mid === 'sf_e') { var names = sfTeamNames[mid] || {left:'?',right:'?'}; sl.textContent = left.length>0?names.left:'Ожидание...'; sr.textContent = right.length>0?names.right:'Ожидание...'; }
+            else if (mid === 'final') { sl.textContent = left.length>0?finalTeamNames.left:'Ожидание...'; sr.textContent = right.length>0?finalTeamNames.right:'Ожидание...'; }
           }
-          lse.textContent=''; rse.textContent='';
-          rows[0].classList.remove('winner'); rows[1].classList.remove('winner');
-          rows[0].classList.remove('is-mine-row'); rows[1].classList.remove('is-mine-row');
-          if (myNick) { if (left.indexOf(myNick)!==-1) rows[0].classList.add('is-mine-row'); if (right.indexOf(myNick)!==-1) rows[1].classList.add('is-mine-row'); }
-          if (winner==='left') rows[0].classList.add('winner');
-          if (winner==='right') rows[1].classList.add('winner');
-          el.classList.remove('is-mine');
-          if (myNick && (left.indexOf(myNick)!==-1 || right.indexOf(myNick)!==-1)) el.classList.add('is-mine');
-        });
+        }
       });
     }
 
     function syncMap(mid, m) {
-      if (!currentTournamentId) return;
       var bothFull = isTeamFull(m.left) && isTeamFull(m.right);
       if (bothFull && !m.map) { db.ref(tPath('matches/' + mid + '/map')).set(maps[Math.floor(Math.random()*maps.length)]); }
       if (!bothFull && m.map) { db.ref(tPath('matches/' + mid + '/map')).remove(); }
@@ -645,7 +650,6 @@
     }
 
     window.addPlayer = function(mid, side) {
-      if (!currentTournamentId) return;
       var inp = document.getElementById('addInput_'+side+'_'+mid); var nick = inp.value.trim(); if (!nick) return;
       var arr = (allMatches[mid]||{})[side]||[]; if (arr.length >= MAX_PLAYERS) { alert('Команда заполнена!'); return; }
       arr.push(nick);
@@ -657,7 +661,6 @@
     };
 
     window.removeParticipant = function(mid, side, idx) {
-      if (!currentTournamentId) return;
       var arr = (allMatches[mid]||{})[side]||[]; arr.splice(idx,1);
       db.ref(tPath('matches/'+mid+'/'+side)).set(arr).then(function() {
         allMatches[mid] = allMatches[mid]||{}; allMatches[mid][side] = arr;
@@ -667,7 +670,6 @@
     };
 
     window.confirmWinner = function(mid, side) {
-      if (!currentTournamentId) return;
       var m = allMatches[mid]||{}; if (m.winner) { alert('Победитель уже выбран!'); return; }
       var winArr = m[side]||[];
       var updates = {};
@@ -712,7 +714,7 @@
     };
 
     window.cancelWinner = function(mid) {
-      if (!isAdmin || !currentTournamentId) return;
+      if (!isAdmin) return;
       var m = allMatches[mid]||{}; if (!m.winner) return;
       if (!confirm('Отменить победителя этого матча? Игроки будут убраны из следующего раунда.')) return;
       var updates = {};
@@ -781,7 +783,6 @@
     }
 
     function sendMsg() {
-      if (!currentTournamentId) return;
       if (!canChat()) { alert('Писать в чате могут только участники этого матча!'); return; }
       var inp = document.getElementById('commonChatInput'); var text = inp.value.trim(); if (!text) return;
       var side = 'left'; var m = allMatches[currentMatchId]||{};
@@ -801,26 +802,12 @@
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
     document.getElementById('commonChatSend').addEventListener('click', function(e) { e.stopPropagation(); sendMsg(); });
     document.getElementById('commonChatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.stopPropagation(); sendMsg(); } });
-    document.querySelectorAll('.match').forEach(function(m) { m.addEventListener('click', function(e) { e.preventDefault(); if (currentTournamentId) openModal(this); }); });
+    document.querySelectorAll('.match').forEach(function(m) { m.addEventListener('click', function(e) { e.preventDefault(); openModal(this); }); });
 
-    /* === ИНИЦИАЛИЗАЦИЯ: ЗАГРУЗКА СПИСКА ТУРНИРОВ === */
-    db.ref('playoff/tournaments').on('value', function(snap) {
-      tournaments = snap.val() || {};
-      renderTournamentList();
-      var keys = Object.keys(tournaments).sort(function(a,b) {
-        return (tournaments[b].createdAt||0) - (tournaments[a].createdAt||0);
-      });
-      if (keys.length > 0 && !currentTournamentId) {
-        selectTournament(keys[0]);
-      } else if (currentTournamentId && tournaments[currentTournamentId]) {
-        document.getElementById('tournamentTitle').textContent = tournaments[currentTournamentId].name || 'Плей-офф';
-      } else if (keys.length === 0) {
-        document.getElementById('bracketContainer').style.display = 'none';
-        document.getElementById('noTournamentMsg').style.display = 'block';
-      }
+    loadTournamentList(function(firstId) {
+      if (firstId) loadTournament(firstId);
+      else { document.getElementById('tournamentTitle').textContent = 'Нет активного турнира'; renderBracket(); updateJoinSection(); }
     });
-
-    updateJoinSection();
   })();
   </script>
 </body>
