@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -177,14 +178,25 @@ body::-webkit-scrollbar { display: none; }
 .prize-popup-title { font-size: 16px; font-weight: 700; color: #ffd700; text-align: center; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; }
 .prize-popup-skins { display: flex; gap: 14px; justify-content: center; }
 .prize-skin-card { text-align: center; }
-.prize-skin-card img { width: 200px; height: 120px; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); }
+.prize-skin-card img { width: 100px; height: 60px; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); }
 .prize-skin-name { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 8px; font-weight: 600; }
 .prize-popup-close { position: absolute; top: 10px; right: 12px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 20px; cursor: pointer; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .prize-popup-close:hover { background: rgba(255,80,80,0.4); }
+.prize-popup-divider { width: 100%; height: 1px; background: rgba(255,215,0,0.2); margin: 20px 0; }
 .prize-winner-section { text-align: center; margin-top: 14px; }
 .prize-winner-label { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
-.prize-winner-img { width: 220px; height: 130px; object-fit: contain; border-radius: 10px; border: 2px solid #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.5); margin: 0 auto; }
+.prize-winner-img { width: 55px; height: 33px; object-fit: contain; border-radius: 6px; border: 2px solid #ffd700; box-shadow: 0 0 12px rgba(255,215,0,0.4); margin: 0 auto; }
 .prize-winner-name { font-size: 14px; font-weight: 700; color: #ffd700; margin-top: 8px; }
+.prize-player-section { margin-top: 16px; padding: 14px; background: rgba(255,215,0,0.05); border-radius: 10px; border: 1px solid rgba(255,215,0,0.15); }
+.prize-player-section-title { font-size: 14px; font-weight: 700; color: #ffd700; text-align: center; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.8px; }
+.prize-player-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.prize-player-row:last-child { border-bottom: none; }
+.prize-player-row img { width: 55px; height: 33px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(255,215,0,0.3); }
+.prize-player-row .prize-player-nick { font-size: 13px; font-weight: 600; color: #fff; min-width: 100px; }
+.prize-player-row .prize-player-skin { font-size: 12px; color: rgba(255,255,255,0.7); }
+.prize-player-row .prize-player-type { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+.prize-player-row .prize-player-type.winner { background: rgba(76,175,80,0.2); color: #66bb6a; }
+.prize-player-row .prize-player-type.finalist { background: rgba(224,120,69,0.2); color: #ff8a65; }
 
 .common-chat-container { width: 100%; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; }
 .chat-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; color: #fff; text-align: center; }
@@ -225,7 +237,7 @@ body::-webkit-scrollbar { display: none; }
   .team-modal { width: 100%; padding: 20px; }
   .chat-msg { max-width: 95%; }
   .prize-popup-skins { flex-direction: column; align-items: center; }
-  .prize-skin-card img { width: 160px; height: 100px; }
+  .prize-skin-card img { width: 80px; height: 50px; }
 }
 </style>
 </head>
@@ -266,17 +278,27 @@ body::-webkit-scrollbar { display: none; }
 
 <div class="prize-popup" id="prizePopup">
   <button class="prize-popup-close" onclick="closePrizePopup()">&times;</button>
-  <div class="prize-popup-title">Возможные призы</div>
-  <div id="prizePopupContent">
-    <div class="prize-popup-skins">
-      <div class="prize-skin-card">
-        <img src="https://4ak4ak.moy.su/prizSkin/ak-47_poljot_zhuravlja.png" alt="AK-47">
-        <div class="prize-skin-name">AK-47 Полёт журавля</div>
-      </div>
-      <div class="prize-skin-card">
-        <img src="https://4ak4ak.moy.su/prizSkin/m4a1-s_dikij_tusovshhik.png" alt="M4A1-S">
-        <div class="prize-skin-name">M4A1-S Дикий тусовщик</div>
-      </div>
+  <div class="prize-popup-title">Возможные призы победителю</div>
+  <div class="prize-popup-skins">
+    <div class="prize-skin-card">
+      <img src="https://4ak4ak.moy.su/prizSkin/ak-47_poljot_zhuravlja.png" alt="AK-47">
+      <div class="prize-skin-name">AK-47 Полёт журавля</div>
+    </div>
+    <div class="prize-skin-card">
+      <img src="https://4ak4ak.moy.su/prizSkin/m4a1-s_dikij_tusovshhik.png" alt="M4A1-S">
+      <div class="prize-skin-name">M4A1-S Дикий тусовщик</div>
+    </div>
+  </div>
+  <div class="prize-popup-divider"></div>
+  <div class="prize-popup-title">Возможные призы финалисту</div>
+  <div class="prize-popup-skins">
+    <div class="prize-skin-card">
+      <img src="https://4ak4ak.moy.su/prizSkinFinalis/ak-47_kolymaga.png" alt="AK-47">
+      <div class="prize-skin-name">AK-47 Колымага</div>
+    </div>
+    <div class="prize-skin-card">
+      <img src="https://4ak4ak.moy.su/prizSkinFinalis/m4a1-s_vzgljad_v_proshloe.png" alt="M4A1-S">
+      <div class="prize-skin-name">M4A1-S Взгляд в прошлое</div>
     </div>
   </div>
 </div>
@@ -352,6 +374,11 @@ body::-webkit-scrollbar { display: none; }
   var PRIZE_SKINS = [
     { url: 'https://4ak4ak.moy.su/prizSkin/ak-47_poljot_zhuravlja.png', name: 'AK-47 \u041f\u043e\u043b\u0451\u0442 \u0436\u0443\u0440\u0430\u0432\u043b\u044f' },
     { url: 'https://4ak4ak.moy.su/prizSkin/m4a1-s_dikij_tusovshhik.png', name: 'M4A1-S \u0414\u0438\u043a\u0438\u0439 \u0442\u0443\u0441\u043e\u0432\u0449\u0438\u043a' }
+  ];
+
+  var PRIZE_SKINS_FINALIST = [
+    { url: 'https://4ak4ak.moy.su/prizSkinFinalis/ak-47_kolymaga.png', name: 'AK-47 \u041a\u043e\u043b\u044b\u043c\u0430\u0433\u0430' },
+    { url: 'https://4ak4ak.moy.su/prizSkinFinalis/m4a1-s_vzgljad_v_proshloe.png', name: 'M4A1-S \u0412\u0437\u0433\u043b\u044f\u0434 \u0432 \u043f\u0440\u043e\u0448\u043b\u043e\u0435' }
   ];
 
   var maps = [
@@ -744,16 +771,41 @@ body::-webkit-scrollbar { display: none; }
         ws.innerHTML = '<img src="'+WIN_LOGO+'" alt="\u041f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044c"'+(isAdmin?' onclick="cancelWinner(\''+mid+'\')"':'')+'>';
         wc.appendChild(ws);
       }
-      if (mid === 'final' && m.prizeSkin !== undefined && m.prizeSkin !== null) {
-        var skin = PRIZE_SKINS[m.prizeSkin];
-        if (skin) {
-          var prizeSec = document.createElement('div');
-          prizeSec.className = 'prize-winner-section';
-          prizeSec.innerHTML = '<div class="prize-winner-label">\u041f\u0440\u0438\u0437 \u043f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044e:</div>'
-            + '<img src="'+skin.url+'" class="prize-winner-img" alt="'+escapeHtml(skin.name)+'">'
-            + '<div class="prize-winner-name">'+escapeHtml(skin.name)+'</div>';
-          document.querySelector('.participants-grid').after(prizeSec);
+      var op = document.querySelector('.prize-player-section'); if (op) op.remove();
+      if (mid === 'final' && m.prizes) {
+        var winSide = m.winner;
+        var loseSide = winSide === 'left' ? 'right' : 'left';
+        var winArr = m[winSide] || [];
+        var loseArr = m[loseSide] || [];
+        var prizeSec = document.createElement('div');
+        prizeSec.className = 'prize-player-section';
+        var html = '';
+        if (winArr.length > 0) {
+          html += '<div class="prize-player-section-title">\u041f\u0440\u0438\u0437\u044b \u043f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044f\u043c</div>';
+          winArr.forEach(function(nick) {
+            var p = m.prizes[nick];
+            if (p) {
+              var skin = PRIZE_SKINS[p.skinIdx];
+              if (skin) {
+                html += '<div class="prize-player-row"><img src="'+skin.url+'" alt="'+escapeHtml(skin.name)+'"><span class="prize-player-nick">'+escapeHtml(nick)+'</span><span class="prize-player-skin">'+escapeHtml(skin.name)+'</span><span class="prize-player-type winner">\u041f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044c</span></div>';
+              }
+            }
+          });
         }
+        if (loseArr.length > 0) {
+          html += '<div class="prize-player-section-title" style="margin-top:14px;">\u041f\u0440\u0438\u0437\u044b \u0444\u0438\u043d\u0430\u043b\u0438\u0441\u0442\u0430\u043c</div>';
+          loseArr.forEach(function(nick) {
+            var p = m.prizes[nick];
+            if (p) {
+              var skin = PRIZE_SKINS_FINALIST[p.skinIdx];
+              if (skin) {
+                html += '<div class="prize-player-row"><img src="'+skin.url+'" alt="'+escapeHtml(skin.name)+'"><span class="prize-player-nick">'+escapeHtml(nick)+'</span><span class="prize-player-skin">'+escapeHtml(skin.name)+'</span><span class="prize-player-type finalist">\u0424\u0438\u043d\u0430\u043b\u0438\u0441\u0442</span></div>';
+              }
+            }
+          });
+        }
+        prizeSec.innerHTML = html;
+        document.querySelector('.participants-grid').after(prizeSec);
       }
       if (isAdmin) addAdminControls(mid, teams);
       var bothFull = isTeamFull(left) && isTeamFull(right);
@@ -862,14 +914,22 @@ body::-webkit-scrollbar { display: none; }
       updates[tPath('distribution/'+mid)] = finDist;
     }
     if (mid === 'final') {
-      var prizeIdx = Math.floor(Math.random() * PRIZE_SKINS.length);
-      updates[tPath('matches/final/prizeSkin')] = prizeIdx;
+      var loseSide = side === 'left' ? 'right' : 'left';
+      var loseArr = m[loseSide]||[];
+      var prizes = {};
+      winArr.forEach(function(nick) {
+        prizes[nick] = { skinIdx: Math.floor(Math.random() * PRIZE_SKINS.length), type: 'winner' };
+      });
+      loseArr.forEach(function(nick) {
+        prizes[nick] = { skinIdx: Math.floor(Math.random() * PRIZE_SKINS_FINALIST.length), type: 'finalist' };
+      });
+      updates[tPath('matches/final/prizes')] = prizes;
     }
     db.ref().update(updates).then(function() {
       if (mid === 'final') {
-        var loseSide = side === 'left' ? 'right' : 'left';
+        var loseSide2 = side === 'left' ? 'right' : 'left';
         var winners = (allMatches['final']||{})[side] || [];
-        var runnersUp = (allMatches['final']||{})[loseSide] || [];
+        var runnersUp = (allMatches['final']||{})[loseSide2] || [];
         db.ref(tPath('finalResult')).set({ winners: winners, runnersUp: runnersUp, time: Date.now() });
       }
       loadAllMatches(function() {
@@ -886,7 +946,7 @@ body::-webkit-scrollbar { display: none; }
     updates[tPath('matches/'+mid+'/winner')] = null;
     if (mid === 'final') {
       db.ref(tPath('finalResult')).remove();
-      updates[tPath('matches/final/prizeSkin')] = null;
+      updates[tPath('matches/final/prizes')] = null;
     }
     if (mid.startsWith('qf_')) {
       db.ref(tPath('distribution/'+mid)).once('value').then(function(snap) {
@@ -963,7 +1023,7 @@ body::-webkit-scrollbar { display: none; }
     document.getElementById('teamModalOverlay').classList.remove('active'); currentMatchId = null;
     if (chatRef) { chatRef.off(); chatRef = null; }
     var ow = document.querySelector('.admin-winner-row'); if (ow) ow.remove();
-    var ps = document.querySelector('.prize-winner-section'); if (ps) ps.remove();
+    var ps = document.querySelector('.prize-player-section'); if (ps) ps.remove();
   }
 
   document.getElementById('teamModalClose').addEventListener('click', closeModal);
