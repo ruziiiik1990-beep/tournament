@@ -378,14 +378,54 @@ body::-webkit-scrollbar { display: none; }
   var qfMatchIds = ['qf_w1','qf_w2','qf_e1','qf_e2'];
 
   var PRIZE_SKINS_WINNER = [
-    { url: 'https://4ak4ak.moy.su/prizSkin/ak-47_poljot_zhuravlja.png', name: 'AK-47 \u041f\u043e\u043b\u0451\u0442 \u0436\u0443\u0440\u0430\u0432\u043b\u044f' },
-    { url: 'https://4ak4ak.moy.su/prizSkin/m4a1-s_dikij_tusovshhik.png', name: 'M4A1-S \u0414\u0438\u043a\u0438\u0439 \u0442\u0443\u0441\u043e\u0432\u0449\u0438\u043a' }
-  ];
+  { url: 'https://4ak4ak.moy.su/prizSkin/ak-47_poljot_zhuravlja.png', name: 'AK-47 Полёт журавля' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/m4a1-s_dikij_tusovshhik.png', name: 'M4A1-S Дикий тусовщик' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/awp_dragon_lore.png', name: 'AWP Dragon Lore' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/ak-47_redline.png', name: 'AK-47 Redline' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/m4a4_howl.png', name: 'M4A4 Howl' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/usp_kill_confirmed.png', name: 'USP-S Kill Confirmed' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/glock_fade.png', name: 'Glock-18 Fade' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/famas_rapid_eye_movement.png', name: 'FAMAS Rapid Eye Movement' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/galil_eco.png', name: 'Galil AR Eco' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/sg553_dark_water.png', name: 'SG 553 Dark Water' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/ump_corporal.png', name: 'UMP-45 Corporal' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/mac10_last_dive.png', name: 'MAC-10 Last Dive' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/p250_muerta.png', name: 'P250 Muerta' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/dual_berettas_urban_shock.png', name: 'Dual Berettas Urban Shock' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/five_seven_fall_out.png', name: 'Five-SeveN Fallout' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/tec9_fuel_injector.png', name: 'Tec-9 Fuel Injector' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/negev_drop_me.png', name: 'Negev Drop Me' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/sawed_off_tiger_tooth.png', name: 'Sawed-Off Tiger Tooth' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/nova_hyper_beast.png', name: 'Nova Hyper Beast' },
+  { url: 'https://4ak4ak.moy.su/prizSkin/xm1014_black_tie.png', name: 'XM1014 Black Tie' }
+];
 
-  var PRIZE_SKINS_FINALIST = [
-    { url: 'https://4ak4ak.moy.su/prizSkinFinalis/ak-47_kolymaga.png', name: 'AK-47 \u041a\u043e\u043b\u044b\u043c\u0430\u0433\u0430' },
-    { url: 'https://4ak4ak.moy.su/prizSkinFinalis/m4a1-s_vzgljad_v_proshloe.png', name: 'M4A1-S \u0412\u0437\u0433\u043b\u044f\u0434 \u0432 \u043f\u0440\u043e\u0448\u043b\u043e\u0435' }
-  ];
+ var PRIZE_SKINS_FINALIST = [
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/ak-47_kolymaga.png', name: 'AK-47 Колымага' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/m4a1-s_vzgljad_v_proshloe.png', name: 'M4A1-S Взгляд в прошлое' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/awp_asiimov.png', name: 'AWP Asiimov' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/ak-47_slate.png', name: 'AK-47 Slate' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/m4a1-s_hyper_beast.png', name: 'M4A1-S Hyper Beast' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/usp_orion.png', name: 'USP-S Orion' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/glock_water_elemental.png', name: 'Glock-18 Water Elemental' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/famas_mecha_industries.png', name: 'FAMAS Mecha Industries' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/galil_rocket_booster.png', name: 'Galil AR Rocket Booster' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/sg553_colony.png', name: 'SG 553 Colony' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/ump_briefcase.png', name: 'UMP-45 Briefcase' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/mac10_heat.png', name: 'MAC-10 Heat' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/p250_sand_dune.png', name: 'P250 Sand Dune' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/dual_berettas_cartel.png', name: 'Dual Berettas Cartel' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/five_seven_kami.png', name: 'Five-SeveN Kami' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/tec9_sandstorm.png', name: 'Tec-9 Sandstorm' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/negev_overseer.png', name: 'Negev Overseer' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/sawed_off_apocalypto.png', name: 'Sawed-Off Apocalypto' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/nova_caged_heat.png', name: 'Nova Caged Heat' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/xm1014_teclo.png', name: 'XM1014 Teclo' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/mp7_armored_wear.png', name: 'MP7 Armored Wear' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/mag7_heat_treated.png', name: 'MAG-7 Heat Treated' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/pp_bizon_space_age.png', name: 'PP-Bizon Space Age' },
+  { url: 'https://4ak4ak.moy.su/prizSkinFinalis/r8_revolver_blaze.png', name: 'R8 Revolver Blaze' }
+];
 
   var maps = [
     { url: 'https://4ak4ak.moy.su/dust2.png', name: 'Dust 2' },
