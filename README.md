@@ -170,9 +170,13 @@ body::-webkit-scrollbar { display: none; }
 .map-placeholder { width: 120px; height: 120px; border-radius: 10px; border: 2px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.4; padding: 10px; }
 .map-name.empty { color: rgba(255,255,255,0.3); }
 
+.prize-toggle-btn { padding: 6px 12px; font-size: 11px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #b8860b, #daa520); border: 1px solid rgba(255,215,0,0.4); border-radius: 6px; cursor: pointer; font-family: 'Inter', sans-serif; transition: transform 0.15s, box-shadow 0.2s; white-space: nowrap; }
+.prize-toggle-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(218,165,32,0.5); }
+.prize-toggle-btn.active { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+
 .prize-btn { background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.3); border-radius: 6px; padding: 2px 6px; cursor: pointer; font-size: 14px; line-height: 1; color: #ffd700; transition: background 0.2s, transform 0.15s; flex-shrink: 0; }
 .prize-btn:hover { background: rgba(255,215,0,0.3); transform: scale(1.1); }
-.prize-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 1px solid rgba(255,215,0,0.4); border-radius: 14px; padding: 20px; z-index: 10000; display: none; box-shadow: 0 12px 40px rgba(0,0,0,0.8); }
+.prize-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a2e; border: 1px solid rgba(255,215,0,0.4); border-radius: 14px; padding: 20px; z-index: 10000; display: none; box-shadow: 0 12px 40px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; }
 .prize-popup.active { display: block; }
 .prize-popup-title { font-size: 16px; font-weight: 700; color: #ffd700; text-align: center; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; }
 .prize-popup-skins { display: flex; gap: 14px; justify-content: center; }
@@ -181,10 +185,19 @@ body::-webkit-scrollbar { display: none; }
 .prize-skin-name { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 8px; font-weight: 600; }
 .prize-popup-close { position: absolute; top: 10px; right: 12px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 20px; cursor: pointer; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .prize-popup-close:hover { background: rgba(255,80,80,0.4); }
+.prize-popup-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 18px 0; }
 .prize-winner-section { text-align: center; margin-top: 14px; }
 .prize-winner-label { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
-.prize-winner-img { width: 220px; height: 130px; object-fit: contain; border-radius: 10px; border: 2px solid #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.5); margin: 0 auto; }
-.prize-winner-name { font-size: 14px; font-weight: 700; color: #ffd700; margin-top: 8px; }
+.prize-winner-img { width: 55px; height: 33px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(255,215,0,0.3); }
+.prize-winner-name { font-size: 12px; font-weight: 600; color: #ffd700; }
+.prize-assigned-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.prize-assigned-item { display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.prize-assigned-item img { width: 55px; height: 33px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(255,215,0,0.3); }
+.prize-assigned-nick { font-size: 13px; font-weight: 600; color: #fff; }
+.prize-assigned-skin { font-size: 11px; color: rgba(255,255,255,0.6); }
+.prize-assigned-role { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; }
+.prize-assigned-role.winner { background: rgba(76,175,80,0.3); color: #66bb6a; }
+.prize-assigned-role.finalist { background: rgba(255,215,0,0.2); color: #ffd700; }
 
 .common-chat-container { width: 100%; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; }
 .chat-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; color: #fff; text-align: center; }
@@ -266,8 +279,8 @@ body::-webkit-scrollbar { display: none; }
 
 <div class="prize-popup" id="prizePopup">
   <button class="prize-popup-close" onclick="closePrizePopup()">&times;</button>
-  <div class="prize-popup-title">Возможные призы</div>
   <div id="prizePopupContent">
+    <div class="prize-popup-title">Возможные призы победителю</div>
     <div class="prize-popup-skins">
       <div class="prize-skin-card">
         <img src="https://4ak4ak.moy.su/prizSkin/ak-47_poljot_zhuravlja.png" alt="AK-47">
@@ -276,6 +289,18 @@ body::-webkit-scrollbar { display: none; }
       <div class="prize-skin-card">
         <img src="https://4ak4ak.moy.su/prizSkin/m4a1-s_dikij_tusovshhik.png" alt="M4A1-S">
         <div class="prize-skin-name">M4A1-S Дикий тусовщик</div>
+      </div>
+    </div>
+    <div class="prize-popup-divider"></div>
+    <div class="prize-popup-title">Возможные призы финалисту</div>
+    <div class="prize-popup-skins">
+      <div class="prize-skin-card">
+        <img src="https://4ak4ak.moy.su/prizSkinFinalis/ak-47_kolymaga.png" alt="AK-47">
+        <div class="prize-skin-name">AK-47 Колымага</div>
+      </div>
+      <div class="prize-skin-card">
+        <img src="https://4ak4ak.moy.su/prizSkinFinalis/m4a1-s_vzgljad_v_proshloe.png" alt="M4A1-S">
+        <div class="prize-skin-name">M4A1-S Взгляд в прошлое</div>
       </div>
     </div>
   </div>
@@ -294,6 +319,7 @@ body::-webkit-scrollbar { display: none; }
       </div>
       <div class="map-center">
         <div class="map-label">Карта</div>
+        <div id="prizeToggleContainer"></div>
         <div class="map-vs">VS</div>
         <div id="mapContainer">
           <img class="map-image" id="mapImage" src="" alt="Карта" style="display:none;">
@@ -306,6 +332,7 @@ body::-webkit-scrollbar { display: none; }
         <ul class="participant-list" id="rightParticipantList"></ul>
       </div>
     </div>
+    <div id="prizeAssignedContainer"></div>
     <div class="common-chat-container">
       <div class="chat-title">Общий чат матча</div>
       <div class="chat-messages" id="commonChatMessages"></div>
@@ -347,11 +374,17 @@ body::-webkit-scrollbar { display: none; }
   var chatRef = null;
   var allMatches = {};
   var tournaments = {};
+  var prizesEnabled = false;
   var qfMatchIds = ['qf_w1','qf_w2','qf_e1','qf_e2'];
 
-  var PRIZE_SKINS = [
+  var PRIZE_SKINS_WINNER = [
     { url: 'https://4ak4ak.moy.su/prizSkin/ak-47_poljot_zhuravlja.png', name: 'AK-47 \u041f\u043e\u043b\u0451\u0442 \u0436\u0443\u0440\u0430\u0432\u043b\u044f' },
     { url: 'https://4ak4ak.moy.su/prizSkin/m4a1-s_dikij_tusovshhik.png', name: 'M4A1-S \u0414\u0438\u043a\u0438\u0439 \u0442\u0443\u0441\u043e\u0432\u0449\u0438\u043a' }
+  ];
+
+  var PRIZE_SKINS_FINALIST = [
+    { url: 'https://4ak4ak.moy.su/prizSkinFinalis/ak-47_kolymaga.png', name: 'AK-47 \u041a\u043e\u043b\u044b\u043c\u0430\u0433\u0430' },
+    { url: 'https://4ak4ak.moy.su/prizSkinFinalis/m4a1-s_vzgljad_v_proshloe.png', name: 'M4A1-S \u0412\u0437\u0433\u043b\u044f\u0434 \u0432 \u043f\u0440\u043e\u0448\u043b\u043e\u0435' }
   ];
 
   var maps = [
@@ -484,6 +517,7 @@ body::-webkit-scrollbar { display: none; }
       renderBracket(); updateJoinSection();
     });
     listenToMatches();
+    loadPrizesEnabled();
   };
 
   window.createTournament = function() {
@@ -504,6 +538,7 @@ body::-webkit-scrollbar { display: none; }
       allMatches = {};
       renderBracket(); updateJoinSection();
       listenToMatches();
+      prizesEnabled = false;
     });
   };
 
@@ -529,6 +564,7 @@ body::-webkit-scrollbar { display: none; }
             renderBracket(); updateJoinSection();
           });
           listenToMatches();
+          loadPrizesEnabled();
         } else {
           populateTournamentSelect(null);
         }
@@ -599,6 +635,34 @@ body::-webkit-scrollbar { display: none; }
       allMatches = snap.val() || {};
       if (cb) cb();
     });
+  }
+
+  function loadPrizesEnabled() {
+    if (!currentTournamentId) { prizesEnabled = false; return; }
+    db.ref(tPath('prizesEnabled')).once('value').then(function(snap) {
+      prizesEnabled = snap.val() === true;
+    });
+  }
+
+  window.togglePrizes = function() {
+    if (!isAdmin || !currentTournamentId) return;
+    prizesEnabled = !prizesEnabled;
+    db.ref(tPath('prizesEnabled')).set(prizesEnabled);
+    renderPrizeToggleBtn();
+    var m = allMatches[currentMatchId] || {};
+    var left = m.left || [], right = m.right || [];
+    document.getElementById('leftParticipantList').innerHTML = buildParticipantList(currentMatchId,'left',left);
+    document.getElementById('rightParticipantList').innerHTML = buildParticipantList(currentMatchId,'right',right);
+    renderPrizeAssigned(currentMatchId);
+  };
+
+  function renderPrizeToggleBtn() {
+    var container = document.getElementById('prizeToggleContainer');
+    if (!container) return;
+    if (!isAdmin || currentMatchId !== 'final') { container.innerHTML = ''; return; }
+    var label = prizesEnabled ? '\u0423\u0431\u0440\u0430\u0442\u044c \u043f\u0440\u0438\u0437\u044b' : '\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u043f\u0440\u0438\u0437\u044b';
+    var cls = prizesEnabled ? 'prize-toggle-btn active' : 'prize-toggle-btn';
+    container.innerHTML = '<button class="' + cls + '" onclick="event.stopPropagation();togglePrizes()">' + label + '</button>';
   }
 
   function isTeamFull(arr) { return arr && arr.length >= MAX_PLAYERS; }
@@ -717,6 +781,53 @@ body::-webkit-scrollbar { display: none; }
     document.getElementById('prizePopup').classList.remove('active');
   };
 
+  function renderPrizeAssigned(mid) {
+    var container = document.getElementById('prizeAssignedContainer');
+    if (!container) return;
+    if (mid !== 'final' || !prizesEnabled) { container.innerHTML = ''; return; }
+    var m = allMatches[mid] || {};
+    if (!m.winner || !m.prizes) { container.innerHTML = ''; return; }
+    var winSide = m.winner;
+    var loseSide = winSide === 'left' ? 'right' : 'left';
+    var winners = m[winSide] || [];
+    var finalists = m[loseSide] || [];
+    var prizes = m.prizes || {};
+    var html = '<div class="prize-winner-section">';
+    var hasWin = false, hasFin = false;
+    winners.forEach(function(nick) {
+      var p = prizes['win_' + nick];
+      if (p) { hasWin = true; }
+    });
+    finalists.forEach(function(nick) {
+      var p = prizes['fin_' + nick];
+      if (p) { hasFin = true; }
+    });
+    if (hasWin) {
+      html += '<div class="prize-winner-label">\u041f\u0440\u0438\u0437\u044b \u043f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044f\u043c:</div>';
+      html += '<div class="prize-assigned-list">';
+      winners.forEach(function(nick) {
+        var p = prizes['win_' + nick];
+        if (p) {
+          html += '<div class="prize-assigned-item"><img src="'+p.url+'" class="prize-winner-img" alt=""><span class="prize-assigned-nick">'+escapeHtml(nick)+'</span><span class="prize-assigned-skin">'+escapeHtml(p.name)+'</span><span class="prize-assigned-role winner">\u041f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044c</span></div>';
+        }
+      });
+      html += '</div>';
+    }
+    if (hasFin) {
+      html += '<div class="prize-winner-label" style="margin-top:12px;">\u041f\u0440\u0438\u0437\u044b \u0444\u0438\u043d\u0430\u043b\u0438\u0441\u0442\u0430\u043c:</div>';
+      html += '<div class="prize-assigned-list">';
+      finalists.forEach(function(nick) {
+        var p = prizes['fin_' + nick];
+        if (p) {
+          html += '<div class="prize-assigned-item"><img src="'+p.url+'" class="prize-winner-img" alt=""><span class="prize-assigned-nick">'+escapeHtml(nick)+'</span><span class="prize-assigned-skin">'+escapeHtml(p.name)+'</span><span class="prize-assigned-role finalist">\u0424\u0438\u043d\u0430\u043b\u0438\u0441\u0442</span></div>';
+        }
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
   function openModal(matchEl) {
     var mid = matchEl.getAttribute('data-match-id'); currentMatchId = mid;
     loadAllMatches(function() {
@@ -744,17 +855,8 @@ body::-webkit-scrollbar { display: none; }
         ws.innerHTML = '<img src="'+WIN_LOGO+'" alt="\u041f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044c"'+(isAdmin?' onclick="cancelWinner(\''+mid+'\')"':'')+'>';
         wc.appendChild(ws);
       }
-      if (mid === 'final' && m.prizeSkin !== undefined && m.prizeSkin !== null) {
-        var skin = PRIZE_SKINS[m.prizeSkin];
-        if (skin) {
-          var prizeSec = document.createElement('div');
-          prizeSec.className = 'prize-winner-section';
-          prizeSec.innerHTML = '<div class="prize-winner-label">\u041f\u0440\u0438\u0437 \u043f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044e:</div>'
-            + '<img src="'+skin.url+'" class="prize-winner-img" alt="'+escapeHtml(skin.name)+'">'
-            + '<div class="prize-winner-name">'+escapeHtml(skin.name)+'</div>';
-          document.querySelector('.participants-grid').after(prizeSec);
-        }
-      }
+      renderPrizeToggleBtn();
+      renderPrizeAssigned(mid);
       if (isAdmin) addAdminControls(mid, teams);
       var bothFull = isTeamFull(left) && isTeamFull(right);
       var mapUrl = (bothFull && m.map) ? m.map.url : null;
@@ -781,7 +883,7 @@ body::-webkit-scrollbar { display: none; }
       var av = nick ? escapeHtml(nick.charAt(0).toUpperCase()) : num;
       var mb = isMe ? '<span class="you-badge">\u0422\u042b</span>' : '';
       var prizeBtn = '';
-      if (isFinal && nick) {
+      if (isFinal && nick && prizesEnabled) {
         prizeBtn = '<button class="prize-btn" onclick="event.stopPropagation();showPrizePopup()" title="\u041f\u0440\u0438\u0437\u044b">\u{1F381}</button>';
       }
       if (side === 'left') {
@@ -861,16 +963,27 @@ body::-webkit-scrollbar { display: none; }
       });
       updates[tPath('distribution/'+mid)] = finDist;
     }
-    if (mid === 'final') {
-      var prizeIdx = Math.floor(Math.random() * PRIZE_SKINS.length);
-      updates[tPath('matches/final/prizeSkin')] = prizeIdx;
+    if (mid === 'final' && prizesEnabled) {
+      var loseSide = side === 'left' ? 'right' : 'left';
+      var winners = m[side] || [];
+      var finalists = m[loseSide] || [];
+      var prizes = {};
+      winners.forEach(function(nick) {
+        var skin = PRIZE_SKINS_WINNER[Math.floor(Math.random() * PRIZE_SKINS_WINNER.length)];
+        prizes['win_' + nick] = { url: skin.url, name: skin.name };
+      });
+      finalists.forEach(function(nick) {
+        var skin = PRIZE_SKINS_FINALIST[Math.floor(Math.random() * PRIZE_SKINS_FINALIST.length)];
+        prizes['fin_' + nick] = { url: skin.url, name: skin.name };
+      });
+      updates[tPath('matches/final/prizes')] = prizes;
     }
     db.ref().update(updates).then(function() {
       if (mid === 'final') {
-        var loseSide = side === 'left' ? 'right' : 'left';
-        var winners = (allMatches['final']||{})[side] || [];
-        var runnersUp = (allMatches['final']||{})[loseSide] || [];
-        db.ref(tPath('finalResult')).set({ winners: winners, runnersUp: runnersUp, time: Date.now() });
+        var loseSide2 = side === 'left' ? 'right' : 'left';
+        var winners2 = (allMatches['final']||{})[side] || [];
+        var runnersUp2 = (allMatches['final']||{})[loseSide2] || [];
+        db.ref(tPath('finalResult')).set({ winners: winners2, runnersUp: runnersUp2, time: Date.now() });
       }
       loadAllMatches(function() {
         openModal(document.querySelector('[data-match-id="'+mid+'"]')); renderBracket(); updateJoinSection();
@@ -886,7 +999,7 @@ body::-webkit-scrollbar { display: none; }
     updates[tPath('matches/'+mid+'/winner')] = null;
     if (mid === 'final') {
       db.ref(tPath('finalResult')).remove();
-      updates[tPath('matches/final/prizeSkin')] = null;
+      updates[tPath('matches/final/prizes')] = null;
     }
     if (mid.startsWith('qf_')) {
       db.ref(tPath('distribution/'+mid)).once('value').then(function(snap) {
@@ -983,6 +1096,17 @@ body::-webkit-scrollbar { display: none; }
       matchOrder.forEach(function(mid) { var m = allMatches[mid] || {}; syncMap(mid, m); });
       renderBracket(); updateJoinSection();
     });
+    db.ref(tPath('prizesEnabled')).on('value', function(snap) {
+      prizesEnabled = snap.val() === true;
+      if (currentMatchId === 'final') {
+        var m = allMatches[currentMatchId] || {};
+        var left = m.left || [], right = m.right || [];
+        document.getElementById('leftParticipantList').innerHTML = buildParticipantList(currentMatchId,'left',left);
+        document.getElementById('rightParticipantList').innerHTML = buildParticipantList(currentMatchId,'right',right);
+        renderPrizeToggleBtn();
+        renderPrizeAssigned(currentMatchId);
+      }
+    });
   }
 
   checkAdminNicks();
@@ -1001,6 +1125,7 @@ body::-webkit-scrollbar { display: none; }
         renderBracket(); updateJoinSection();
       });
       listenToMatches();
+      loadPrizesEnabled();
     } else {
       populateTournamentSelect(null);
     }
