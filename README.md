@@ -241,67 +241,9 @@ body::-webkit-scrollbar { display: none; }
   .prize-skin-card img { width: 80px; height: 50px; }
 }
 
-/* === Connect & Start buttons === */
-.match-controls-bar {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: 12px;
-}
-.btn-connect {
-  padding: 5px 14px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, #1a73e8, #4285f4);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 6px;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  transition: transform 0.2s, box-shadow 0.2s;
-  display: none;
-  text-decoration: none;
-}
-.btn-connect.visible { display: inline-block; }
-.btn-connect:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(66,133,244,0.5); }
-.btn-start {
-  padding: 5px 14px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, #e67e22, #f39c12);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 6px;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  transition: transform 0.2s, box-shadow 0.2s;
-  display: none;
-}
-.btn-start.visible { display: inline-block; }
-.btn-start:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(243,156,18,0.5); }
-.btn-start.started {
-  background: linear-gradient(135deg, #27ae60, #2ecc71);
-}
-.participant-link {
-  color: #fff;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.participant-link:hover {
-  color: #66c0f4;
-  text-decoration: underline;
-}
-.team-name-link {
-  color: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.team-name-link:hover {
-  color: #66c0f4;
-  text-decoration: underline;
-}
+.participant-item a[href*="/index/8-"], .prize-assigned-item a[href*="/index/8-"], .chat-msg-author a[href*="/index/8-"] { color: inherit; text-decoration: none; cursor: pointer; }
+.participant-item a[href*="/index/8-"]:hover, .prize-assigned-item a[href*="/index/8-"]:hover, .chat-msg-author a[href*="/index/8-"]:hover { text-decoration: underline; }
+
 </style>
 </head>
 <body>
@@ -371,7 +313,7 @@ body::-webkit-scrollbar { display: none; }
 <div class="team-modal-overlay" id="teamModalOverlay">
   <div class="team-modal">
     <div class="team-modal-header">
-      <span class="team-modal-matchup" id="teamModalMatchup">Матч</span><div class="match-controls-bar"><button class="btn-connect" id="btnConnect" onclick="onConnectClick()">Connect</button><button class="btn-start" id="btnStart" onclick="onStartClick()">Start</button></div>
+      <span class="team-modal-matchup" id="teamModalMatchup">Матч</span>
       <button class="team-modal-close" id="teamModalClose">&times;</button>
     </div>
     <div class="participants-grid" id="participantsGrid">
@@ -734,38 +676,6 @@ body::-webkit-scrollbar { display: none; }
     }
   };
 
-  window.onStartClick = function() {
-    if (!isAdmin) return;
-    if (!currentMatchId) return;
-    var m = allMatches[currentMatchId] || {};
-    var newStarted = !m.started;
-    db.ref(tPath('matches/' + currentMatchId + '/started')).set(newStarted).then(function() {
-      allMatches[currentMatchId] = allMatches[currentMatchId] || {};
-      allMatches[currentMatchId].started = newStarted;
-      var btnStart = document.getElementById('btnStart');
-      var btnConnect = document.getElementById('btnConnect');
-      if (btnStart) {
-        if (newStarted) { btnStart.classList.add('started'); btnStart.textContent = 'Started'; }
-        else { btnStart.classList.remove('started'); btnStart.textContent = 'Start'; }
-      }
-      if (btnConnect) {
-        if (newStarted) { btnConnect.classList.add('visible'); }
-        else { btnConnect.classList.remove('visible'); }
-      }
-    });
-  };
-
-  window.onConnectClick = function() {
-    var m = allMatches[currentMatchId] || {};
-    if (!m.started) return;
-    var connectUrl = m.connectUrl || '';
-    if (connectUrl) {
-      window.open(connectUrl, '_blank');
-    } else {
-      alert('Ссылка для подключения появится soon!');
-    }
-  };
-
   function loadAllMatches(cb) {
     if (!currentTournamentId) { allMatches = {}; if (cb) cb(); return; }
     db.ref(tPath('matches')).once('value').then(function(snap) {
@@ -961,7 +871,7 @@ body::-webkit-scrollbar { display: none; }
       winners.forEach(function(nick) {
         var p = prizes['win_' + nick];
         if (p) {
-          html += '<div class="prize-assigned-item"><img src="'+p.url+'" class="prize-winner-img" alt=""><span class="prize-assigned-nick">'+escapeHtml(nick)+'</span><span class="prize-assigned-skin">'+escapeHtml(p.name)+'</span><span class="prize-assigned-role winner">\u041f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044c</span></div>';
+          html += '<div class="prize-assigned-item"><img src="'+p.url+'" class="prize-winner-img" alt=""><span class="prize-assigned-nick"><a href="/index/8-0-'+encodeURIComponent(nick)+'" target="_blank" style="color:inherit;text-decoration:none;">'+escapeHtml(nick)+'</a></span><span class="prize-assigned-skin">'+escapeHtml(p.name)+'</span><span class="prize-assigned-role winner">\u041f\u043e\u0431\u0435\u0434\u0438\u0442\u0435\u043b\u044c</span></div>';
         }
       });
       html += '</div>';
@@ -972,7 +882,7 @@ body::-webkit-scrollbar { display: none; }
       finalists.forEach(function(nick) {
         var p = prizes['fin_' + nick];
         if (p) {
-          html += '<div class="prize-assigned-item"><img src="'+p.url+'" class="prize-winner-img" alt=""><span class="prize-assigned-nick">'+escapeHtml(nick)+'</span><span class="prize-assigned-skin">'+escapeHtml(p.name)+'</span><span class="prize-assigned-role finalist">\u0424\u0438\u043d\u0430\u043b\u0438\u0441\u0442</span></div>';
+          html += '<div class="prize-assigned-item"><img src="'+p.url+'" class="prize-winner-img" alt=""><span class="prize-assigned-nick"><a href="/index/8-0-'+encodeURIComponent(nick)+'" target="_blank" style="color:inherit;text-decoration:none;">'+escapeHtml(nick)+'</a></span><span class="prize-assigned-skin">'+escapeHtml(p.name)+'</span><span class="prize-assigned-role finalist">\u0424\u0438\u043d\u0430\u043b\u0438\u0441\u0442</span></div>';
         }
       });
       html += '</div>';
@@ -992,19 +902,8 @@ body::-webkit-scrollbar { display: none; }
       else if (mid==='final') teams = finalTeamNames;
       else teams = {left:'\u041a\u043e\u043c\u0430\u043d\u0434\u0430 1',right:'\u041a\u043e\u043c\u0430\u043d\u0434\u0430 2'};
       document.getElementById('teamModalMatchup').textContent = teams.left+' vs '+teams.right;
-      var btnStart = document.getElementById('btnStart');
-      var btnConnect = document.getElementById('btnConnect');
-      if (btnStart) { btnStart.classList.remove('visible','started'); }
-      if (btnConnect) { btnConnect.classList.remove('visible'); }
-      if (btnStart && isAdmin) { btnStart.classList.add('visible'); }
-      if (m.started) {
-        if (btnStart) { btnStart.classList.add('started'); btnStart.textContent = 'Started'; }
-        if (btnConnect) { btnConnect.classList.add('visible'); }
-      } else {
-        if (btnStart) { btnStart.textContent = 'Start'; }
-      }
-      document.getElementById('leftTeamName').innerHTML = '<a class="team-name-link" href="/index/8-0-'+encodeURIComponent(teams.left)+'" target="_blank">'+escapeHtml(teams.left)+'</a>';
-      document.getElementById('rightTeamName').innerHTML = '<a class="team-name-link" href="/index/8-0-'+encodeURIComponent(teams.right)+'" target="_blank">'+escapeHtml(teams.right)+'</a>';
+      document.getElementById('leftTeamName').textContent = teams.left;
+      document.getElementById('rightTeamName').textContent = teams.right;
       var lc = document.getElementById('leftCol'), rc = document.getElementById('rightCol');
       lc.classList.remove('is-mine-col'); rc.classList.remove('is-mine-col');
       if (myNick && left.indexOf(myNick)!==-1) lc.classList.add('is-mine-col');
@@ -1051,9 +950,9 @@ body::-webkit-scrollbar { display: none; }
         prizeBtn = '<button class="prize-btn" onclick="event.stopPropagation();showPrizePopup()" title="\u041f\u0440\u0438\u0437\u044b">\u{1F381}</button>';
       }
       if (side === 'left') {
-        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="/index/8-0-'+encodeURIComponent(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
+        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a href="/index/8-0-'+encodeURIComponent(nick)+'" target="_blank" style="color:inherit;text-decoration:none;">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
       } else {
-        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="/index/8-0-'+encodeURIComponent(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
+        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a href="/index/8-0-'+encodeURIComponent(nick)+'" target="_blank" style="color:inherit;text-decoration:none;">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
       }
     }
     return html;
@@ -1217,7 +1116,7 @@ body::-webkit-scrollbar { display: none; }
       else if (msg.side==='left') { cls='team-west'; colCls='west'; }
       else { cls='team-east'; colCls='east'; }
       var del = isAdmin ? '<button class="chat-msg-delete" data-k="'+escapeHtml(k)+'">&times;</button>' : '';
-      html += '<div class="chat-msg '+cls+'">'+del+'<div class="chat-msg-author '+colCls+'">'+escapeHtml(msg.author)+badge+'</div><div class="chat-msg-text">'+escapeHtml(msg.text)+'</div><div class="chat-msg-time">'+formatTime(msg.time)+'</div></div>';
+      html += '<div class="chat-msg '+cls+'">'+del+'<div class="chat-msg-author '+colCls+'">'+'<a href="/index/8-0-'+encodeURIComponent(msg.author)+'" target="_blank" style="color:inherit;text-decoration:none;">'+escapeHtml(msg.author)+'</a>'+badge+'</div><div class="chat-msg-text">'+escapeHtml(msg.text)+'</div><div class="chat-msg-time">'+formatTime(msg.time)+'</div></div>';
     });
     c.innerHTML = html; c.scrollTop = c.scrollHeight;
     if (isAdmin) {
@@ -1259,20 +1158,6 @@ body::-webkit-scrollbar { display: none; }
       allMatches = snap.val() || {};
       matchOrder.forEach(function(mid) { var m = allMatches[mid] || {}; syncMap(mid, m); });
       renderBracket(); updateJoinSection();
-      if (currentMatchId && allMatches[currentMatchId]) {
-        var m = allMatches[currentMatchId];
-        var btnStart = document.getElementById('btnStart');
-        var btnConnect = document.getElementById('btnConnect');
-        if (btnStart && btnConnect) {
-          if (m.started) {
-            btnStart.classList.add('started'); btnStart.textContent = 'Started';
-            btnConnect.classList.add('visible');
-          } else {
-            btnStart.classList.remove('started'); btnStart.textContent = 'Start';
-            btnConnect.classList.remove('visible');
-          }
-        }
-      }
     });
     db.ref(tPath('prizesEnabled')).on('value', function(snap) {
       prizesEnabled = snap.val() === true;
