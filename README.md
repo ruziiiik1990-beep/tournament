@@ -430,6 +430,8 @@ body::-webkit-scrollbar { display: none; }
   var MAX_PLAYERS = 5;
   var WIN_LOGO = 'https://4ak4ak.moy.su/logo1.jpg';
   var myNick = null;
+  var myUid = null;
+  var playerIds = {};
   var isAdmin = false;
   var currentTournamentId = null;
   var currentMatchId = null;
@@ -531,13 +533,28 @@ body::-webkit-scrollbar { display: none; }
 
   function getUrlParam(n) { var u = new URL(window.location.href); return u.searchParams.get(n); }
   myNick = getUrlParam('user');
+  myUid = getUrlParam('uid');
 
   function escapeHtml(t) {
     if (!t) return '';
     return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
   }
 
-  function formatTime(ts) {
+  
+  function profileUrl(nick) {
+    if (!nick) return null;
+    var uid = playerIds[nick];
+    if (uid) return '/index/8-' + uid;
+    return null;
+  }
+
+  function profileLink(nick, cls) {
+    var url = profileUrl(nick);
+    if (url) return '<a class="' + cls + '" href="' + url + '" target="_blank">' + escapeHtml(nick) + '</a>';
+    return '<span class="' + cls + '">' + escapeHtml(nick) + '</span>';
+  }
+
+function formatTime(ts) {
     var d = new Date(ts); var h = String(d.getHours()).padStart(2,'0'); var m = String(d.getMinutes()).padStart(2,'0');
     return h + ':' + m;
   }
@@ -868,6 +885,7 @@ body::-webkit-scrollbar { display: none; }
     var pick = candidates[Math.floor(Math.random() * candidates.length)];
     var arr = (allMatches[pick.matchId] || {})[pick.side] || [];
     arr.push(myNick);
+    if (myUid) { db.ref('playoff/playerIds/' + encodeURIComponent(myNick)).set(myUid); playerIds[myNick] = myUid; }
     db.ref(tPath('matches/' + pick.matchId + '/' + pick.side)).set(arr).then(function() {
       allMatches[pick.matchId] = allMatches[pick.matchId] || {};
       allMatches[pick.matchId][pick.side] = arr;
@@ -1003,8 +1021,8 @@ body::-webkit-scrollbar { display: none; }
       } else {
         if (btnStart) { btnStart.textContent = 'Start'; }
       }
-      document.getElementById('leftTeamName').innerHTML = '<a class="team-name-link" href="/index/8-0-'+encodeURIComponent(teams.left)+'" target="_blank">'+escapeHtml(teams.left)+'</a>';
-      document.getElementById('rightTeamName').innerHTML = '<a class="team-name-link" href="/index/8-0-'+encodeURIComponent(teams.right)+'" target="_blank">'+escapeHtml(teams.right)+'</a>';
+      document.getElementById('leftTeamName').innerHTML = profileLink(teams.left, 'team-name-link');
+      document.getElementById('rightTeamName').innerHTML = profileLink(teams.right, 'team-name-link');
       var lc = document.getElementById('leftCol'), rc = document.getElementById('rightCol');
       lc.classList.remove('is-mine-col'); rc.classList.remove('is-mine-col');
       if (myNick && left.indexOf(myNick)!==-1) lc.classList.add('is-mine-col');
@@ -1051,9 +1069,9 @@ body::-webkit-scrollbar { display: none; }
         prizeBtn = '<button class="prize-btn" onclick="event.stopPropagation();showPrizePopup()" title="\u041f\u0440\u0438\u0437\u044b">\u{1F381}</button>';
       }
       if (side === 'left') {
-        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="/index/8-0-'+encodeURIComponent(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
+        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?profileLink(nick, 'participant-link')+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
       } else {
-        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="/index/8-0-'+encodeURIComponent(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
+        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?profileLink(nick, 'participant-link')+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
       }
     }
     return html;
@@ -1287,6 +1305,7 @@ body::-webkit-scrollbar { display: none; }
     });
   }
 
+  db.ref('playoff/playerIds').once('value').then(function(snap) { playerIds = snap.val() || {}; });
   checkAdminNicks();
   loadTournaments(function(sorted) {
     if (sorted.length > 0) {
