@@ -425,10 +425,12 @@ body::-webkit-scrollbar { display: none; }
   };
   firebase.initializeApp(firebaseConfig);
   var db = firebase.database();
+  db.ref('playoff/playerIds').once('value').then(function(snap) { playerIds = snap.val() || {}; });
 
   var ADMIN_PASSWORD = '12$sacreD';
   var MAX_PLAYERS = 5;
   var WIN_LOGO = 'https://4ak4ak.moy.su/logo1.jpg';
+  var SITE_URL = 'https://4ak4ak.moy.su';
   var myNick = null;
   var myUid = null;
   var playerIds = {};
@@ -540,21 +542,7 @@ body::-webkit-scrollbar { display: none; }
     return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
   }
 
-  
-  function profileUrl(nick) {
-    if (!nick) return null;
-    var uid = playerIds[nick];
-    if (uid) return '/index/8-' + uid;
-    return null;
-  }
-
-  function profileLink(nick, cls) {
-    var url = profileUrl(nick);
-    if (url) return '<a class="' + cls + '" href="' + url + '" target="_blank">' + escapeHtml(nick) + '</a>';
-    return '<span class="' + cls + '">' + escapeHtml(nick) + '</span>';
-  }
-
-function formatTime(ts) {
+  function formatTime(ts) {
     var d = new Date(ts); var h = String(d.getHours()).padStart(2,'0'); var m = String(d.getMinutes()).padStart(2,'0');
     return h + ':' + m;
   }
@@ -884,8 +872,7 @@ function formatTime(ts) {
     if (candidates.length === 0) { alert('\u0412\u0441\u0435 \u043a\u043e\u043c\u0430\u043d\u0434\u044b \u0447\u0435\u0442\u0432\u0435\u0440\u0442\u044c\u0444\u0438\u043d\u0430\u043b\u0430 \u0437\u0430\u043f\u043e\u043b\u043d\u0435\u043d\u044b!'); return; }
     var pick = candidates[Math.floor(Math.random() * candidates.length)];
     var arr = (allMatches[pick.matchId] || {})[pick.side] || [];
-    arr.push(myNick);
-    if (myUid) { db.ref('playoff/playerIds/' + encodeURIComponent(myNick)).set(myUid); playerIds[myNick] = myUid; }
+    arr.push(myNick); savePlayerId(myNick);
     db.ref(tPath('matches/' + pick.matchId + '/' + pick.side)).set(arr).then(function() {
       allMatches[pick.matchId] = allMatches[pick.matchId] || {};
       allMatches[pick.matchId][pick.side] = arr;
@@ -1021,8 +1008,8 @@ function formatTime(ts) {
       } else {
         if (btnStart) { btnStart.textContent = 'Start'; }
       }
-      document.getElementById('leftTeamName').innerHTML = profileLink(teams.left, 'team-name-link');
-      document.getElementById('rightTeamName').innerHTML = profileLink(teams.right, 'team-name-link');
+      document.getElementById('leftTeamName').innerHTML = '<a class="team-name-link" href="'+profileLink(teams.left)+'" target="_blank">'+escapeHtml(teams.left)+'</a>';
+      document.getElementById('rightTeamName').innerHTML = '<a class="team-name-link" href="'+profileLink(teams.right)+'" target="_blank">'+escapeHtml(teams.right)+'</a>';
       var lc = document.getElementById('leftCol'), rc = document.getElementById('rightCol');
       lc.classList.remove('is-mine-col'); rc.classList.remove('is-mine-col');
       if (myNick && left.indexOf(myNick)!==-1) lc.classList.add('is-mine-col');
@@ -1054,6 +1041,13 @@ function formatTime(ts) {
     });
   }
 
+  function profileLink(nick) {
+    if (nick && playerIds[nick]) return SITE_URL+'/index/8-'+playerIds[nick];
+    return '#';
+  }
+  function savePlayerId(nick) {
+    if (nick && myUid) { playerIds[nick] = myUid; db.ref('playoff/playerIds/'+encodeURIComponent(nick)).set(myUid); }
+  }
   function buildParticipantList(mid, side, arr) {
     var isFinal = (mid === 'final');
     var html = '';
@@ -1069,9 +1063,9 @@ function formatTime(ts) {
         prizeBtn = '<button class="prize-btn" onclick="event.stopPropagation();showPrizePopup()" title="\u041f\u0440\u0438\u0437\u044b">\u{1F381}</button>';
       }
       if (side === 'left') {
-        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?profileLink(nick, 'participant-link')+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
+        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="'+profileLink(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
       } else {
-        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?profileLink(nick, 'participant-link')+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
+        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="'+profileLink(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
       }
     }
     return html;
@@ -1097,7 +1091,7 @@ function formatTime(ts) {
   window.addPlayer = function(mid, side) {
     var inp = document.getElementById('addInput_'+side+'_'+mid); var nick = inp.value.trim(); if (!nick) return;
     var arr = (allMatches[mid]||{})[side]||[]; if (arr.length >= MAX_PLAYERS) { alert('\u041a\u043e\u043c\u0430\u043d\u0434\u0430 \u0437\u0430\u043f\u043e\u043b\u043d\u0435\u043d\u0430!'); return; }
-    arr.push(nick);
+    arr.push(nick); savePlayerId(nick);
     db.ref(tPath('matches/'+mid+'/'+side)).set(arr).then(function() {
       allMatches[mid] = allMatches[mid]||{}; allMatches[mid][side] = arr;
       inp.value=''; syncMap(mid, allMatches[mid]);
@@ -1305,7 +1299,6 @@ function formatTime(ts) {
     });
   }
 
-  db.ref('playoff/playerIds').once('value').then(function(snap) { playerIds = snap.val() || {}; });
   checkAdminNicks();
   loadTournaments(function(sorted) {
     if (sorted.length > 0) {
