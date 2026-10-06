@@ -425,15 +425,15 @@ body::-webkit-scrollbar { display: none; }
   };
   firebase.initializeApp(firebaseConfig);
   var db = firebase.database();
-  db.ref('playoff/playerIds').once('value').then(function(snap) { playerIds = snap.val() || {}; });
+
+  var SITE_URL = 'https://4ak4ak.moy.su';
+  var playerIds = {};
+  var myUid = null;
 
   var ADMIN_PASSWORD = '12$sacreD';
   var MAX_PLAYERS = 5;
   var WIN_LOGO = 'https://4ak4ak.moy.su/logo1.jpg';
-  var SITE_URL = 'https://4ak4ak.moy.su';
   var myNick = null;
-  var myUid = null;
-  var playerIds = {};
   var isAdmin = false;
   var currentTournamentId = null;
   var currentMatchId = null;
@@ -536,6 +536,23 @@ body::-webkit-scrollbar { display: none; }
   function getUrlParam(n) { var u = new URL(window.location.href); return u.searchParams.get(n); }
   myNick = getUrlParam('user');
   myUid = getUrlParam('uid');
+
+  // Save player's uCoz ID to Firebase when available
+  if (myNick && myUid) {
+    db.ref('playoff/playerIds/' + encodeURIComponent(myNick)).set(myUid);
+  }
+
+  // Load all player IDs from Firebase
+  db.ref('playoff/playerIds').on('value', function(snap) {
+    playerIds = snap.val() || {};
+  });
+
+  function profileLink(nick) {
+    if (!nick) return '#';
+    var uid = playerIds[encodeURIComponent(nick)] || playerIds[nick];
+    if (uid) return SITE_URL + '/index/8-' + uid;
+    return SITE_URL + '/index/8-0-' + encodeURIComponent(nick);
+  }
 
   function escapeHtml(t) {
     if (!t) return '';
@@ -872,7 +889,8 @@ body::-webkit-scrollbar { display: none; }
     if (candidates.length === 0) { alert('\u0412\u0441\u0435 \u043a\u043e\u043c\u0430\u043d\u0434\u044b \u0447\u0435\u0442\u0432\u0435\u0440\u0442\u044c\u0444\u0438\u043d\u0430\u043b\u0430 \u0437\u0430\u043f\u043e\u043b\u043d\u0435\u043d\u044b!'); return; }
     var pick = candidates[Math.floor(Math.random() * candidates.length)];
     var arr = (allMatches[pick.matchId] || {})[pick.side] || [];
-    arr.push(myNick); savePlayerId(myNick);
+    arr.push(myNick);
+    if (myUid) { db.ref('playoff/playerIds/' + encodeURIComponent(myNick)).set(myUid); }
     db.ref(tPath('matches/' + pick.matchId + '/' + pick.side)).set(arr).then(function() {
       allMatches[pick.matchId] = allMatches[pick.matchId] || {};
       allMatches[pick.matchId][pick.side] = arr;
@@ -1041,13 +1059,6 @@ body::-webkit-scrollbar { display: none; }
     });
   }
 
-  function profileLink(nick) {
-    if (nick && playerIds[nick]) return SITE_URL+'/index/8-'+playerIds[nick];
-    return '#';
-  }
-  function savePlayerId(nick) {
-    if (nick && myUid) { playerIds[nick] = myUid; db.ref('playoff/playerIds/'+encodeURIComponent(nick)).set(myUid); }
-  }
   function buildParticipantList(mid, side, arr) {
     var isFinal = (mid === 'final');
     var html = '';
@@ -1091,7 +1102,7 @@ body::-webkit-scrollbar { display: none; }
   window.addPlayer = function(mid, side) {
     var inp = document.getElementById('addInput_'+side+'_'+mid); var nick = inp.value.trim(); if (!nick) return;
     var arr = (allMatches[mid]||{})[side]||[]; if (arr.length >= MAX_PLAYERS) { alert('\u041a\u043e\u043c\u0430\u043d\u0434\u0430 \u0437\u0430\u043f\u043e\u043b\u043d\u0435\u043d\u0430!'); return; }
-    arr.push(nick); savePlayerId(nick);
+    arr.push(nick);
     db.ref(tPath('matches/'+mid+'/'+side)).set(arr).then(function() {
       allMatches[mid] = allMatches[mid]||{}; allMatches[mid][side] = arr;
       inp.value=''; syncMap(mid, allMatches[mid]);
