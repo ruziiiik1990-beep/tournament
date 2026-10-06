@@ -124,8 +124,8 @@ body::-webkit-scrollbar { display: none; }
 .team-modal-close:hover { background: rgba(255,80,80,0.4); }
 
 .participants-grid { display: flex; gap: 16px; justify-content: space-between; align-items: flex-start; }
-.participants-col { flex: 1; min-width: 0; display: flex; flex-direction: column; border: 2px solid transparent; border-radius: 10px; padding: 12px; box-sizing: border-box; }
-.participants-col.is-mine-col { border: 2px solid rgba(74,158,255,0.5); box-shadow: 0 0 14px rgba(74,158,255,0.3); animation: pulse-mine 2.5s ease-in-out infinite; }
+.participants-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.participants-col.is-mine-col { border: 2px solid rgba(74,158,255,0.5); border-radius: 10px; padding: 12px; box-shadow: 0 0 14px rgba(74,158,255,0.3); animation: pulse-mine 2.5s ease-in-out infinite; }
 @keyframes pulse-mine { 0%,100% { box-shadow: 0 0 10px rgba(74,158,255,0.3); } 50% { box-shadow: 0 0 22px rgba(74,158,255,0.6); } }
 .participants-col-title { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-align: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.15); }
 .participants-col.left .participants-col-title { color: #6fb3ff; }
@@ -426,6 +426,10 @@ body::-webkit-scrollbar { display: none; }
   firebase.initializeApp(firebaseConfig);
   var db = firebase.database();
 
+  var SITE_URL = 'https://4ak4ak.moy.su';
+  var playerIds = {};
+  var myUid = null;
+
   var ADMIN_PASSWORD = '12$sacreD';
   var MAX_PLAYERS = 5;
   var WIN_LOGO = 'https://4ak4ak.moy.su/logo1.jpg';
@@ -531,6 +535,24 @@ body::-webkit-scrollbar { display: none; }
 
   function getUrlParam(n) { var u = new URL(window.location.href); return u.searchParams.get(n); }
   myNick = getUrlParam('user');
+  myUid = getUrlParam('uid');
+
+  // Save player's uCoz ID to Firebase when available
+  if (myNick && myUid) {
+    db.ref('playoff/playerIds/' + encodeURIComponent(myNick)).set(myUid);
+  }
+
+  // Load all player IDs from Firebase
+  db.ref('playoff/playerIds').on('value', function(snap) {
+    playerIds = snap.val() || {};
+  });
+
+  function profileLink(nick) {
+    if (!nick) return '#';
+    var uid = playerIds[encodeURIComponent(nick)] || playerIds[nick];
+    if (uid) return SITE_URL + '/index/8-' + uid;
+    return SITE_URL + '/index/8-0-' + encodeURIComponent(nick);
+  }
 
   function escapeHtml(t) {
     if (!t) return '';
@@ -868,6 +890,7 @@ body::-webkit-scrollbar { display: none; }
     var pick = candidates[Math.floor(Math.random() * candidates.length)];
     var arr = (allMatches[pick.matchId] || {})[pick.side] || [];
     arr.push(myNick);
+    if (myUid) { db.ref('playoff/playerIds/' + encodeURIComponent(myNick)).set(myUid); }
     db.ref(tPath('matches/' + pick.matchId + '/' + pick.side)).set(arr).then(function() {
       allMatches[pick.matchId] = allMatches[pick.matchId] || {};
       allMatches[pick.matchId][pick.side] = arr;
@@ -1003,8 +1026,8 @@ body::-webkit-scrollbar { display: none; }
       } else {
         if (btnStart) { btnStart.textContent = 'Start'; }
       }
-      document.getElementById('leftTeamName').innerHTML = '<a class="team-name-link" href="/index/8-0-'+encodeURIComponent(teams.left)+'" target="_blank">'+escapeHtml(teams.left)+'</a>';
-      document.getElementById('rightTeamName').innerHTML = '<a class="team-name-link" href="/index/8-0-'+encodeURIComponent(teams.right)+'" target="_blank">'+escapeHtml(teams.right)+'</a>';
+      document.getElementById('leftTeamName').innerHTML = '<a class="team-name-link" href="'+profileLink(teams.left)+'" target="_blank">'+escapeHtml(teams.left)+'</a>';
+      document.getElementById('rightTeamName').innerHTML = '<a class="team-name-link" href="'+profileLink(teams.right)+'" target="_blank">'+escapeHtml(teams.right)+'</a>';
       var lc = document.getElementById('leftCol'), rc = document.getElementById('rightCol');
       lc.classList.remove('is-mine-col'); rc.classList.remove('is-mine-col');
       if (myNick && left.indexOf(myNick)!==-1) lc.classList.add('is-mine-col');
@@ -1051,9 +1074,9 @@ body::-webkit-scrollbar { display: none; }
         prizeBtn = '<button class="prize-btn" onclick="event.stopPropagation();showPrizePopup()" title="\u041f\u0440\u0438\u0437\u044b">\u{1F381}</button>';
       }
       if (side === 'left') {
-        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="/index/8-0-'+encodeURIComponent(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
+        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="'+profileLink(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
       } else {
-        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="/index/8-0-'+encodeURIComponent(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
+        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="'+profileLink(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
       }
     }
     return html;
