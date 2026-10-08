@@ -4,6 +4,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Турнир</title>
 <style>
+  #header, header, h1, .header, a[href*="tournament"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 body { margin: 0; padding: 0; background: transparent; font-family: 'Inter', sans-serif; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
