@@ -1445,10 +1445,7 @@ body::-webkit-scrollbar { display: none; }
       statusEl.textContent = err.message;
       console.error("Детали ошибки:", err);
     });
-  };
-    reader.readAsArrayBuffer(file);
   }
-
 
 
   // 2. СКАЧИВАНИЕ И XOR-ДЕШИФРАЦИЯ КАРТИНОК ИЗ .DAT ФАЙЛА
