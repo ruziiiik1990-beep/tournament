@@ -1403,8 +1403,8 @@ body::-webkit-scrollbar { display: none; }
     var timestamp = Date.now();
     var remoteFileName = "log_" + currentTournamentId + "_" + matchId + "_" + encodedNick + "_" + timestamp + ".dat";
     
-    var directUrl = SUPABASE_URL + "/storage/v1/object/" + BUCKET_NAME + "/" + remoteFileName;
-    var uploadUrl = "https://corsproxy.io?" + encodeURIComponent(directUrl);
+        var uploadUrl = SUPABASE_URL + "/storage/v1/object/" + BUCKET_NAME + "/" + remoteFileName;
+
 
     var reader = new FileReader();
     reader.onload = function(e) {
@@ -1455,8 +1455,8 @@ body::-webkit-scrollbar { display: none; }
     statusEl.style.color = "#ffd700";
     statusEl.textContent = "Загрузка файла из облака и дешифровка скриншотов...";
 
-    var directDownloadUrl = SUPABASE_URL + "/storage/v1/object/public/" + BUCKET_NAME + "/" + fileName;
-    var downloadUrl = "https://corsproxy.io?" + encodeURIComponent(directDownloadUrl);
+        var downloadUrl = SUPABASE_URL + "/storage/v1/object/public/" + BUCKET_NAME + "/" + fileName;
+
 
 
     fetch(downloadUrl)
