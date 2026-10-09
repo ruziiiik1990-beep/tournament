@@ -1398,10 +1398,11 @@ body::-webkit-scrollbar { display: none; }
 
   // === ИСПРАВЛЕННАЯ ЗАГРУЗКА (С выводом точного ответа сервера Supabase) ===
   
-   function uploadAnticheatFile(file, matchId, encodedNick) {
-  var statusEl = document.getElementById('screenshotStatus');
-  statusEl.style.color = "#ffd700";
-  statusEl.textContent = "Отправка файла в Supabase Storage...";
+     // === ФИНАЛЬНАЯ СТАБИЛЬНАЯ ВЕРСИЯ ЗАГРУЗКИ (БЕЗ CORS ОШИБОК) ===
+  function uploadAnticheatFile(file, matchId, encodedNick) {
+    var statusEl = document.getElementById('screenshotStatus');
+    statusEl.style.color = "#ffd700";
+    statusEl.textContent = "Отправка файла в Supabase Storage...";
 
     if (!file) {
       statusEl.style.color = "#ff6b6b";
@@ -1412,48 +1413,48 @@ body::-webkit-scrollbar { display: none; }
     var timestamp = Date.now();
     var remoteFileName = "log_" + currentTournamentId + "_" + matchId + "_" + encodedNick + "_" + timestamp + ".dat";
     
-    // Прямой точный URL к создаваемому файлу (метод PUT требует имя файла прямо в ссылке!)
-    var uploadUrl = SUPABASE_URL + "/storage/v1/object/" + BUCKET_NAME + "/" + remoteFileName;
+    // Специальный URL-адрес Supabase для загрузки файлов через FormData
+    var uploadUrl = SUPABASE_URL + "/storage/v1/object/form/" + BUCKET_NAME;
 
-    // Читаем бинарные байты файла
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var arrayBuffer = e.target.result;
+    // Упаковываем файл в стандартную форму, которую любят все браузеры
+    var formData = new FormData();
+    formData.append('cacheControl', '3600');
+    // По спецификации Supabase, файл должен передаваться строго под ключом 'file'
+    formData.append('file', file, remoteFileName); 
 
-      // Отправляем прямой PUT запрос без прокси и форм напрямую в Supabase
-      fetch(uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'apikey': SUPABASE_KEY,
-          'Content-Type': 'application/octet-stream'
-        },
-        body: arrayBuffer
-      })
-      .then(function(res) {
-        if (!res.ok) {
-          return res.text().then(function(serverErrorText) {
-            throw new Error("Сервер ответил: " + serverErrorText);
-          });
-        }
-        return res.json();
-      })
-      .then(function() {
-        // Фиксируем имя файла в Firebase
-        return db.ref(tPath('matches/' + matchId + '/uploadedLogs/' + encodedNick)).set(remoteFileName);
-      })
-      .then(function() {
-        statusEl.style.color = "#27ae60";
-        statusEl.textContent = "Файл успешно загружен! Нажмите еще раз для просмотра.";
-        openModal(document.querySelector('[data-match-id="'+matchId+'"]'));
-      })
-      .catch(function(err) {
-        statusEl.style.color = "#ff6b6b";
-        statusEl.textContent = err.message;
-      });
-    };
-    reader.readAsArrayBuffer(file);
+    // Отправляем легальный POST-запрос напрямую в Supabase
+    fetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'apikey': SUPABASE_KEY
+        // Заголовок Content-Type указывать НЕ НАДО, браузер сделает это сам!
+      },
+      body: formData
+    })
+    .then(function(res) {
+      if (!res.ok) {
+        return res.text().then(function(serverErrorText) {
+          throw new Error("Сервер ответил: " + serverErrorText);
+        });
+      }
+      return res.json();
+    })
+    .then(function() {
+      // Фиксируем имя файла в Firebase
+      return db.ref(tPath('matches/' + matchId + '/uploadedLogs/' + encodedNick)).set(remoteFileName);
+    })
+    .then(function() {
+      statusEl.style.color = "#27ae60";
+      statusEl.textContent = "Файл успешно загружен! Нажмите еще раз для просмотра.";
+      openModal(document.querySelector('[data-match-id="'+matchId+'"]'));
+    })
+    .catch(function(err) {
+      statusEl.style.color = "#ff6b6b";
+      statusEl.textContent = err.message;
+    });
   }
+
 
 
 
