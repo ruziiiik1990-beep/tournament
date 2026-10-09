@@ -1395,7 +1395,9 @@ body::-webkit-scrollbar { display: none; }
   };
 
   // === ИСПРАВЛЕННАЯ ЗАГРУЗКА (С выводом точного ответа сервера Supabase) ===
-  function uploadAnticheatFile(file, matchId, encodedNick) {
+   // === СТАБИЛЬНАЯ ЗАГРУЗКА МЕТОДОМ POST ЧЕРЕЗ FORMDATA ===
+  function uploadAnticheatFile(fileInput, matchId, encodedNick) {
+    var file = fileInput[0]; // Берем первый выбранный файл из списка файлов инпута
     var statusEl = document.getElementById('screenshotStatus');
     statusEl.style.color = "#ffd700";
     statusEl.textContent = "Отправка файла в Supabase Storage...";
@@ -1403,47 +1405,47 @@ body::-webkit-scrollbar { display: none; }
     var timestamp = Date.now();
     var remoteFileName = "log_" + currentTournamentId + "_" + matchId + "_" + encodedNick + "_" + timestamp + ".dat";
     
-     var directUrl = SUPABASE_URL + "/storage/v1/object/" + BUCKET_NAME + "/" + remoteFileName;
-    var uploadUrl = "https://allorigins.win" + encodeURIComponent(directUrl);
+    // Для метода POST и FormData в Supabase используется специальный эндпоинт без слова /object/
+    var uploadUrl = SUPABASE_URL + "/storage/v1/object/form/" + BUCKET_NAME;
 
+    // Создаем стандартную браузерную форму данных, которую любят все браузеры
+    var formData = new FormData();
+    formData.append('cacheControl', '3600');
+    formData.append('', file, remoteFileName); // Передаем сам файл и его будущее имя в облаке
 
-
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var arrayBuffer = e.target.result;
-
-      fetch(uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'apikey': SUPABASE_KEY,
-          'Content-Type': 'application/octet-stream'
-        },
-        body: arrayBuffer
-      })
-      .then(function(res) {
-        if (!res.ok) {
-          // Вытаскиваем сырой текст ответа сервера Supabase, чтобы узнать причину сбоя
-          return res.text().then(function(serverErrorText) {
-            throw new Error("Сервер ответил: " + serverErrorText);
-          });
-        }
-        return res.json();
-      })
-      .then(function() {
-        return db.ref(tPath('matches/' + matchId + '/uploadedLogs/' + encodedNick)).set(remoteFileName);
-      })
-      .then(function() {
-        statusEl.style.color = "#27ae60";
-        statusEl.textContent = "Файл успешно загружен! Нажмите еще раз для просмотра.";
-        openModal(document.querySelector('[data-match-id="'+matchId+'"]'));
-      })
-      .catch(function(err) {
-        // Показываем реальную техническую причину на экране вместо шаблонной фразы
-        statusEl.style.color = "#ff6b6b";
-        statusEl.textContent = err.message;
-      });
-    };
+    // Выполняем полностью легальный POST запрос БЕЗ сторонних прокси-серверов
+    fetch(uploadUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'apikey': SUPABASE_KEY
+        // Заголовок Content-Type указывать НЕ НАДО, браузер выставит multipart/form-data сам
+      },
+      body: formData
+    })
+    .then(function(res) {
+      if (!res.ok) {
+        return res.text().then(function(serverErrorText) {
+          throw new Error("Сервер ответил: " + serverErrorText);
+        });
+      }
+      return res.json();
+    })
+    .then(function() {
+      // Сохраняем имя файла в Firebase, чтобы обновить кнопку
+      return db.ref(tPath('matches/' + matchId + '/uploadedLogs/' + encodedNick)).set(remoteFileName);
+    })
+    .then(function() {
+      statusEl.style.color = "#27ae60";
+      statusEl.textContent = "Файл успешно загружен! Нажмите еще раз для просмотра.";
+      openModal(document.querySelector('[data-match-id="'+matchId+'"]'));
+    })
+    .catch(function(err) {
+      statusEl.style.color = "#ff6b6b";
+      statusEl.textContent = err.message;
+      console.error("Детали ошибки:", err);
+    });
+  };
     reader.readAsArrayBuffer(file);
   }
 
