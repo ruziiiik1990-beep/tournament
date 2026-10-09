@@ -1401,7 +1401,7 @@ body::-webkit-scrollbar { display: none; }
       var arrayBuffer = e.target.result;
 
       fetch(uploadUrl, {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Authorization': 'Bearer ' + SUPABASE_KEY,
           'apikey': SUPABASE_KEY,
