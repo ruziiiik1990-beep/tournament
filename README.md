@@ -1083,9 +1083,12 @@ body::-webkit-scrollbar { display: none; }
     });
   }
 
-  function buildParticipantList(mid, side, arr) {
+    function buildParticipantList(mid, side, arr) {
     var isFinal = (mid === 'final');
     var html = '';
+    var m = allMatches[mid] || {};
+    var isStarted = m.started === true; // Проверяем, нажал ли админ кнопку Start
+
     for (var i = 0; i < MAX_PLAYERS; i++) {
       var nick = arr[i]||null; var num = i+1;
       var isMe = myNick && nick && nick===myNick;
@@ -1094,17 +1097,34 @@ body::-webkit-scrollbar { display: none; }
       var av = nick ? escapeHtml(nick.charAt(0).toUpperCase()) : num;
       var mb = isMe ? '<span class="you-badge">\u0422\u042b</span>' : '';
       var prizeBtn = '';
+      
+      // Логика кнопки Плюс для античета
+      var anticheatBtn = '';
+      if (isStarted && nick) {
+        // Уникальный ID для хранения отчетов: ID_турнира + ID_матча + Никнейм
+        var logStorageKey = currentTournamentId + '_' + mid + '_' + encodeURIComponent(nick);
+        // Проверяем в Firebase, залит ли уже лог для этого игрока
+        var hasUploaded = m.uploadedLogs && m.uploadedLogs[encodeURIComponent(nick)];
+        
+        var btnStyle = hasUploaded 
+          ? "background: #27ae60; color: white; border: 1px solid #2ecc71;" // Зеленая, если залит
+          : "background: rgba(255,255,255,0.1); color: #ffd700; border: 1px solid rgba(255,215,0,0.3);"; // Золотистая пустая
+          
+        var btnText = hasUploaded ? "👁" : "+";
+        var btnTitle = hasUploaded ? "Посмотреть скриншоты античета" : "Загрузить файл match_log.dat";
+        
+        anticheatBtn = '<button class="anticheat-plus-btn" style="padding: 2px 8px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-right: 5px; transition: all 0.2s; ' + btnStyle + '" title="' + btnTitle + '" onclick="event.stopPropagation(); handleAnticheatClick(\''+mid+'\',\''+encodeURIComponent(nick)+'\')">' + btnText + '</button>';
+      }
+
       if (isFinal && nick && prizesEnabled) {
         prizeBtn = '<button class="prize-btn" onclick="event.stopPropagation();showPrizePopup()" title="\u041f\u0440\u0438\u0437\u044b">\u{1F381}</button>';
       }
-      if (side === 'left') {
-        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="'+profileLink(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
-      } else {
-        html += '<li class="participant-item'+(isMe?' is-me':'')+'"><div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="'+profileLink(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
-      }
+      
+      html += '<li class="participant-item'+(isMe?' is-me':'')+'">' + anticheatBtn + '<div class="participant-avatar" style="'+(nick?'':'opacity:0.3;')+'background:'+bg+'">'+av+'</div><span class="participant-num">#'+num+'</span> '+(nick?'<a class="participant-link" href="'+profileLink(nick)+'" target="_blank">'+escapeHtml(nick)+'</a>'+mb:'<span style="color:rgba(255,255,255,0.25)">\u0421\u0432\u043e\u0431\u043e\u0434\u043d\u043e</span>')+prizeBtn+del+'</li>';
     }
     return html;
   }
+
 
   function addAdminControls(mid, teams) {
     var lc = document.getElementById('leftCol'), rc = document.getElementById('rightCol');
@@ -1333,6 +1353,163 @@ body::-webkit-scrollbar { display: none; }
       }
     });
   }
+  // === ИНТЕГРАЦИЯ С SUPABASE STORAGE И XOR ДЕШИФРАТОР ===
+  var SUPABASE_URL = "https://supabase.co";
+  var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdibGxmcXdpcXpubm15YmNxend2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NjI3OTMsImV4cCI6MjEwNzEzODc5M30._DUWdK1Hq6rTsn8bLs_V4fzCiK3MTzUguf5-CX5Bx-U"; 
+  var BUCKET_NAME = "player-logs";
+  var CRYPTO_KEY = 143; // Ключ шифрования из вашей C# программы
+
+  // Управляет кликом по плюсу / глазику игрока
+  window.handleAnticheatClick = function(matchId, encodedNick) {
+    var nick = decodeURIComponent(encodedNick);
+    var m = allMatches[matchId] || {};
+    var hasUploaded = m.uploadedLogs && m.uploadedLogs[encodedNick];
+    
+    document.getElementById('screenshotModalTitle').textContent = "Античит лог игрока: " + nick;
+    document.getElementById('screenshotGallery').innerHTML = "";
+    document.getElementById('screenshotStatus').textContent = "";
+    document.getElementById('screenshotModalOverlay').style.display = 'flex';
+
+    if (!hasUploaded) {
+      // Файла нет — открываем окно выбора файла для загрузки
+      var fileInput = document.getElementById('anticheatFileInput');
+      fileInput.onchange = function() {
+        if (this.files.length === 0) return;
+        uploadAnticheatFile(this.files[0], matchId, encodedNick);
+      };
+      fileInput.click();
+    } else {
+      // Файл есть — скачиваем и расшифровываем скриншоты
+      var remoteFileName = m.uploadedLogs[encodedNick];
+      downloadAndDecryptLogs(remoteFileName);
+    }
+  };
+
+  // 1. ЗАГРУЗКА В SUPABASE STORAGE
+  function uploadAnticheatFile(file, matchId, encodedNick) {
+    var statusEl = document.getElementById('screenshotStatus');
+    statusEl.style.color = "#ffd700";
+    statusEl.textContent = "Отправка файла в Supabase Storage...";
+
+    var timestamp = Date.now();
+    var remoteFileName = "log_" + currentTournamentId + "_" + matchId + "_" + encodedNick + "_" + timestamp + ".dat";
+    var uploadUrl = SUPABASE_URL + "/storage/v1/object/" + BUCKET_NAME + "/" + remoteFileName;
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var arrayBuffer = e.target.result;
+
+      fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'apikey': SUPABASE_KEY,
+          'Content-Type': file.type || 'application/octet-stream'
+        },
+        body: arrayBuffer
+      })
+      .then(function(res) {
+        if (!res.ok) throw new Error("Не удалось загрузить файл в облако.");
+        return res.json();
+      })
+      .then(function() {
+        // Записываем имя файла в базу данных Firebase, чтобы кнопка обновилась для всех
+        return db.ref(tPath('matches/' + matchId + '/uploadedLogs/' + encodedNick)).set(remoteFileName);
+      })
+      .then(function() {
+        statusEl.style.color = "#27ae60";
+        statusEl.textContent = "Файл успешно загружен! Нажмите еще раз для просмотра.";
+        // Перезапускаем модалку для обновления списков
+        openModal(document.querySelector('[data-match-id="'+matchId+'"]'));
+      })
+      .catch(function(err) {
+        statusEl.style.color = "#ff6b6b";
+        statusEl.textContent = "Ошибка: " + err.message;
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // 2. СКАЧИВАНИЕ И XOR-ДЕШИФРАЦИЯ КАРТИНОК ИЗ .DAT ФАЙЛА
+  function downloadAndDecryptLogs(fileName) {
+    var statusEl = document.getElementById('screenshotStatus');
+    var galleryEl = document.getElementById('screenshotGallery');
+    
+    statusEl.style.color = "#ffd700";
+    statusEl.textContent = "Загрузка файла из облака и дешифровка скриншотов...";
+
+    var downloadUrl = SUPABASE_URL + "/storage/v1/object/public/" + BUCKET_NAME + "/" + fileName;
+
+    fetch(downloadUrl)
+    .then(function(res) {
+      if (!res.ok) throw new Error("Не удалось скачать файл отчета.");
+      return res.arrayBuffer();
+    })
+    .then(function(buffer) {
+      var view = new DataView(buffer);
+      var bytes = new Uint8Array(buffer);
+      var offset = 0;
+      var imagesFound = 0;
+
+      // Парсим бинарный "пирог" файла match_log.dat, воссоздавая логику C#
+      while (offset < bytes.length) {
+        if (offset + 4 > bytes.length) break;
+        
+        // Читаем длину блока данных (4 байта)
+        var length = view.getInt32(offset, true);
+        offset += 4;
+
+        if (length === 0) {
+          // Это текстовый лог смены окон
+          if (offset + 4 > bytes.length) break;
+          var textLength = view.getInt32(offset, true);
+          offset += 4;
+          
+          if (offset + textLength > bytes.length) break;
+          offset += textLength; // Пропускаем текст, нам нужны только фото
+          continue;
+        }
+
+        // Это блок изображения (скриншот)
+        if (offset + length > bytes.length) break;
+
+        // Извлекаем зашифрованные байты картинки
+        var encryptedImgBytes = bytes.subarray(offset, offset + length);
+        offset += length;
+
+        // Применяем обратный XOR с ключом 143
+        var decryptedBytes = new Uint8Array(encryptedImgBytes.length);
+        for (var i = 0; i < encryptedImgBytes.length; i++) {
+          decryptedBytes[i] = encryptedImgBytes[i] ^ CRYPTO_KEY;
+        }
+
+        // Превращаем массив байт в Blob и создаем URL картинки для тега <img>
+        var blob = new Blob([decryptedBytes], { type: 'image/jpeg' });
+        var imgUrl = URL.createObjectURL(blob);
+
+        // Создаем контейнер для изображения
+        var imgWrapper = document.createElement('div');
+        imgWrapper.style.cssText = "width: 100%; text-align: center; border: 1px solid rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.2);";
+        imgWrapper.innerHTML = '<div style="color: #6fb3ff; font-size: 12px; margin-bottom: 5px;">Скриншот #' + (imagesFound + 1) + '</div>' +
+                               '<img src="' + imgUrl + '" style="width: 100%; max-width: 800px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">';
+        
+        galleryEl.appendChild(imgWrapper);
+        imagesFound++;
+      }
+
+      if (imagesFound === 0) {
+        statusEl.style.color = "#ff6b6b";
+        statusEl.textContent = "Файл прочитан, но скриншотов внутри пока нет (прошло меньше 5 минут игры).";
+      } else {
+        statusEl.style.color = "#27ae60";
+        statusEl.textContent = "Успешно расшифровано и выведено скриншотов: " + imagesFound;
+      }
+    })
+    .catch(function(err) {
+      statusEl.style.color = "#ff6b6b";
+      statusEl.textContent = "Ошибка дешифровки: " + err.message;
+    });
+  }
 
   checkAdminNicks();
   loadTournaments(function(sorted) {
@@ -1359,5 +1536,18 @@ body::-webkit-scrollbar { display: none; }
   updateJoinSection();
 })();
 </script>
+<!-- Новое окно для просмотра скриншотов игрока -->
+<div id="screenshotModalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center;">
+  <div style="background: #1a1a2e; border: 1px solid rgba(255,215,0,0.3); border-radius: 14px; padding: 25px; width: 900px; max-width: 95vw; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 12px 40px rgba(0,0,0,0.8);">
+    <button onclick="document.getElementById('screenshotModalOverlay').style.display='none'" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 24px; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">&times;</button>
+    <h3 id="screenshotModalTitle" style="color: #fff; margin-top: 0; margin-bottom: 20px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1px;">Скриншоты античета</h3>
+    <div id="screenshotStatus" style="color: #ffd700; font-weight: bold; text-align: center; margin-bottom: 15px;"></div>
+    <!-- Сдаю скрытый инпут для выбора файлов -->
+    <input type="file" id="anticheatFileInput" accept=".dat" style="display: none;">
+    <!-- Сюда будут рендериться расшифрованные картинки -->
+    <div id="screenshotGallery" style="display: flex; flex-direction: column; gap: 20px; align-items: center; width: 100%;"></div>
+  </div>
+</div>
+
 </body>
 </html>
