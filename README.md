@@ -1361,6 +1361,7 @@ body::-webkit-scrollbar { display: none; }
 
   // Управляет кликом по плюсу / глазику игрока
     // === ИСПРАВЛЕННОЕУПРАВЛЕНИЕ КЛИКОМ (Загружать может только сам участник, смотреть — все) ===
+    // === МЕСТО ИСПРАВЛЕНИЯ №1 ===
   window.handleAnticheatClick = function(matchId, encodedNick) {
     var nick = decodeURIComponent(encodedNick);
     var m = allMatches[matchId] || {};
@@ -1371,54 +1372,51 @@ body::-webkit-scrollbar { display: none; }
     document.getElementById('screenshotStatus').textContent = "";
 
     if (!hasUploaded) {
-      // === ПРОВЕРКА ПРАВ НА ЗАГРУЗКУ ===
-      // Загрузить может только сам игрок за себя, либо администратор сайта
       if (!isAdmin && (!myNick || myNick.toLowerCase() !== nick.toLowerCase())) {
         alert("Вы не можете загрузить файл за этого игрока! Каждый участник должен загружать свой match_log.dat самостоятельно.");
         return;
       }
 
-      // Если проверку прошли (или это админ) — открываем окно выбора файла
       document.getElementById('screenshotModalOverlay').style.display = 'flex';
       var fileInput = document.getElementById('anticheatFileInput');
+      fileInput.value = ""; // Очистка, чтобы файл выбирался всегда
+      
       fileInput.onchange = function() {
-        if (this.files.length === 0) return;
+        if (!this.files || this.files.length === 0) return;
+        // Передаем строго первый файл из списка файлов
         uploadAnticheatFile(this.files[0], matchId, encodedNick);
       };
       fileInput.click();
     } else {
-      // Просматривать файлы разрешено абсолютно всем без ограничений
       document.getElementById('screenshotModalOverlay').style.display = 'flex';
       var remoteFileName = m.uploadedLogs[encodedNick];
       downloadAndDecryptLogs(remoteFileName);
     }
   };
 
+
   // === ИСПРАВЛЕННАЯ ЗАГРУЗКА (С выводом точного ответа сервера Supabase) ===
   
-  function uploadAnticheatFile(fileInput, matchId, encodedNick) {
-    // ВАЖНО: берем строго первый файл из массива выбранных файлов [0]
-    var file = fileInput[0] || fileInput; 
-    
+    // === МЕСТО ИСПРАВЛЕНИЯ №2 ===
+  function uploadAnticheatFile(fileObject, matchId, encodedNick) {
     var statusEl = document.getElementById('screenshotStatus');
     statusEl.style.color = "#ffd700";
     statusEl.textContent = "Отправка файла в Supabase Storage...";
 
-    // Если вдруг файл вообще не выбрался, выходим из функции
-    if (!file) {
+    if (!fileObject) {
       statusEl.style.color = "#ff6b6b";
-      statusEl.textContent = "Ошибка: Файл не выбран или пуст.";
+      statusEl.textContent = "Ошибка: Файл пуст или не передан.";
       return;
     }
 
     var timestamp = Date.now();
     var remoteFileName = "log_" + currentTournamentId + "_" + matchId + "_" + encodedNick + "_" + timestamp + ".dat";
-    
     var uploadUrl = SUPABASE_URL + "/storage/v1/object/form/" + BUCKET_NAME;
 
     var formData = new FormData();
     formData.append('cacheControl', '3600');
-    formData.append('', file, remoteFileName);
+    // По спецификации Supabase, файл должен передаваться строго с ключом 'file'
+    formData.append('file', fileObject, remoteFileName); 
 
     fetch(uploadUrl, {
       method: 'POST',
@@ -1447,9 +1445,9 @@ body::-webkit-scrollbar { display: none; }
     .catch(function(err) {
       statusEl.style.color = "#ff6b6b";
       statusEl.textContent = err.message;
-      console.error("Детали ошибки:", err);
     });
   }
+
 
 
 
