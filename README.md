@@ -1395,31 +1395,36 @@ body::-webkit-scrollbar { display: none; }
   };
 
   // === ИСПРАВЛЕННАЯ ЗАГРУЗКА (С выводом точного ответа сервера Supabase) ===
-   // === СТАБИЛЬНАЯ ЗАГРУЗКА МЕТОДОМ POST ЧЕРЕЗ FORMDATA ===
+  
   function uploadAnticheatFile(fileInput, matchId, encodedNick) {
-    var file = fileInput[0]; // Берем первый выбранный файл из списка файлов инпута
+    // ВАЖНО: берем строго первый файл из массива выбранных файлов [0]
+    var file = fileInput[0] || fileInput; 
+    
     var statusEl = document.getElementById('screenshotStatus');
     statusEl.style.color = "#ffd700";
     statusEl.textContent = "Отправка файла в Supabase Storage...";
 
+    // Если вдруг файл вообще не выбрался, выходим из функции
+    if (!file) {
+      statusEl.style.color = "#ff6b6b";
+      statusEl.textContent = "Ошибка: Файл не выбран или пуст.";
+      return;
+    }
+
     var timestamp = Date.now();
     var remoteFileName = "log_" + currentTournamentId + "_" + matchId + "_" + encodedNick + "_" + timestamp + ".dat";
     
-    // Для метода POST и FormData в Supabase используется специальный эндпоинт без слова /object/
     var uploadUrl = SUPABASE_URL + "/storage/v1/object/form/" + BUCKET_NAME;
 
-    // Создаем стандартную браузерную форму данных, которую любят все браузеры
     var formData = new FormData();
     formData.append('cacheControl', '3600');
-    formData.append('', file, remoteFileName); // Передаем сам файл и его будущее имя в облаке
+    formData.append('', file, remoteFileName);
 
-    // Выполняем полностью легальный POST запрос БЕЗ сторонних прокси-серверов
     fetch(uploadUrl, {
       method: 'POST',
       headers: {
         'Authorization': 'Bearer ' + SUPABASE_KEY,
         'apikey': SUPABASE_KEY
-        // Заголовок Content-Type указывать НЕ НАДО, браузер выставит multipart/form-data сам
       },
       body: formData
     })
@@ -1432,7 +1437,6 @@ body::-webkit-scrollbar { display: none; }
       return res.json();
     })
     .then(function() {
-      // Сохраняем имя файла в Firebase, чтобы обновить кнопку
       return db.ref(tPath('matches/' + matchId + '/uploadedLogs/' + encodedNick)).set(remoteFileName);
     })
     .then(function() {
@@ -1446,6 +1450,7 @@ body::-webkit-scrollbar { display: none; }
       console.error("Детали ошибки:", err);
     });
   }
+
 
 
   // 2. СКАЧИВАНИЕ И XOR-ДЕШИФРАЦИЯ КАРТИНОК ИЗ .DAT ФАЙЛА
