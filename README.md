@@ -1360,6 +1360,7 @@ body::-webkit-scrollbar { display: none; }
   var CRYPTO_KEY = 143; // Ключ шифрования из вашей C# программы
 
   // Управляет кликом по плюсу / глазику игрока
+    // === ИСПРАВЛЕННОЕУПРАВЛЕНИЕ КЛИКОМ (Загружать может только сам участник, смотреть — все) ===
   window.handleAnticheatClick = function(matchId, encodedNick) {
     var nick = decodeURIComponent(encodedNick);
     var m = allMatches[matchId] || {};
@@ -1368,10 +1369,17 @@ body::-webkit-scrollbar { display: none; }
     document.getElementById('screenshotModalTitle').textContent = "Античит лог игрока: " + nick;
     document.getElementById('screenshotGallery').innerHTML = "";
     document.getElementById('screenshotStatus').textContent = "";
-    document.getElementById('screenshotModalOverlay').style.display = 'flex';
 
     if (!hasUploaded) {
-      // Файла нет — открываем окно выбора файла для загрузки
+      // === ПРОВЕРКА ПРАВ НА ЗАГРУЗКУ ===
+      // Загрузить может только сам игрок за себя, либо администратор сайта
+      if (!isAdmin && (!myNick || myNick.toLowerCase() !== nick.toLowerCase())) {
+        alert("Вы не можете загрузить файл за этого игрока! Каждый участник должен загружать свой match_log.dat самостоятельно.");
+        return;
+      }
+
+      // Если проверку прошли (или это админ) — открываем окно выбора файла
+      document.getElementById('screenshotModalOverlay').style.display = 'flex';
       var fileInput = document.getElementById('anticheatFileInput');
       fileInput.onchange = function() {
         if (this.files.length === 0) return;
@@ -1379,15 +1387,15 @@ body::-webkit-scrollbar { display: none; }
       };
       fileInput.click();
     } else {
-      // Файл есть — скачиваем и расшифровываем скриншоты
+      // Просматривать файлы разрешено абсолютно всем без ограничений
+      document.getElementById('screenshotModalOverlay').style.display = 'flex';
       var remoteFileName = m.uploadedLogs[encodedNick];
       downloadAndDecryptLogs(remoteFileName);
     }
   };
 
-  // 1. ЗАГРУЗКА В SUPABASE STORAGE
-   function uploadAnticheatFile(fileInput, matchId, encodedNick) {
-    var file = fileInput;
+  // === ИСПРАВЛЕННАЯ ЗАГРУЗКА (С выводом точного ответа сервера Supabase) ===
+  function uploadAnticheatFile(file, matchId, encodedNick) {
     var statusEl = document.getElementById('screenshotStatus');
     statusEl.style.color = "#ffd700";
     statusEl.textContent = "Отправка файла в Supabase Storage...";
@@ -1413,7 +1421,7 @@ body::-webkit-scrollbar { display: none; }
       })
       .then(function(res) {
         if (!res.ok) {
-          // Если сервер Supabase отказал, забираем точный текст его ответа
+          // Вытаскиваем сырой текст ответа сервера Supabase, чтобы узнать причину сбоя
           return res.text().then(function(serverErrorText) {
             throw new Error("Сервер ответил: " + serverErrorText);
           });
@@ -1429,13 +1437,14 @@ body::-webkit-scrollbar { display: none; }
         openModal(document.querySelector('[data-match-id="'+matchId+'"]'));
       })
       .catch(function(err) {
-        // Выводим РЕАЛЬНУЮ ошибку на экран
+        // Показываем реальную техническую причину на экране вместо шаблонной фразы
         statusEl.style.color = "#ff6b6b";
         statusEl.textContent = err.message;
       });
     };
     reader.readAsArrayBuffer(file);
   }
+
 
 
   // 2. СКАЧИВАНИЕ И XOR-ДЕШИФРАЦИЯ КАРТИНОК ИЗ .DAT ФАЙЛА
