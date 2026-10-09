@@ -1381,11 +1381,12 @@ body::-webkit-scrollbar { display: none; }
       var fileInput = document.getElementById('anticheatFileInput');
       fileInput.value = ""; // Очистка, чтобы файл выбирался всегда
       
-      fileInput.onchange = function() {
+       fileInput.onchange = function() {
         if (!this.files || this.files.length === 0) return;
-        // Передаем строго первый файл из списка файлов
+        // Передаем строго ПЕРВЫЙ файл из списка
         uploadAnticheatFile(this.files[0], matchId, encodedNick);
       };
+
       fileInput.click();
     } else {
       document.getElementById('screenshotModalOverlay').style.display = 'flex';
@@ -1399,10 +1400,11 @@ body::-webkit-scrollbar { display: none; }
   
     // === МЕСТО ИСПРАВЛЕНИЯ №2 ===
     // === МЕСТО ИСПРАВЛЕНИЯ №2 (Финальная рабочая PUT-версия) ===
-  function uploadAnticheatFile(fileObject, matchId, encodedNick) {
+    function uploadAnticheatFile(file, matchId, encodedNick) {
     var statusEl = document.getElementById('screenshotStatus');
     statusEl.style.color = "#ffd700";
     statusEl.textContent = "Отправка файла в Supabase Storage...";
+
 
     // Извлекаем чистый первый файл из переданного списка файлов
     var file = fileObject[0]; 
