@@ -1386,13 +1386,15 @@ body::-webkit-scrollbar { display: none; }
   };
 
   // 1. ЗАГРУЗКА В SUPABASE STORAGE
-  function uploadAnticheatFile(file, matchId, encodedNick) {
+   function uploadAnticheatFile(fileInput, matchId, encodedNick) {
+    var file = fileInput;
     var statusEl = document.getElementById('screenshotStatus');
     statusEl.style.color = "#ffd700";
     statusEl.textContent = "Отправка файла в Supabase Storage...";
 
     var timestamp = Date.now();
     var remoteFileName = "log_" + currentTournamentId + "_" + matchId + "_" + encodedNick + "_" + timestamp + ".dat";
+    
     var directUrl = SUPABASE_URL + "/storage/v1/object/" + BUCKET_NAME + "/" + remoteFileName;
     var uploadUrl = "https://corsproxy.io?" + encodeURIComponent(directUrl);
 
@@ -1405,31 +1407,36 @@ body::-webkit-scrollbar { display: none; }
         headers: {
           'Authorization': 'Bearer ' + SUPABASE_KEY,
           'apikey': SUPABASE_KEY,
-          'Content-Type': file.type || 'application/octet-stream'
+          'Content-Type': 'application/octet-stream'
         },
         body: arrayBuffer
       })
       .then(function(res) {
-        if (!res.ok) throw new Error("Не удалось загрузить файл в облако.");
+        if (!res.ok) {
+          // Если сервер Supabase отказал, забираем точный текст его ответа
+          return res.text().then(function(serverErrorText) {
+            throw new Error("Сервер ответил: " + serverErrorText);
+          });
+        }
         return res.json();
       })
       .then(function() {
-        // Записываем имя файла в базу данных Firebase, чтобы кнопка обновилась для всех
         return db.ref(tPath('matches/' + matchId + '/uploadedLogs/' + encodedNick)).set(remoteFileName);
       })
       .then(function() {
         statusEl.style.color = "#27ae60";
         statusEl.textContent = "Файл успешно загружен! Нажмите еще раз для просмотра.";
-        // Перезапускаем модалку для обновления списков
         openModal(document.querySelector('[data-match-id="'+matchId+'"]'));
       })
       .catch(function(err) {
+        // Выводим РЕАЛЬНУЮ ошибку на экран
         statusEl.style.color = "#ff6b6b";
-        statusEl.textContent = "Ошибка: " + err.message;
+        statusEl.textContent = err.message;
       });
     };
     reader.readAsArrayBuffer(file);
   }
+
 
   // 2. СКАЧИВАНИЕ И XOR-ДЕШИФРАЦИЯ КАРТИНОК ИЗ .DAT ФАЙЛА
   function downloadAndDecryptLogs(fileName) {
