@@ -1411,7 +1411,8 @@ body::-webkit-scrollbar { display: none; }
 
     var timestamp = Date.now();
     var remoteFileName = "log_" + currentTournamentId + "_" + matchId + "_" + encodedNick + "_" + timestamp + ".dat";
-    var uploadUrl = SUPABASE_URL + "/storage/v1/object/form/" + BUCKET_NAME;
+    var uploadUrl = SUPABASE_URL + "/storage/v1/object/" + BUCKET_NAME;
+
 
     var formData = new FormData();
     formData.append('cacheControl', '3600');
