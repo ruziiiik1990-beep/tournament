@@ -1398,55 +1398,65 @@ body::-webkit-scrollbar { display: none; }
   // === ИСПРАВЛЕННАЯ ЗАГРУЗКА (С выводом точного ответа сервера Supabase) ===
   
     // === МЕСТО ИСПРАВЛЕНИЯ №2 ===
+    // === МЕСТО ИСПРАВЛЕНИЯ №2 (Финальная рабочая PUT-версия) ===
   function uploadAnticheatFile(fileObject, matchId, encodedNick) {
     var statusEl = document.getElementById('screenshotStatus');
     statusEl.style.color = "#ffd700";
     statusEl.textContent = "Отправка файла в Supabase Storage...";
 
-    if (!fileObject) {
+    // Извлекаем чистый первый файл из переданного списка файлов
+    var file = fileObject[0]; 
+
+    if (!file) {
       statusEl.style.color = "#ff6b6b";
-      statusEl.textContent = "Ошибка: Файл пуст или не передан.";
+      statusEl.textContent = "Ошибка: Файл пуст или не был выбран.";
       return;
     }
 
     var timestamp = Date.now();
     var remoteFileName = "log_" + currentTournamentId + "_" + matchId + "_" + encodedNick + "_" + timestamp + ".dat";
-    var uploadUrl = SUPABASE_URL + "/storage/v1/object/" + BUCKET_NAME;
+    
+    // Прямой точный URL к создаваемому файлу (метод PUT требует имя файла прямо в ссылке!)
+    var uploadUrl = SUPABASE_URL + "/storage/v1/object/" + BUCKET_NAME + "/" + remoteFileName;
 
+    // Читаем бинарные байты файла
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var arrayBuffer = e.target.result;
 
-    var formData = new FormData();
-    formData.append('cacheControl', '3600');
-    // По спецификации Supabase, файл должен передаваться строго с ключом 'file'
-    formData.append('file', fileObject, remoteFileName); 
-
-    fetch(uploadUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'apikey': SUPABASE_KEY
-      },
-      body: formData
-    })
-    .then(function(res) {
-      if (!res.ok) {
-        return res.text().then(function(serverErrorText) {
-          throw new Error("Сервер ответил: " + serverErrorText);
-        });
-      }
-      return res.json();
-    })
-    .then(function() {
-      return db.ref(tPath('matches/' + matchId + '/uploadedLogs/' + encodedNick)).set(remoteFileName);
-    })
-    .then(function() {
-      statusEl.style.color = "#27ae60";
-      statusEl.textContent = "Файл успешно загружен! Нажмите еще раз для просмотра.";
-      openModal(document.querySelector('[data-match-id="'+matchId+'"]'));
-    })
-    .catch(function(err) {
-      statusEl.style.color = "#ff6b6b";
-      statusEl.textContent = err.message;
-    });
+      // Отправляем прямой PUT запрос без прокси и форм напрямую в Supabase
+      fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'apikey': SUPABASE_KEY,
+          'Content-Type': 'application/octet-stream'
+        },
+        body: arrayBuffer
+      })
+      .then(function(res) {
+        if (!res.ok) {
+          return res.text().then(function(serverErrorText) {
+            throw new Error("Сервер ответил: " + serverErrorText);
+          });
+        }
+        return res.json();
+      })
+      .then(function() {
+        // Фиксируем имя файла в Firebase
+        return db.ref(tPath('matches/' + matchId + '/uploadedLogs/' + encodedNick)).set(remoteFileName);
+      })
+      .then(function() {
+        statusEl.style.color = "#27ae60";
+        statusEl.textContent = "Файл успешно загружен! Нажмите еще раз для просмотра.";
+        openModal(document.querySelector('[data-match-id="'+matchId+'"]'));
+      })
+      .catch(function(err) {
+        statusEl.style.color = "#ff6b6b";
+        statusEl.textContent = err.message;
+      });
+    };
+    reader.readAsArrayBuffer(file);
   }
 
 
