@@ -1398,16 +1398,10 @@ body::-webkit-scrollbar { display: none; }
 
   // === ИСПРАВЛЕННАЯ ЗАГРУЗКА (С выводом точного ответа сервера Supabase) ===
   
-    // === МЕСТО ИСПРАВЛЕНИЯ №2 ===
-    // === МЕСТО ИСПРАВЛЕНИЯ №2 (Финальная рабочая PUT-версия) ===
-    function uploadAnticheatFile(file, matchId, encodedNick) {
-    var statusEl = document.getElementById('screenshotStatus');
-    statusEl.style.color = "#ffd700";
-    statusEl.textContent = "Отправка файла в Supabase Storage...";
-
-
-    // Извлекаем чистый первый файл из переданного списка файлов
-    var file = fileObject[0]; 
+   function uploadAnticheatFile(file, matchId, encodedNick) {
+  var statusEl = document.getElementById('screenshotStatus');
+  statusEl.style.color = "#ffd700";
+  statusEl.textContent = "Отправка файла в Supabase Storage...";
 
     if (!file) {
       statusEl.style.color = "#ff6b6b";
@@ -1472,8 +1466,8 @@ body::-webkit-scrollbar { display: none; }
     statusEl.style.color = "#ffd700";
     statusEl.textContent = "Загрузка файла из облака и дешифровка скриншотов...";
 
-    var directDownloadUrl = SUPABASE_URL + "/storage/v1/object/public/" + BUCKET_NAME + "/" + fileName;
-    var downloadUrl = "https://allorigins.win" + encodeURIComponent(directDownloadUrl);
+   var downloadUrl = SUPABASE_URL + "/storage/v1/object/public/" + BUCKET_NAME + "/" + fileName;
+
 
 
 
